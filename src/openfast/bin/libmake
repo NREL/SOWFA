@@ -1,0 +1,15 @@
+#-- Link FAST program --
+
+ar cr libfast.a \
+      Precision.o Sys.o NWTC_IO.o NWTC_Num.o NWTC_Aero.o NWTC_Library.o \
+      Blade.o Blades.o                                                  \
+      SharedInflowDefs.o HHWind.o FFWind.o FDWind.o CTWind.o UserWind.o \
+      InflowWindMod.o SharedTypes.o AeroMods.o GenSubs.o AeroSubs.o     \
+      AeroDyn.o fftpack.o FFTMod.o HydroCalc.o FAST_Mods.o Noise.o      \
+      FAST_IO.o FAST.o FAST_Lin.o FAST2ADAMS.o PitchCntrl_ACH.o         \
+      UserSubs.o UserVSCont_KP.o AeroCalc.o SetVersion.o FAST_Prog.o    \
+      fastinit.o fastrun.o fastend.o fastread.o fastgetbldpos.o fastgetbldforce.o
+
+cp libfast.a ../../../applications/solvers/windEnergy/windPlantPisoSolverFAST/fast/bin/ 
+ 
+

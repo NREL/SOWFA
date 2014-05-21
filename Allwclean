@@ -1,0 +1,67 @@
+#!/bin/bash
+
+
+cd src/turbulenceModels/incompressible/LES/
+rmdepall
+wclean
+cd ../../../../
+
+cd src/turbineModels
+rmdepall
+wclean
+cd ../../
+
+cd src/fastturb
+rmdepall
+wclean
+cd ../../
+
+cd src/finiteVolume
+rmdepall
+wclean
+cd ../../
+
+cd applications/utilities/setFieldsABL
+rmdepall
+wclean
+cd ../../../
+
+cd applications/utilities/setFieldsABL2
+rmdepall
+wclean
+cd ../../../
+
+cd applications/solvers/incompressible/windEnergy/ABLSolver
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/windPlantSolver
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.towerNacelle
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness
+rmdepall
+wclean
+cd ../../../../../

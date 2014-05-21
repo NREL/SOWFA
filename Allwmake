@@ -1,0 +1,57 @@
+#!/bin/bash
+cd src/openfast/bin
+make
+./libmake
+cd ../../../
+
+cd src/fastturb
+wmake libso
+cd ../../
+
+cd src/finiteVolume
+wmake libso
+cd ../../
+
+cd src/turbulenceModels/incompressible/LES/
+wmake libso
+cd ../../../../
+
+cd src/turbineModels
+wmake libso
+cd ../../
+
+cd applications/utilities/setFieldsABL
+wmake
+cd ../../../
+
+cd applications/utilities/setFieldsABL2
+wmake
+cd ../../../
+
+cd applications/solvers/incompressible/windEnergy/ABLSolver
+wmake
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
+wmake
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/windPlantSolver
+wmake
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
+wmake
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
+wmake
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.towerNacelle
+wmake
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness
+wmake
+cd ../../../../../
