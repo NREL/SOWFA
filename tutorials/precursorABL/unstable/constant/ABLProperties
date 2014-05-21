@@ -1,0 +1,44 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          ABLProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Properties of the pressure gradient-driven wind
+driveWindOn               true;
+windInterpType           "cubic";
+desiredWindTable
+(
+//   t        speed     direction
+    (0.0      8.0       240.0)
+    (50000.0  8.0       240.0)
+);
+hWind                     hWind [0 1 0 0 0 0 0] 80.0;
+alpha                     0.9;
+
+// Properties of the Coriolis force
+planetaryRotationPeriod   24.0;
+latitude                  42.0;
+
+// Statistics gathering input
+statisticsOn              true;
+statisticsFrequency       5;
+
+// ************************************************************************* //
