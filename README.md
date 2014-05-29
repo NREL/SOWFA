@@ -7,7 +7,7 @@ Laboratory (NREL).  The files are based on the OpenFOAM software and are
 either new files or modifications of files in the OpenFOAM source code 
 distribution. Please see the included OpenFOAM readme file 
 ("README.OpenFOAM") and the GPL licence information ("COPYING"). Access
-to and use of SOWPA imposes obligations on the user, as set forth in the 
+to and use of SOWFA imposes obligations on the user, as set forth in the 
 NWTC Design Codes DATA USE DISCLAIMER AGREEMENT that can be found at
 <http://wind.nrel.gov/designcodes/disclaimer.html>.
 
@@ -19,12 +19,12 @@ NWTC Design Codes DATA USE DISCLAIMER AGREEMENT that can be found at
     atmospheric boundary layer turbulent flow with the ability to
     specify surface roughness, stability, and wind speed and direction.
     It must be used with hexahedral meshes (like those created by
-    OpenFOAM's blockMesh utility).
-  * `windPlantPisoSolver` - A specialized version of ABLPisoSolver for
+    OpenFOAM's `blockMesh` utility).
+  * `windPlantPisoSolver` - A specialized version of `ABLPisoSolver` for
     performing LES of wind plant flow.  It includes the ability to
     include actuator line turbine models with local grid refinement
     around the turbine.
-  * `windPlantPisoSolverFAST` - Like windPlantPisoSolver, but the actuator
+  * `windPlantPisoSolverFAST` - Like `windPlantPisoSolver`, but the actuator
     line turbine model is coupled to NREL's FAST aeroelastic and turbine
     system dynamics code.
     
@@ -35,7 +35,7 @@ than the standard OpenFOAM practice.  Therefore, the standard OpenFOAM
 turbulence models are unavailable in these solvers--only the standard
 Smagorinsky model is available.  We wish to add more capability in the
 future.  It is important to remember, though, that you may couple the
-actuator line models with any standard OpenFOAM solver, such as pisoFoam.
+actuator line models with any standard OpenFOAM solver, such as `pisoFoam`.
 
 ### Utilities
   * `setFieldsABL` - A utility to initialize the flow field for performing
@@ -47,14 +47,14 @@ actuator line models with any standard OpenFOAM solver, such as pisoFoam.
 
 ### Libraries
   * `finiteVolume` - Contains a custom boundary condition for pressure
-    called buoyantPressureMod that is compatible with the above solvers 
-    but derived from OpenFOAM's standard bouyantPressure boundary
+    called `buoyantPressureMod` that is compatible with the above solvers 
+    but derived from OpenFOAM's standard `bouyantPressure` boundary
     condition.
   * `turbineModels` - Contains the actuator line turbine model similar
     to that outlined by Sorensen and Shen (2002).
   * `openfast` - A version of NREL's FAST code (see 
     http://wind.nrel.gov/designcodes/simulators/fast/) meant for
-    coupling with the windPlantPisoSolverFAST solver.
+    coupling with the `windPlantPisoSolverFAST` solver.
   * `fastturb` - A version of the actuator line turbine model that
     is coupled with NREL's FAST aeroelastic and turbine system
     dynamics code.
