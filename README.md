@@ -100,7 +100,7 @@ as follows
   * `windPlant` - An example of how to use `windPlantPisoSolver` with
     a farm of NREL 5MW turbines.
 
-  * `windPlantFAST` - Like the windPlant example but for use of the
+  * `windPlantFAST` - Like the `windPlant` example but for use of the
     FAST-coupled `windPlantPisoSolverFAST`.
 
 To run a tutorial, change to that tutorial directory and run the
