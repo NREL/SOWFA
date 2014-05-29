@@ -15,18 +15,18 @@ NWTC Design Codes DATA USE DISCLAIMER AGREEMENT that can be found at
 ## Solvers and Codes Included
 
 ### Solvers
-    1.  `ABLPisoSolver` - A large-eddy simulation (LES) solver for computing
-        atmospheric boundary layer turbulent flow with the ability to
-        specify surface roughness, stability, and wind speed and direction.
-        It must be used with hexahedral meshes (like those created by
-        OpenFOAM's blockMesh utility).
-    2.  `windPlantPisoSolver` - A specialized version of ABLPisoSolver for
-        performing LES of wind plant flow.  It includes the ability to
-        include actuator line turbine models with local grid refinement
-        around the turbine.
-    3.  `windPlantPisoSolverFAST` - Like windPlantPisoSolver, but the actuator
-        line turbine model is coupled to NREL's FAST aeroelastic and turbine
-        system dynamics code.
+  * `ABLPisoSolver` - A large-eddy simulation (LES) solver for computing
+    atmospheric boundary layer turbulent flow with the ability to
+    specify surface roughness, stability, and wind speed and direction.
+    It must be used with hexahedral meshes (like those created by
+    OpenFOAM's blockMesh utility).
+  * `windPlantPisoSolver` - A specialized version of ABLPisoSolver for
+    performing LES of wind plant flow.  It includes the ability to
+    include actuator line turbine models with local grid refinement
+    around the turbine.
+  * `windPlantPisoSolverFAST` - Like windPlantPisoSolver, but the actuator
+    line turbine model is coupled to NREL's FAST aeroelastic and turbine
+    system dynamics code.
     
 NOTE:  These solvers are meant to be used for flow over flat terrain.
 We hope to add the capability to handle non-flat terrain in the near
@@ -38,26 +38,26 @@ future.  It is important to remember, though, that you may couple the
 actuator line models with any standard OpenFOAM solver, such as pisoFoam.
 
 ### Utilities
-    1.  `setFieldsABL` - A utility to initialize the flow field for performing
-        atmospheric boundary layer LES.  With the utility, you can specify
-        an initial mean profile and perturbations that accelerate the
-        development of turbulence will be superimposed.  You may also 
-        specify the initial temperature profile and location and strength
-        of the capping inversion.
+  * `setFieldsABL` - A utility to initialize the flow field for performing
+    atmospheric boundary layer LES.  With the utility, you can specify
+    an initial mean profile and perturbations that accelerate the
+    development of turbulence will be superimposed.  You may also 
+    specify the initial temperature profile and location and strength
+    of the capping inversion.
 
 ### Libraries
-    1.  `finiteVolume` - Contains a custom boundary condition for pressure
-        called buoyantPressureMod that is compatible with the above solvers 
-        but derived from OpenFOAM's standard bouyantPressure boundary
-        condition.
-    2.  `turbineModels` - Contains the actuator line turbine model similar
-        to that outlined by Sorensen and Shen (2002).
-    3.  `openfast` - A version of NREL's FAST code (see 
-        http://wind.nrel.gov/designcodes/simulators/fast/) meant for
-        coupling with the windPlantPisoSolverFAST solver.
-    4.  `fastturb` - A version of the actuator line turbine model that
-        is coupled with NREL's FAST aeroelastic and turbine system
-        dynamics code.
+  * `finiteVolume` - Contains a custom boundary condition for pressure
+    called buoyantPressureMod that is compatible with the above solvers 
+    but derived from OpenFOAM's standard bouyantPressure boundary
+    condition.
+  * `turbineModels` - Contains the actuator line turbine model similar
+    to that outlined by Sorensen and Shen (2002).
+  * `openfast` - A version of NREL's FAST code (see 
+    http://wind.nrel.gov/designcodes/simulators/fast/) meant for
+    coupling with the windPlantPisoSolverFAST solver.
+  * `fastturb` - A version of the actuator line turbine model that
+    is coupled with NREL's FAST aeroelastic and turbine system
+    dynamics code.
 
 
 ## Compiling/Installation
@@ -68,6 +68,7 @@ with OpenFOAM-2.0.x.  It will probably need to be modified to run with
 earlier versions, but may run as is with OpenFOAM-2.1.x.
 
 Once OpenFOAM is installed, please follow these steps:
+
 1.  Move the `user-2.0.x` to a desired location somewhere in your home
     directory and replace "user" with your username on your system.
 2.  When you installed OpenFOAM, you modified your login script
@@ -91,15 +92,15 @@ Once OpenFOAM is installed, please follow these steps:
 Tutorial example cases are provide for each solver. The tutorials are
 as follows
 
-1.  `precursorABL` - An example case of how to perform an atmospheric
+  * `precursorABL` - An example case of how to perform an atmospheric
     boundary layer large-eddy simulation (without turbines).  This
     will generate turbulent fields that can be used in wind plant
     simulations.
 
-2.  `windPlant` - An example of how to use `windPlantPisoSolver` with
+  * `windPlant` - An example of how to use `windPlantPisoSolver` with
     a farm of NREL 5MW turbines.
 
-3.  `windPlantFAST` - Like the windPlant example but for use of the
+  * `windPlantFAST` - Like the windPlant example but for use of the
     FAST-coupled `windPlantPisoSolverFAST`.
 
 To run a tutorial, change to that tutorial directory and run the
