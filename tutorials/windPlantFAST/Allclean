@@ -1,0 +1,12 @@
+rm -rf 12000
+rm -rf processor*
+rm -rf log*
+rm -rf averaging
+rm -rf turbineOutput
+cp constant/polyMesh/blockMeshDict ./
+rm -rf constant/polyMesh/*
+mv ./blockMeshDict constant/polyMesh/blockMeshDict
+rm -rf met*
+rm primary*.out
+rm primary.opt
+

@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          transportProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel Newtonian;
+
+// Molecular viscosity
+nu                  nu [0 2 -1 0 0 0 0] 0.0;
+
+// Reference temperature
+TRef                TRef [0 0 0 1 0 0 0] 300;
+
+// LES SGS model (options are "standardSmagorinsky")
+LESModel           "standardSmagorinsky";
+
+// Smagorinsky Constant
+Cs                  0.135;
+
+// LES filter width scalar
+deltaLESCoeff       1.0;
+
+// von Karman constant
+kappa               0.41;
+
+// Constants for Monin-Obuhkov universal constants
+betaM               16.0;
+gammM               5.0;
+
+// Roughness height
+z0                  z0 [0 1 0 0 0 0 0] 0.0001;
+
+// Surface temperature flux
+q0                  q0 [0 1 -1 1 0 0 0] 0.0;
+
+// Surface stress model (options are "Schummann", "Moeng", or "MoengCorrected")
+surfaceStressModel "Moeng";
+
+// Wei-Brasseur surface stress model correction beta parameter
+betaSurfaceStress  -0.125;
+
+// ************************************************************************* //

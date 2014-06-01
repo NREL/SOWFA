@@ -1,0 +1,152 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      changeDictionaryDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dictionaryReplacement
+{
+
+    // Specify
+    // - all fvPatchFields with potential non-uniform values
+    // - all fvPatchFields originating from meshing
+    // - all fvPatchFields originating from mesh-redistribution
+
+
+    U
+    {
+        boundaryField
+        {
+            top
+            {
+                type            slip;
+                value           uniform (0 0 0);
+            }
+            bottom
+            {
+                type            slip;
+                value           uniform (0 0 0);
+            }
+            west
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                value           uniform (0 0 0); 
+            }
+            east 
+            { 
+                type            inletOutlet;
+                inletValue      uniform (0 0 0);
+                value           uniform (0 0 0);
+            }
+            north 
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0; 
+                value           uniform (0 0 0);
+            }
+            south 
+            { 
+                type            inletOutlet;
+                inletValue      uniform (0 0 0);
+                value           uniform (0 0 0);
+            }
+        }
+    }
+
+    pd
+    {
+        boundaryField
+        {
+            top 
+            {
+                type            buoyantPressureMod;
+                rho             rhok;
+                value           uniform 0;
+            }
+            bottom
+            {
+                type            buoyantPressureMod;
+                rho             rhok;
+                value           uniform 0;
+            }
+            west
+            {
+                type            buoyantPressureMod;
+                rho             rhok;
+                value           uniform 0;
+            }
+            east
+            {
+                type            buoyantPressureMod;
+                rho             rhok;
+                value           uniform 0;
+            }
+            north
+            {
+                type            buoyantPressureMod;
+                rho             rhok;
+                value           uniform 0;
+            }
+            south
+            {
+                type            buoyantPressureMod;
+                rho             rhok;
+                value           uniform 0;
+            }
+        }
+    }
+
+    T
+    {
+        boundaryField
+        {
+            top
+            {
+                type            fixedGradient;
+                gradient        uniform 0.003;
+                value           uniform 300;
+            }
+            bottom
+            {
+                type            zeroGradient;
+                value           uniform 300;
+            }
+            west
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;             
+                value           uniform 300;
+            }
+            east
+            {
+                type            zeroGradient;
+                value           uniform 300;
+            }
+            north 
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;             
+                value           uniform 300;
+            }
+            south
+            {
+                type            zeroGradient;
+                value           uniform 300;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,77 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          setFieldsABLDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Extents of the domain (assumes x, y, and z start from 0.0).
+xMax                      4000.0;
+yMax                      4000.0;
+zMax                      1000.0;
+
+// If true, initialize with a base logarithmic profile.
+// If false, initialize base profile to be uniform geostrophic wind speed.
+logInit                   false;
+
+// Maximum perturbation of streamwise/spanwise flow near surface.
+deltaU                    1.0;
+deltaV                    1.0;
+
+// Total periods of perturbations in streamwise/spanwise in the domain.
+Uperiods                  5.0;
+Vperiods                  5.0;
+
+// Percentage of domain height (zMax) where peak in perturbation 
+// magnitude occurs.
+zPeak                     0.03;
+
+// Initial height of the center of the capping inversion.
+zInversion                750.0;
+
+// Width of the capping inversion.
+widthInversion            100.0;
+
+// Potential temperature at the bottom and top of the capping inversion.
+Tbottom                   300.0;
+Ttop                      308.0;
+
+// Height rate of change of potential temperature above the inversion.
+dTdz                      0.003;
+
+// Geostrophic wind speed magnitude.
+Ug                        9.0;
+
+// Geostrophic wind speed direction.
+UgDir                     221.617;
+
+// Aerodynamic roughness height of surface.
+z0                        0.0001;
+
+// von Karman constant.
+kappa                     0.4;
+
+// Update internal field.
+updateInternalFields      true;
+
+// Update boundary field.
+updateBoundaryFields      true;
+
+// ************************************************************************* //

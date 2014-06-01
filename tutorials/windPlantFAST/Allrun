@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Number of nodes and cores to use
+nodes=1
+cores=8
+
+# Make the mesh using blockMesh (serial)
+blockMesh > log.blockMesh 2>&1
+
+# Get rid of any initial files and replace with 0.original files
+rm -rf 12000
+cp -rf 12000.original 12000
+
+# Decompose the mesh and solution files (serial)
+decomposePar -cellDist -force > log.decomposePar
+
+# Initialize the solution files (parallel)
+mpirun -np $(($nodes*$cores)) setFieldsABL -parallel > log.setFieldsABL 2>&1
+
+# Run the solver (parallel)
+mpirun -np $(($nodes*$cores)) windPlantPisoSolverFAST -parallel > log.windPlantPisoSolverFAST 2>&1

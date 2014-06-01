@@ -1,0 +1,885 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbineArrayProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+ 
+globalProperties
+{
+    outputControl       "timeStep";
+    outputInterval       1;
+}
+ 
+turbine1
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (3396.9131 2696.6644 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              232.0105;
+    RotSpeed             10.9874;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine2
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (3132.8249 2393.3441 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              20.6292;
+    RotSpeed             12.9765;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine3
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2870.7135 2090.0238 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              93.6725;
+    RotSpeed             9.9608;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine4
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2605.3661 1796.488 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              0.04096;
+    RotSpeed             10.1165;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine5
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2343.2546 1493.1677 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              191.385;
+    RotSpeed             10.8197;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine6
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2077.9073 1199.6319 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              58.5761;
+    RotSpeed             10.5913;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine7
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1806.088 896.31156 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              348.6736;
+    RotSpeed             15.7277;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine8
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (3132.8249 2843.4323 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              299.6255;
+    RotSpeed             11.3648;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine9
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2867.4775 2553.158 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              140.3665;
+    RotSpeed             11.7127;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine10
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2605.3661 2249.8377 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              69.9494;
+    RotSpeed             11.491;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine11
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2343.2546 1943.2559 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              305.0639;
+    RotSpeed             10.0846;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine12
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2077.9073 1649.7201 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              116.408;
+    RotSpeed             11.5416;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine13
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1802.852 1346.3998 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              152.2903;
+    RotSpeed             10.9733;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine14
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1543.9765 1052.864 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              133.0254;
+    RotSpeed             10.384;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine15
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1278.6292 750 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              337.447;
+    RotSpeed             15.0844;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine16
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2870.7135 3003.2462 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              191.845;
+    RotSpeed             11.0135;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine17
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2605.3661 2699.9259 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              321.3286;
+    RotSpeed             11.5914;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine18
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2346.4906 2393.3441 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              49.0444;
+    RotSpeed             10.1874;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine19
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2081.1432 2103.0698 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              130.7909;
+    RotSpeed             11.2965;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine20
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1802.852 1796.488 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              266.1913;
+    RotSpeed             10.4342;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine21
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1540.7406 1506.2137 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              336.4014;
+    RotSpeed             12.368;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine22
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1275.3932 1199.6319 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              134.2256;
+    RotSpeed             11.2468;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine23
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1016.5177 906.09608 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              151.862;
+    RotSpeed             15.7575;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine24
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2605.3661 3150.0141 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              67.1255;
+    RotSpeed             11.6953;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine25
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2343.2546 2846.6938 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              221.4024;
+    RotSpeed             11.1548;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine26
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2081.1432 2553.158 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              120.357;
+    RotSpeed             11.3188;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine27
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1806.088 2246.5762 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              310.0741;
+    RotSpeed             11.4439;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine28
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1278.6292 1649.7201 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              306.1727;
+    RotSpeed             11.5522;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine29
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1016.5177 1359.4458 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              121.3798;
+    RotSpeed             11.4347;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine30
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (750 1052.864 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              182.5907;
+    RotSpeed             15.7796;
+    Pitch                0.31695;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine31
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2330.3109 3280.4744 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              155.4715;
+    RotSpeed             11.3964;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine32
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (2081.1432 3003.2462 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              29.6371;
+    RotSpeed             11.092;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine33
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1806.088 2699.9259 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              145.9968;
+    RotSpeed             11.3337;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine34
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1540.7406 2406.3901 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              313.0166;
+    RotSpeed             12.9448;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine35
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1016.5177 1809.534 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              286.4719;
+    RotSpeed             11.3434;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine36
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (750 1506.2137 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              253.5192;
+    RotSpeed             15.1643;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine37
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1806.088 3150.0141 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              225.9283;
+    RotSpeed             10.318;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine38
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1543.9765 2859.7398 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              324.4871;
+    RotSpeed             10.8428;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine39
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1278.6292 2553.158 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              108.4885;
+    RotSpeed             10.7088;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine40
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1016.5177 2262.8837 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              181.2178;
+    RotSpeed             10.8782;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine41
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (750 1956.3019 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              196.9757;
+    RotSpeed             15.6061;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine42
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1540.7406 3309.828 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              170.3878;
+    RotSpeed             11.2228;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine43
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1278.6292 3003.2462 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              37.3263;
+    RotSpeed             11.5605;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine44
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1016.5177 2709.7104 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              285.8292;
+    RotSpeed             10.5842;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine45
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (750 2406.3901 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              324.9537;
+    RotSpeed             15.6893;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine46
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1278.6292 3455.9364 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              6.9192;
+    RotSpeed             12.1541;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine47
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (1013.2818 3166.3216 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              265.2855;
+    RotSpeed             11.5378;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}
+ 
+turbine48
+{
+    turbineType         "NREL5MWRef";
+    baseLocation        (750 2859.7398 0.0);
+    numBladePoints      40;
+    pointDistType       "uniform";
+    pointInterpType     "linear";
+    bladeUpdateType     "oldPosition";
+    epsilon              3.5;
+    tipRootLossCorrType "none";
+    rotationDir         "cw";
+    Azimuth              3.1977;
+    RotSpeed             15.4079;
+    Pitch                0;
+    NacYaw              221.617;
+    fluidDensity        1.23;
+}

@@ -1,0 +1,319 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+  application       windPlantPisoSolver;
+
+  libs              ("libuserfiniteVolume.so");
+
+  startFrom         startTime;
+
+  startTime         12000.0;
+
+  stopAt            endTime;
+
+  endTime           14000.0;
+
+  deltaT            0.015;
+
+  writeControl      adjustableRunTime;
+
+  writeInterval     50.0; 
+
+  purgeWrite        3;
+
+  writeFormat       binary;
+//writeFormat       ascii;
+
+  writePrecision    12;
+
+//writeCompression  uncompressed;
+  writeCompression  compressed;
+
+  timeFormat        general;
+
+  timePrecision     12;
+
+  runTimeModifiable yes;
+
+  adjustTimeStep    no;
+
+  maxCo             0.75;
+
+  maxDeltaT         25.0;
+
+  functions
+  {
+      met0
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3239.82168 2519.87415 3.00000)
+              (3239.82168 2519.87415 10.75000)
+              (3239.82168 2519.87415 18.50000)
+              (3239.82168 2519.87415 30.12500)
+              (3239.82168 2519.87415 41.75000)
+              (3239.82168 2519.87415 53.37500)
+              (3239.82168 2519.87415 65.00000)
+              (3239.82168 2519.87415 76.62500)
+              (3239.82168 2519.87415 88.25000)
+              (3239.82168 2519.87415 99.87500)
+              (3239.82168 2519.87415 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+ 
+      met1
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3332.47033 2624.16450 3.00000)
+              (3332.47033 2624.16450 10.75000)
+              (3332.47033 2624.16450 18.50000)
+              (3332.47033 2624.16450 30.12500)
+              (3332.47033 2624.16450 41.75000)
+              (3332.47033 2624.16450 53.37500)
+              (3332.47033 2624.16450 65.00000)
+              (3332.47033 2624.16450 76.62500)
+              (3332.47033 2624.16450 88.25000)
+              (3332.47033 2624.16450 99.87500)
+              (3332.47033 2624.16450 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+ 
+      met2
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3363.35322 2658.92795 3.00000)
+              (3363.35322 2658.92795 10.75000)
+              (3363.35322 2658.92795 18.50000)
+              (3363.35322 2658.92795 30.12500)
+              (3363.35322 2658.92795 41.75000)
+              (3363.35322 2658.92795 53.37500)
+              (3363.35322 2658.92795 65.00000)
+              (3363.35322 2658.92795 76.62500)
+              (3363.35322 2658.92795 88.25000)
+              (3363.35322 2658.92795 99.87500)
+              (3363.35322 2658.92795 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+ 
+      met3
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3393.61844 2692.99613 3.00000)
+              (3393.61844 2692.99613 10.75000)
+              (3393.61844 2692.99613 18.50000)
+              (3393.61844 2692.99613 30.12500)
+              (3393.61844 2692.99613 41.75000)
+              (3393.61844 2692.99613 53.37500)
+              (3393.61844 2692.99613 65.00000)
+              (3393.61844 2692.99613 76.62500)
+              (3393.61844 2692.99613 88.25000)
+              (3393.61844 2692.99613 99.87500)
+              (3393.61844 2692.99613 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+ 
+      met4
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3394.85376 2694.38667 3.00000)
+              (3394.85376 2694.38667 10.75000)
+              (3394.85376 2694.38667 18.50000)
+              (3394.85376 2694.38667 30.12500)
+              (3394.85376 2694.38667 41.75000)
+              (3394.85376 2694.38667 53.37500)
+              (3394.85376 2694.38667 65.00000)
+              (3394.85376 2694.38667 76.62500)
+              (3394.85376 2694.38667 88.25000)
+              (3394.85376 2694.38667 99.87500)
+              (3394.85376 2694.38667 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+ 
+      met5
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3425.11898 2728.45485 3.00000)
+              (3425.11898 2728.45485 10.75000)
+              (3425.11898 2728.45485 18.50000)
+              (3425.11898 2728.45485 30.12500)
+              (3425.11898 2728.45485 41.75000)
+              (3425.11898 2728.45485 53.37500)
+              (3425.11898 2728.45485 65.00000)
+              (3425.11898 2728.45485 76.62500)
+              (3425.11898 2728.45485 88.25000)
+              (3425.11898 2728.45485 99.87500)
+              (3425.11898 2728.45485 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+ 
+      met6
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3456.00187 2763.21830 3.00000)
+              (3456.00187 2763.21830 10.75000)
+              (3456.00187 2763.21830 18.50000)
+              (3456.00187 2763.21830 30.12500)
+              (3456.00187 2763.21830 41.75000)
+              (3456.00187 2763.21830 53.37500)
+              (3456.00187 2763.21830 65.00000)
+              (3456.00187 2763.21830 76.62500)
+              (3456.00187 2763.21830 88.25000)
+              (3456.00187 2763.21830 99.87500)
+              (3456.00187 2763.21830 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+ 
+      met7
+      {
+          type                probes;
+          functionObjectLibs ("libsampling.so");
+          outputControl       timeStep;
+          outputInterval      1;
+          probeLocations
+          (
+              (3548.65052 2867.50865 3.00000)
+              (3548.65052 2867.50865 10.75000)
+              (3548.65052 2867.50865 18.50000)
+              (3548.65052 2867.50865 30.12500)
+              (3548.65052 2867.50865 41.75000)
+              (3548.65052 2867.50865 53.37500)
+              (3548.65052 2867.50865 65.00000)
+              (3548.65052 2867.50865 76.62500)
+              (3548.65052 2867.50865 88.25000)
+              (3548.65052 2867.50865 99.87500)
+              (3548.65052 2867.50865 111.50000)
+           );
+           fields
+           (
+               U
+               T
+               pd
+           );
+      }
+
+      sliceDataPre
+      {
+
+          type                 surfaces;
+          functionObjectLibs   ("libsampling.so");
+          enabled              true;
+          interpolationScheme  isThisNeeded;
+          outputControl        timeStep;
+          outputInterval       100;
+          surfaceFormat        vtk;
+          fields
+          (
+              U
+              pd
+              T
+              Umean
+              Tmean
+              UprimeUprimeMean
+              TprimeUprimeMean
+              k
+          );
+          surfaces
+          (
+              slice_0
+              {
+                  type         plane;
+                  basePoint    (2000 2000 65.0);
+                  normalVector (0 0 1);
+                  triangulate false;
+              }
+          );
+      }
+  }
+
+// ************************************************************************* //

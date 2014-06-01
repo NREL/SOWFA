@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbineArrayProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+turbine0
+{
+  refx  1278.6292;
+  refy  1649.7201;
+  refz  0.0;
+  hubz  90.0;
+}
+
+turbine1
+{
+  refx  1806.088;
+  refy  2246.5762;
+  refz  0.0;
+  hubz  90.0;
+}
+
+general
+{
+  yawAngle                30.0;
+  numberofBld             3;
+  numberofBldPts          62;           
+  rotorDiameter           126.3992;
+  epsilon                 55.9;
+  smearRadius             111.6;
+  effectiveRadiusFactor   1.21;
+  pointInterpType         1;
+}
+
