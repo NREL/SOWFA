@@ -832,6 +832,7 @@ void horizontalAxisWindTurbinesALM::controlGenTorque()
         // Get the current filtered generator speed.
         scalar genSpeedF = (rotSpeedF[i]/rpmRadSec)*GBRatio[j];
 
+
         // Initialize the commanded generator torque variable;
         scalar torqueGenCommanded = torqueGen[i];
 
