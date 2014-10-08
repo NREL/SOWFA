@@ -1,0 +1,6 @@
+rm -rf processor*
+rm -rf log*
+rm -rf *.out 
+cp constant/polyMesh/blockMeshDict ./
+rm -rf constant/polyMesh/*
+mv ./blockMeshDict constant/polyMesh/blockMeshDict
