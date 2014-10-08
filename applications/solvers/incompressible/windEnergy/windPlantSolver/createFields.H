@@ -73,19 +73,6 @@
         mesh
     );
 
-    volScalarField f
-    (
-        IOobject
-        (
-            "f",
-            runTime.timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        fvc::div(linearInterpolate(U) & mesh.Sf())
-    );
-
 
     // Create initial average velocity field
     Info<< "Creating mean velocity field, Umean..." << endl;

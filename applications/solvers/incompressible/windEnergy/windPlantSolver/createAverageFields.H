@@ -30,6 +30,21 @@
         dimensionedScalar("TAvg",dimensionSet(0, 0, 0, 1, 0, 0, 0),0.0)
     );
 
+    Info << "Creating time-averaged pressure field, p_rghAvg..." << endl;
+    volScalarField p_rghAvg
+    (
+        IOobject
+        (
+            "p_rghAvg",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("p_rghAvg",dimensionSet(0, 2, -2, 0, 0, 0, 0),0.0)
+    );
+
     // Create and read in initial RMS velocity field.
     Info << "Creating RMS velocity field, uRMS..." << endl;
     volVectorField uRMS
@@ -154,7 +169,85 @@
             IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        turbulence->nut()
+        mesh,
+        dimensionedScalar("nuSGSMean",dimensionSet(0, 2, -1, 0, 0, 0, 0),0.0)
+    );
+
+    Info<< "Creating SGS energy field, kSGS..." << endl;
+    volScalarField kSGS
+    (
+        IOobject
+        (
+            "kSGS",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("kSGS",dimensionSet(0, 2, -2, 0, 0, 0, 0),0.0)
+    );
+
+  //  Info<< "Creating SGS viscosity field, nuSGS..." << endl;
+  //  volScalarField nuSGS
+  //  (
+  //      IOobject
+  //      (
+  //          "nuSGS",
+  //          runTime.timeName(),
+  //          mesh,
+  //          IOobject::READ_IF_PRESENT,
+  //          IOobject::AUTO_WRITE
+  //      ),
+  //      mesh,
+  //      dimensionedScalar("nuSGS",dimensionSet(0, 2, -1, 0, 0, 0, 0),0.0)
+  //  );
+
+
+    // Create the resolved-scale tke field.
+    Info<< "Creating the resolved scale turbulent kinetic energy field, kResolved..." << endl;
+    volScalarField kResolved
+    (
+        IOobject
+        (
+            "kResolved",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("kResolved",dimensionSet(0, 2, -2, 0, 0, 0, 0),0.0)
+    );
+
+    // Create the mean SGS tke field
+    Info<< "Creating the mean SGS turbulent kinetic energy field, kSGSMean..." << endl;
+    volScalarField kSGSmean
+    (
+        IOobject
+        (
+            "kSGSmean",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        turbulence->k()
+    );
+ 
+    Info<< "Creating the mean SGS turbulent kinetic energy dissipation field, kSGSMean..." << endl;
+    volScalarField epsilonSGSmean
+    (
+        IOobject
+        (
+            "epsilonSGSmean",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("epsilonSGSmean",dimensionSet(0, 2, -3, 0, 0, 0, 0),0.0)
     );
 
 

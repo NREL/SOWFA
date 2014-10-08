@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "readGravitationalAcceleration.H"
+
     #include "createFields.H"
     #include "createDivSchemeBlendingField.H"
     #include "createGradP.H"
@@ -84,8 +85,17 @@ int main(int argc, char *argv[])
 
     Info << nl << "Starting time loop\n" << endl;
 
-    turbulence->correct();
+    // Update boundary conditions before starting in case anything needs 
+    // updating, for example after using mapFields to interpolate initial
+    // field.
     U.correctBoundaryConditions();
+    phi = linearInterpolate(U) & mesh.Sf();
+    T.correctBoundaryConditions();
+    p_rgh.correctBoundaryConditions();
+    turbulence->correct();
+    Rwall.correctBoundaryConditions();
+    qwall.correctBoundaryConditions();
+
 
     while (runTime.loop())
     {

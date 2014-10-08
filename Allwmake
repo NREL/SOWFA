@@ -1,16 +1,5 @@
 #!/bin/bash
-cd src/openfast/bin
-make
-./libmake
-cd ../../../
 
-cd src/fastturb
-wmake libso
-cd ../../
-
-cd src/finiteVolume
-wmake libso
-cd ../../
 
 cd src/turbulenceModels/incompressible/LES/
 wmake libso
@@ -20,23 +9,21 @@ cd src/turbineModels
 wmake libso
 cd ../../
 
+cd src/finiteVolume
+wmake libso
+cd ../../
+
 cd applications/utilities/setFieldsABL
 wmake
 cd ../../../
 
-cd applications/utilities/setFieldsABL2
-wmake
-cd ../../../
-
 cd applications/solvers/incompressible/windEnergy/ABLSolver
-wmake
-cd ../../../../../
-
-cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
+#cd applications/solvers/incompressible/windEnergy/ABLSolver-2.1-and-higher
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/windPlantSolver
+#cd applications/solvers/incompressible/windEnergy/windPlantSolver-2.1-and-higher
 wmake
 cd ../../../../../
 
@@ -48,10 +35,7 @@ cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
 wmake
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.towerNacelle
-wmake
-cd ../../../../../
-
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness
 wmake
 cd ../../../../../
+

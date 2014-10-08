@@ -355,6 +355,7 @@ void turbulentABLVelocityControlledFvPatchField::updateCoeffs()
     if ((curTimeIndex_ != -1) && (curTimeIndex_ != this->db().time().timeIndex()))
     {
         uStar_ = uStar_ * (refU_/UmeasAvg);
+        scalar uStarDesired = uStar_;
         uStar_ = alphaMean_*uStar_ + (1.0 - alphaMean_)*uStarOld_;
     }
 //  Info << curTimeIndex_ << tab << uStar_ << tab << windDir_ << endl;

@@ -34,7 +34,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "horizontalAxisWindTurbinesALM.H"
-#include "interpolateXY.H"
 
 namespace Foam
 {
@@ -60,9 +59,6 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
     // Set the degrees to radians convesion factor.
     degRad((Foam::constant::mathematical::pi)/180.0),
 
-    // Set the revolutions/s to radians/s conversion factor.
-    rpsRadSec(2.0*(Foam::constant::mathematical::pi)),
-
     // Set the revolutions/min to radians/s conversion factor.
     rpmRadSec(2.0*(Foam::constant::mathematical::pi)/60.0),
 
@@ -71,7 +67,6 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
 
     // Set the current simulation time.
     time(runTime_.timeName()),
-    t(runTime_.value()),
 
     // Set the pastFirstTimeStep flag to false
     pastFirstTimeStep(false),
@@ -157,13 +152,9 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
         tipRootLossCorrType.append(word(turbineArrayProperties.subDict(turbineName[i]).lookup("tipRootLossCorrType")));
         rotationDir.append(word(turbineArrayProperties.subDict(turbineName[i]).lookup("rotationDir")));
         rotSpeed.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("RotSpeed"))));
-        rotSpeedF.append(rotSpeed[i]);
-        speedError.append(0.0);
-        intSpeedError.append(0.0);
         azimuth.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("Azimuth"))));
-        torqueGen.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("TorqueGen"))));
         pitch.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("Pitch"))));
-        nacYaw.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("NacYaw"))));
+        nacYaw.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("NacYaw")))); 
         fluidDensity.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("fluidDensity")))); 
     }
 
@@ -234,7 +225,6 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
         ShftTilt.append(scalar(readScalar(turbineProperties.lookup("ShftTilt"))));
         PreCone.append(turbineProperties.lookup("PreCone"));
         GBRatio.append(scalar(readScalar(turbineProperties.lookup("GBRatio"))));
-        RatedRotSpeed.append(scalar(readScalar(turbineProperties.lookup("RatedRotSpeed"))));
         GenIner.append(scalar(readScalar(turbineProperties.lookup("GenIner"))));
         HubIner.append(scalar(readScalar(turbineProperties.lookup("HubIner"))));
         BladeIner.append(scalar(readScalar(turbineProperties.lookup("BladeIner"))));
@@ -242,77 +232,21 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
         GenTorqueControllerType.append(word(turbineProperties.lookup("GenTorqueControllerType")));
         NacYawControllerType.append(word(turbineProperties.lookup("NacYawControllerType")));
         BladePitchControllerType.append(word(turbineProperties.lookup("BladePitchControllerType")));
-        RotSpeedLimiter.append(bool(readBool(turbineProperties.lookup("RotSpeedLimiter"))));
-        GenTorqueRateLimiter.append(bool(readBool(turbineProperties.lookup("GenTorqueRateLimiter"))));
-        NacYawRateLimiter.append(bool(readBool(turbineProperties.lookup("NacYawRateLimiter"))));
-        BladePitchRateLimiter.append(bool(readBool(turbineProperties.lookup("BladePitchRateLimiter"))));
-        SpeedFilterCornerFrequency.append(scalar(readScalar(turbineProperties.lookup("SpeedFilterCornerFrequency"))));
-
-
-        RateLimitGenTorque.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("RateLimitGenTorque")));
-        if (GenTorqueControllerType[i] == "none")
-        {
-            // Read nothing.
-        }
-        else if (GenTorqueControllerType[i] == "fiveRegion")
-        {
-            CutInGenSpeed.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("CutInGenSpeed")));
-            Region2StartGenSpeed.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("Region2StartGenSpeed")));
-            Region2EndGenSpeed.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("Region2EndGenSpeed")));
-            CutInGenTorque.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("CutInGenTorque")));
-            RatedGenTorque.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("RatedGenTorque")));
-            RateLimitGenTorque.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("RateLimitGenTorque")));
-            KGen.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("KGen")));
-        }
-        else if (GenTorqueControllerType[i] == "speedTorqueTable")
-        {
-            SpeedTorqueTable.append(turbineProperties.subDict("GenTorqueControllerParams").lookup("SpeedTorqueTable"));
-            DynamicList<scalar> speedInt;
-            DynamicList<scalar> torqueInt;
- 
-            forAll(SpeedTorqueTable[i],j)
-            {
-                speedInt.append(SpeedTorqueTable[i][j][0]);
-                torqueInt.append(SpeedTorqueTable[i][j][1]);
-            }
-
-            SpeedGenProfile.append(speedInt);
-            TorqueGenProfile.append(torqueInt);
-
-            speedInt.clear();
-            torqueInt.clear();
-        }
+        RotSpeedLimiter.append(bool(turbineProperties.lookup("RotSpeedLimiter")));
+        GenTorqueLimiter.append(bool(turbineProperties.lookup("GenTorqueLimiter")));
+        NacYawLimiter.append(bool(turbineProperties.lookup("NacYawLimiter")));
+        BladePitchLimiter.append(bool(turbineProperties.lookup("BladePitchLimiter")));
         
-       
+        CutInGenSpeed.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("CutInGenSpeed")));
+        RatedGenSpeed.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("RatedGenSpeed")));
+        Region2StartGenSpeed.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("Region2StartGenSpeed")));
+        Region2EndGenSpeed.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("Region2EndGenSpeed")));
+        CutInGenTorque.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("CutInGenTorque")));
+        RatedGenTorque.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("RatedGenTorque")));
+        RateLimitGenTorque.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("RateLimitGenTorque")));
+        KGen.append(readScalar(turbineProperties.subDict("GenTorqueControllerParams").lookup("KGen")));
 
         RateLimitBladePitch.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("RateLimitBladePitch")));
-        if (BladePitchControllerType[i] == "none")
-        {
-            // Read nothing.
-        }
-        else if (BladePitchControllerType[i] == "PID")
-        {
-            PitchK.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchK")));
-            PitchMin.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchMin")));
-            PitchMax.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchMax")));
-            PitchControlKP.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchControlKP")));
-            PitchControlKI.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchControlKI")));
-            PitchControlKD.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchControlKD")));
-        }
-
-
-
-        RateLimitNacYaw.append(readScalar(turbineProperties.subDict("NacYawControllerParams").lookup("RateLimitNacYaw")));
-        if (NacYawControllerType[i] == "none")
-        {
-            // Read nothing.
-        }
-        else if (NacYawControllerType[i] == "timeYawTable")
-        {
-        }
-
-
-
 
         AirfoilType.append(turbineProperties.lookup("Airfoils"));
 
@@ -450,16 +384,10 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
 
     // Convert quantities in degrees into radians (dynamic lists
     // have to be done in loops).
-    azimuth   = degRad * azimuth;
-    rotSpeed  = rpmRadSec * rotSpeed;
-    rotSpeedF = rpmRadSec * rotSpeedF;
-    nacYaw    = degRad * nacYaw;
-    ShftTilt  = degRad * ShftTilt;
-    SpeedFilterCornerFrequency = rpsRadSec * SpeedFilterCornerFrequency;
-    RatedRotSpeed = rpmRadSec * RatedRotSpeed;
-    PitchK = degRad * PitchK;
-    PitchMin = degRad * PitchMin;
-    PitchMax = degRad * PitchMax;
+    azimuth  = degRad * azimuth;
+    rotSpeed = rpmRadSec * rotSpeed;
+    nacYaw   = degRad * nacYaw;
+    ShftTilt = degRad * ShftTilt;
     forAll(PreCone,i)
     {
         PreCone[i] = degRad * PreCone[i];
@@ -656,6 +584,9 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
         // Define the size of the aerodynamic torque lists and set to zero.
         torqueRotor.append(0.0);
 
+        // Define the size of the generator torque (not density normalized) lists and set to zero.
+        torqueGen.append(0.0);
+
         // Define the size of the rotor power lists and set to zero.
         powerRotor.append(0.0);
 
@@ -772,27 +703,49 @@ void horizontalAxisWindTurbinesALM::computeRotSpeed()
     // Proceed turbine by turbine.
     forAll(rotSpeed, i)
     {
-        // Get the turbine type index.
+
+        // Get the current generator speed.
+        scalar genSpeed = (rotSpeed[i]/rpmRadSec)*GBRatio[j];
+
+        // Save the generator torque from the last time step.
+        scalar torqueGenOld = torqueGen[i];
+
+        // Apply a controller to update the rotor speed.
         int j = turbineTypeID[i];
-
-        // If the generator torque and blade pitch controllers are both set to "none", then
-        // the rotor speed will remain fixed at its initial speed.
-        if ((GenTorqueControllerType[j] == "none") && (BladePitchControllerType[j] == "none"))
+	if (GenTorqueControllerType[j] == "none")
         {
-            // Do nothing.
+            #include "controllers/genTorqueControllers/none.H"
         }
-
-        // Otherwise numerically solve the dynamics of the rotor to compute the new rotor speed
-        // based on the summation of aerodynamic and generator torque on the rotor.
-        else
+	else if (GenTorqueControllerType[j] == "fiveRegion")
         {
-            rotSpeed[i] += (dt/DriveTrainIner[j])*(torqueRotor[i]*fluidDensity[i] - GBRatio[j]*torqueGen[i]);
-        }
+            #include "controllers/genTorqueControllers/fiveRegion.H"
 
+            // Limit the change in generator torque.
+            if (genTorqueLimiter)
+            {
+                #include "limiters/genTorqueLimiter.H"
+            }
+
+            // Update the rotor speed.
+            rotSpeed[i] += TorqueControllerRelax[j]*(dt/DriveTrainIner[j])*(torqueRotor[i]*fluidDensity[i] - GBRatio[j]*torqueGen[i]);
+	}
+        else if (GenTorqueControllerType[j] == "speedTorqueTable")
+        {
+            #include "controllers/genTorqueControllers/speedTorqueTable.H"
+        
+            // Limit the change in generator torque.
+            if (genTorqueLimiter)
+            {
+                #include "limiters/genTorqueLimiter.H"
+            }
+
+            // Update the rotor speed.
+            rotSpeed[i] += TorqueControllerRelax[j]*(dt/DriveTrainIner[j])*(torqueRotor[i]*fluidDensity[i] - GBRatio[j]*torqueGen[i]);
+        }
 
         // Limit the rotor speed to be positive and such that the generator does not turn
         // faster than rated.
-        if (RotSpeedLimiter[j])
+        if (rotSpeedLimiter)
         {
             # include "limiters/rotSpeedLimiter.H"
         }
@@ -802,142 +755,87 @@ void horizontalAxisWindTurbinesALM::computeRotSpeed()
 
     }
 }
-
-
-void horizontalAxisWindTurbinesALM::filterRotSpeed()
-{
-    // Proceed turbine by turbine.
-    forAll(rotSpeedF, i)
-    {
-        // Get the turbine type index.
-        int j = turbineTypeID[i];
-
-        // Compute the filtering coefficient based on the corner frequency and time step.
-        scalar alpha = exp(-dt * SpeedFilterCornerFrequency[j]);
-
-        // Apply a simple recursive, single-pole, low-pass filter.
-        rotSpeedF[i] = (1.0 - alpha)*rotSpeed[i] + alpha*rotSpeedF[i];
-    }
-}
-
-
-void horizontalAxisWindTurbinesALM::controlGenTorque()
-{
-    // Proceed turbine by turbine.
-    forAll(torqueGen, i)
-    {
-        // Get the turbine type index.
-        int j = turbineTypeID[i];
-
-        // Get the current filtered generator speed.
-        scalar genSpeedF = (rotSpeedF[i]/rpmRadSec)*GBRatio[j];
-
-
-        // Initialize the commanded generator torque variable;
-        scalar torqueGenCommanded = torqueGen[i];
-
-
-
-        // Apply a controller to update the rotor speed.
-	if (GenTorqueControllerType[j] == "none")
-        {
-            #include "controllers/genTorqueControllers/none.H"
-        }
-
-	else if (GenTorqueControllerType[j] == "fiveRegion")
-        {
-            #include "controllers/genTorqueControllers/fiveRegion.H"
-	}
-
-        else if (GenTorqueControllerType[j] == "speedTorqueTable")
-        {
-            #include "controllers/genTorqueControllers/speedTorqueTable.H"
-        }
-
-        // Limit the change in generator torque.
-        if (GenTorqueRateLimiter[j])
-        {
-            #include "limiters/genTorqueRateLimiter.H"
-        }
-
-        // Update the pitch array.
-        torqueGen[i] = torqueGenCommanded;
-    }
-}
         
 
-void horizontalAxisWindTurbinesALM::controlNacYaw()
+void horizontalAxisWindTurbinesALM::computeNacYaw()
 {
     // Proceed turbine by turbine.
     forAll(deltaNacYaw, i)
     {
-        // Get the turbine type index.
         int j = turbineTypeID[i];
-
-
-        
-        // Apply a controller to update the nacelle yaw position.
         if (NacYawControllerType[j] == "none")
         {
             // Do nothing.
 	    deltaNacYaw[i] = 0.0;
         }
-
         else if (NacYawControllerType[j] == "simple")
         {
             // Placeholder for when this is implemented.
         }
-        
-        else if (NacYawControllerType[j] == "timeYawTable")
-        {
-        }
-
-
-        
-        // Limit the change in nacelle yaw angle.
-        if (NacYawRateLimiter[j])
-        {
-        }
-
     }
 }
         
 
-void horizontalAxisWindTurbinesALM::controlBladePitch()
+void horizontalAxisWindTurbinesALM::computeBladePitch()
 {
     // Proceed turbine by turbine.
     forAll(pitch, i)
     {
-
-        // Get the turbine type index.
         int j = turbineTypeID[i];
-        
-        // Initialize the gain scheduling variable.
-        scalar GK = 0.0;
-
-        // Initialize the commanded pitch variable.
-        scalar pitchCommanded = pitch[i]*degRad;
-
-
-        // Apply a controller to update the blade pitch position.
         if (BladePitchControllerType[j] == "none")
         {
-            #include "controllers/bladePitchControllers/none.H"
+            // Do nothing.
         }
-
-        else if (BladePitchControllerType[j] == "PID")
+        else if (BladePitchControllerType[j] == "simpleLinear")
         {
-            #include "controllers/bladePitchControllers/PID.H"
-        }
+            // Do a simple control that makes pitch linearly related
+            // to rotor speed.  There is a low speed range in which
+            // pitch is a fixed value.  There is a mid-speed range
+            // in which pitch changes linearly.  There is a high-speed
+            // range in which pitch is at another fixed value.
 
-        // Apply pitch rate limiter.
-        if (BladePitchRateLimiter[j])
-        {
-            #include "limiters/bladePitchRateLimiter.H"
-        }
+            // Save the blade pitch from the last time step.
+            scalar pitchOld = pitch[i];
 
-        // Update the pitch array.
-        pitch[i] = pitchCommanded/degRad;
+            // Compute the rotor speed of this turbine in RPM.
+            scalar rotSpeedRPM = rotSpeed[i]/rpmRadSec;
+
+            // If in the low-speed range, set the desired pitch to 
+            // PitchControlStartPitch.
+            if (rotSpeedRPM <= PitchControlStartSpeed[j])
+            {
+                pitch[i] = PitchControlStartPitch[j];
+            }
+
+            // If in the mid-speed range, apply the linear pitch-speed
+            // relation.
+            else if ((rotSpeedRPM > PitchControlStartSpeed[j]) && (rotSpeedRPM <= PitchControlEndSpeed[j]))
+            {
+                scalar pitchSlope = (PitchControlEndPitch[j] - PitchControlStartPitch[j])/(PitchControlEndSpeed[j] - PitchControlStartSpeed[j]);
+                scalar deltaSpeed = rotSpeedRPM - PitchControlStartSpeed[j];
+                pitch[i] = PitchControlStartPitch[j] + (pitchSlope * deltaSpeed);
+            }
+
+            // If in the high-speed range, set the desired pitch to
+            // PitchControlEndPitch.
+            else if (rotSpeedRPM > PitchControlEndSpeed[j])
+            {
+                pitch[i] = PitchControlEndPitch[j];
+            }
+
+            // Now that the desired pitch is known, adjust the current pitch at its control rate.
+            if (Foam::mag((pitch[i] - pitchOld)/dt) > RateLimitPitch[j])
+            {
+                if (pitch[i] > pitchOld)
+                {
+                    pitch[i] = pitchOld + (RateLimitPitch[j] * dt);
+                }
+                else if (pitch[i] <= pitchOld)
+                {
+                    pitch[i] = pitchOld - (RateLimitPitch[j] * dt);
+                }
+            }
+        }
     }
 }
 
@@ -1423,7 +1321,7 @@ label horizontalAxisWindTurbinesALM::interpolate(scalar xNew, DynamicList<scalar
             indexP = index;
             indexM = indexP - 1;
         }
-        return round(yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]));
+        return yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]);
     }
     else if (xNew > xOld[index])
     {
@@ -1437,7 +1335,7 @@ label horizontalAxisWindTurbinesALM::interpolate(scalar xNew, DynamicList<scalar
             indexP = index + 1;
             indexM = indexP - 1;
         }
-        return round(yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]));
+        return yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]);
     }
     else if (xNew == xOld[index])
     {
@@ -1486,7 +1384,6 @@ void horizontalAxisWindTurbinesALM::update()
 
     // Update the current simulation time.
     time = runTime_.timeName();
-    t = runTime_.value();
 
     if(bladeUpdateType[0] == "oldPosition")
     {
@@ -1497,27 +1394,23 @@ void horizontalAxisWindTurbinesALM::update()
         computeWindVectors();
 
         // Update the rotor state.
-        filterRotSpeed();
-        controlGenTorque();
-        controlBladePitch();
-        controlNacYaw();
         computeRotSpeed();
         rotateBlades();
+        computeNacYaw();
         yawNacelle();
+        computeBladePitch();
     }
     else if(bladeUpdateType[0] == "newPosition")
     {
         // Update the rotor state.
-        filterRotSpeed();
-        controlGenTorque();
-        controlBladePitch();
-        controlNacYaw();
         computeRotSpeed();
         rotateBlades();
+        computeNacYaw();
         yawNacelle();
+        computeBladePitch();
 
         // Find out which processor controls which actuator point,
-        // and with that information sample the wind at the actuator
+        // and with that informatio sample the wind at the actuator
         // points.
         findControlProcNo();
         computeWindVectors();
@@ -1609,10 +1502,6 @@ void horizontalAxisWindTurbinesALM::openOutputFiles()
         // Create a rotation rate file.
         rotSpeedFile_ = new OFstream(rootDir/time/"rotSpeed");
         *rotSpeedFile_ << "#Turbine    Time(s)    dt(s)    rotor rotation rate(rpm)" << endl;
-        
-        // Create a filtered rotation rate file.
-        rotSpeedFFile_ = new OFstream(rootDir/time/"rotSpeedFiltered");
-        *rotSpeedFFile_ << "#Turbine    Time(s)    dt(s)    filtered rotor rotation rate(rpm)" << endl;
 
         // Create a blade 1 azimuth angle file.
         azimuthFile_ = new OFstream(rootDir/time/"azimuth");
@@ -1698,7 +1587,6 @@ void horizontalAxisWindTurbinesALM::printOutputFiles()
             *thrustFile_ << i << " " << time << " " << dt << " ";
             *powerRotorFile_ << i << " " << time << " " << dt << " ";
             *rotSpeedFile_ << i << " " << time << " " << dt << " ";
-            *rotSpeedFFile_ << i << " " << time << " " << dt << " ";
             *azimuthFile_ << i << " " << time << " " << dt << " ";
             *pitchFile_ << i << " " << time << " " << dt << " ";
             *nacYawFile_ << i << " " << time << " " << dt << " ";
@@ -1709,7 +1597,6 @@ void horizontalAxisWindTurbinesALM::printOutputFiles()
             *thrustFile_ << thrust[i]*fluidDensity[i] << endl;
             *powerRotorFile_ << powerRotor[i]*fluidDensity[i] << endl;
             *rotSpeedFile_ << rotSpeed[i]/rpmRadSec << endl;
-            *rotSpeedFFile_ << rotSpeedF[i]/rpmRadSec << endl;
             *azimuthFile_ << azimuth[i]/degRad << endl;
             *pitchFile_ << pitch[i] << endl;
             *nacYawFile_ << standardToCompass(nacYaw[i]/degRad) << endl;
@@ -1772,7 +1659,6 @@ void horizontalAxisWindTurbinesALM::printOutputFiles()
         *thrustFile_ << endl;
         *powerRotorFile_ << endl;
         *rotSpeedFile_ << endl;
-        *rotSpeedFFile_ << endl;
         *azimuthFile_ << endl;
         *pitchFile_ << endl;
         *nacYawFile_ << endl;

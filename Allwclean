@@ -11,11 +11,6 @@ rmdepall
 wclean
 cd ../../
 
-cd src/fastturb
-rmdepall
-wclean
-cd ../../
-
 cd src/finiteVolume
 rmdepall
 wclean
@@ -26,22 +21,14 @@ rmdepall
 wclean
 cd ../../../
 
-cd applications/utilities/setFieldsABL2
-rmdepall
-wclean
-cd ../../../
-
 cd applications/solvers/incompressible/windEnergy/ABLSolver
-rmdepall
-wclean
-cd ../../../../../
-
-cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
+#cd applications/solvers/incompressible/windEnergy/ABLSolver-2.1-and-higher
 rmdepall
 wclean
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/windPlantSolver
+#cd applications/solvers/incompressible/windEnergy/windPlantSolver-2.1-and-higher
 rmdepall
 wclean
 cd ../../../../../
@@ -52,11 +39,6 @@ wclean
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
-rmdepall
-wclean
-cd ../../../../../
-
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.towerNacelle
 rmdepall
 wclean
 cd ../../../../../

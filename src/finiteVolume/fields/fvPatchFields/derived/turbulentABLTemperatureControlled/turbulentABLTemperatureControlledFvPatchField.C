@@ -202,6 +202,9 @@ void turbulentABLTemperatureControlledFvPatchField::updateCoeffs()
         return;
     }
 
+    scalar pi_ = Foam::constant::mathematical::pi;
+
+
 
 //  Compute the new inflow velocity.
     if (curTimeIndex_ != this->db().time().timeIndex())
