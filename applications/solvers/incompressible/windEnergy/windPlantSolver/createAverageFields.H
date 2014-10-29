@@ -252,5 +252,6 @@
 
 
     // Declare total averaging times for average fields and correlation fields.
-    scalar avgTimeSum = 0.0;
-    scalar corrTimeSum = 0.0;
+    scalar avgTimeSum = max(runTime.value() - avgStartTime, 0.0);
+    scalar corrTimeSum = max(runTime.value() - corrStartTime, 0.0);
+    Info << "avgTimeSum = " << avgTimeSum << tab << "corrTimeSum = " << corrTimeSum << endl;

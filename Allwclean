@@ -22,18 +22,16 @@ wclean
 cd ../../../
 
 cd applications/solvers/incompressible/windEnergy/ABLSolver
-#cd applications/solvers/incompressible/windEnergy/ABLSolver-2.1-and-higher
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
 rmdepall
 wclean
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/windPlantSolver
-#cd applications/solvers/incompressible/windEnergy/windPlantSolver-2.1-and-higher
-rmdepall
-wclean
-cd ../../../../../
-
-cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
 rmdepall
 wclean
 cd ../../../../../

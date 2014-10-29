@@ -1,5 +1,25 @@
 #!/bin/bash
 
+echo "Building with OpenFOAM-"$OPENFOAM_VERSION
+
+version=${OPENFOAM_VERSION:0:1}
+variant=${OPENFOAM_VERSION:2:1}
+
+if [ $version -lt 2 ]
+then
+   dir=2.0-and-lower
+elif [ $version -eq 2 ] && [ $variant -le 0 ]
+then
+   dir=2.0-and-lower
+elif [ $version -eq 2 ] && [ $variant -ge 1 ] && [ $variant -le 2 ]
+then
+   dir=2.1-2.2
+elif [ $version -eq 2 ] && [ $variant -ge 3 ]
+then
+   dir=2.3-and-higher
+fi
+
+
 
 cd src/turbulenceModels/incompressible/LES/
 wmake libso
@@ -18,24 +38,35 @@ wmake
 cd ../../../
 
 cd applications/solvers/incompressible/windEnergy/ABLSolver
-#cd applications/solvers/incompressible/windEnergy/ABLSolver-2.1-and-higher
+rm pEqn.H
+rm ABLSolver.C
+ln -s $dir/pEqn.H ./
+ln -s $dir/ABLSolver.C ./
+wmake
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
+rm pEqn.H
+rm ABLTerrainSolver.C
+ln -s $dir/pEqn.H ./
+ln -s $dir/ABLTerrainSolver.C ./
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/windPlantSolver
-#cd applications/solvers/incompressible/windEnergy/windPlantSolver-2.1-and-higher
-wmake
-cd ../../../../../
-
-cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
+rm pEqn.H
+rm windPlantSolver.C
+ln -s $dir/pEqn.H ./
+ln -s $dir/windPlantSolver.C ./
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
+rm pisoFoamTurbine.C
+ln -s $dir/pisoFoamTurbine.C
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness
 wmake
 cd ../../../../../
-

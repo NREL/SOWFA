@@ -202,7 +202,7 @@ void turbulentABLTemperatureControlledFvPatchField::updateCoeffs()
         return;
     }
 
-    scalar pi_ = Foam::constant::mathematical::pi;
+  //scalar pi_ = Foam::constant::mathematical::pi;
 
 
 

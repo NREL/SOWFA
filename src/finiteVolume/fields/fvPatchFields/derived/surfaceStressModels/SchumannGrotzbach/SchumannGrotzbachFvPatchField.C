@@ -152,10 +152,12 @@ void SchumannGrotzbachFvPatchField::evaluate
     scalar z0Mean = gSum(z0_ * area)/areaTotal;
 
     //    Get the reference temperature
-    const singlePhaseTransportModel& laminarTransport = db().lookupObject<singlePhaseTransportModel>("transportProperties");
-    const dimensionedScalar& TRefDim = laminarTransport.lookup("TRef");
+//  const singlePhaseTransportModel& laminarTransport = db().lookupObject<singlePhaseTransportModel>("transportProperties");
+//  const dimensionedScalar& TRefDim = laminarTransport.lookup("TRef");
+    const dictionary& transportProperties = db().lookupObject<dictionary>("transportProperties");
+    dimensionedScalar TRefDim = transportProperties.lookup("TRef");
     scalar TRef = TRefDim.value();
-    //Info << "TRef = " << TRef << endl;
+    Info << "TRef = " << TRef << endl;
 
 
     vectorField loc = patch().Cf();
@@ -198,15 +200,15 @@ void SchumannGrotzbachFvPatchField::evaluate
         // Transform the velocity from Cartesian to local
         UParallelP[facei] = transformVectorCartToLocal(UParallel[facei], xP, yP, zP);
 
-        //Info << "facei = " << facei << tab
-        //     << "UParallel  = " << UParallel[facei] << tab
-        //     << "UParallelP = " << UParallelP << tab;
+      //Info << "facei = " << facei << tab
+      //     << "UParallel  = " << UParallel[facei] << tab
+      //     << "UParallelP = " << UParallelP << tab;
 
     }
 
     //    Get magnitudes and means of the terrain-local velocity
     scalarField UParallelPMag = mag(UParallelP);
-    scalar UParallelPMagMean = gSum(UParallelPMag * area) / areaTotal;
+  //scalar UParallelPMagMean = gSum(UParallelPMag * area) / areaTotal;
     vector UParallelPMean = gSum(UParallelP * area) / areaTotal;
     scalar UParallelPMeanMag = mag(UParallelPMean);
 

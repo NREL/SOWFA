@@ -22,6 +22,7 @@
         epsilonSGSmean = (epsilonSGSmean * avgTimeSum) + (runTime.deltaT().value() * epsilonSGS);
 
         avgTimeSum += runTime.deltaT().value();
+        Info << "avgTimeSum = " << avgTimeSum << endl;
 
         UAvg = UAvg / avgTimeSum;
         TAvg = TAvg / avgTimeSum;
@@ -44,6 +45,7 @@
         TTPrime2 = (TTPrime2 * corrTimeSum) + (runTime.deltaT().value() * Foam::sqr(TPrime));
 
         corrTimeSum += runTime.deltaT().value();
+        Info << "corrTimeSum = " << corrTimeSum << endl;
 
         uuPrime2 = uuPrime2 / corrTimeSum;
         uTPrime2 = uTPrime2 / corrTimeSum;

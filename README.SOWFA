@@ -13,26 +13,38 @@ NWTC Design Codes DATA USE DISCLAIMER AGREEMENT that can be found at
 
 Solvers and Codes Included:
 A.  Solvers
-    1.  ABLPisoSolver - A large-eddy simulation (LES) solver for computing
-        atmospheric boundary layer turbulent flow with the ability to
-        specify surface roughness, stability, and wind speed and direction.
-        It must be used with hexahedral meshes (like those created by
-        OpenFOAM's blockMesh utility).
-    2.  windPlantPisoSolver - A specialized version of ABLPisoSolver for
+    1.  ABLSolver - A  solver, primarily for performing large-eddy simulation
+        (LES), for computing atmospheric boundary layer turbulent flow with
+        the ability to specify surface roughness, stability, and wind speed
+        and direction. It must be used with hexahedral meshes (like those
+        created by OpenFOAM's blockMesh utility) in order for it to perform
+        the planar averaging it does.
+    2.  ABLTerrainSolver - Basically the same as ABLSolver, but the planar
+        averaging done in ABLSolver is replaced with time averaging since
+        planar averaging does not make sense for terrain.
+    3.  windPlantSolver - A specialized version of ABLTerrainSolver for
         performing LES of wind plant flow.  It includes the ability to
         include actuator line turbine models with local grid refinement
         around the turbine.
-    3.  windPlantPisoSolverFAST - Like windPlantPisoSolver, but the actuator
+    4.  windPlantSolverFAST - Like windPlantSolver, but the actuator
         line turbine model is coupled to NREL's FAST aeroelastic and turbine
         system dynamics code.
-    NOTE:  These solvers are meant to be used for flow over flat terrain.
-    We hope to add the capability to handle non-flat terrain in the near
-    future.  Also, the way the sub-grid stresses are treated is different
-    than the standard OpenFOAM practice.  Therefore, the standard OpenFOAM
-    turbulence models are unavailable in these solvers--only the standard
-    Smagorinsky model is available.  We wish to add more capability in the
+    5.  pisoFoamTurbine - OpenFOAM's standard pisoFoam solver, but with the
+        actuator line model included.
+    6.  turbineTestHarness - A simple code coupled to the actuator line model
+        that allows you to quickly test a actuator line model setup.  It mimics
+        pisoFoam, but the governing equations are not actually solved, the
+        velocity field is constant through the domain, but can change as a 
+        function of time.  Therefore, no axial induction is computed.  But, it
+        lets one quickly test out a new actuator line model setup to see if 
+        things like pitch control gains are appropriate.
+
+    NOTE:  These solvers have been primarily tested for flow over flat terrain.
+    We have tested the non-flat terrain capabilities less, but will do so in the
     future.  It is important to remember, though, that you may couple the
     actuator line models with any standard OpenFOAM solver, such as pisoFoam.
+
+
 
 B.  Utilities
     1.  setFieldsABL - A utility to initialize the flow field for performing
@@ -42,17 +54,34 @@ B.  Utilities
         specify the initial temperature profile and location and strength
         of the capping inversion.
 
+
+
 C.  Libraries
-    1.  finiteVolume - Contains a custom boundary condition for pressure
-        called buoyantPressureMod that is compatible with the above solvers 
-        but derived from OpenFOAM's standard bouyantPressure boundary
-        condition.
-    2.  turbineModels - Contains the actuator line turbine model similar
+    1.  finiteVolume - Contains custom boundary conditions for:
+            *surface shear stress - Schumann model
+            *surface temperature flux / heating - Specify a surface cooling/
+             heating rate and the appropriate temperature flux is calculated
+            *surface velocity - For use with surface shear stress model,
+             which requires no wall-parallel velocity, but that velocity
+             is required for specification of the gradient for the SGS
+             model, and setting it to no-slip is not appropriate for rough
+             walls
+            *inflow velocity - an inflow condition that applies a log-law
+             with fluctuations and drives flow to a certain speed at a 
+             specified location
+            *inflow temperature - an inflow temperature condition that 
+             attempts to recreate a typical ABL potential temperature
+             profile
+    2.  incompressible LES models - Contains a modified version of the 
+        OpenFOAM standard dynamic Lagrangian model of Meneveau et al. but
+        that writes out the Cs field.  Also, contains a modified version of
+        that same model that clips the Cs field.
+    3.  turbineModels - Contains the actuator line turbine model similar
         to that outlined by Sorensen and Shen (2002).
-    3.  openfast - A version of NREL's FAST code (see 
+    4.  openfast - A version of NREL's FAST code (see 
         http://wind.nrel.gov/designcodes/simulators/fast/) meant for
         coupling with the windPlantPisoSolverFAST solver.
-    4.  fastturb - A version of the actuator line turbine model that
+    5.  fastturb - A version of the actuator line turbine model that
         is coupled with NREL's FAST aeroelastic and turbine system
         dynamics code.
 
@@ -63,25 +92,26 @@ Installation/Compiling:
 The included codes work only with the OpenFOAM CFD Toolbox.  OpenFOAM has
 not been distributed with the SOWFA package.  Please visit www.openfoam.com
 to download and install OpenFOAM.  This release of SOWFA is known to work
-with OpenFOAM-2.0.x.  It will probably need to be modified to run with
-earlier versions, but may run as is with OpenFOAM-2.1.x.
+with OpenFOAM-2.0.x, but should work with versions up to 2.3.x
 
-Once OpenFOAM is installed, please follow these steps:
-1.  Move the "user-2.0.x" to a desired location somewhere in your home
-    directory and replace "user" with your username on your system.
-2.  When you installed OpenFOAM, you modified your login script
-    (.bash_profile or similar).  Make sure that the environment variable
-    WM_PROJECT_USER_DIR points to where you put the renamed "user-2.0.x"
-    directory.
-3.  Source your login script by entering "source ~/.bash_profile" or 
-    whatever is appropriate for your system.
-3.  Move the "tutorialsSOWFA" directory to any desired location.
-4.  Change directory to WM_PROJECT_USER_DIR by entering
-    "cd $WM_PROJECT_USER_DIR".
-5.  Run the Allwclean script to remove any dependencies by entering
-    "./Allwclean".
-6.  Compile the SOWFA codes by running the Allwmake script by entering
-    "./Allwmake".
+Once OpenFOAM is installed and SOWFA downloaded, please follow these steps:
+1.  Put the SOWFA directory where you want it.  This directory will remain
+    your "clean" SOWFA directory.
+2.  From within the SOWFA directory, open the "makeNewWorkingDir" script.
+    This script creates your "working" SOWFA directory in which files are 
+    compiled.  By default, when you run "makeNewWorkingDir", it creates
+    a copy of the clean SOWFA directory in your OpenFOAM user directory.
+    All files withing the working SOWFA directory are soft linked back
+    to the clean directory.  In this way, if you have multiple versions
+    of OpenFOAM that you commonly use, you will have multiple SOWFA
+    working directories that all link back to the clean one.  If you run
+    git pull in the clean directory to get updates, these updates are 
+    seen in all of your working directories.  Modify the "makeNewWorkingDir"
+    if required.
+3.  Run ./makeNewWorkingDir.
+4.  Change directory to the working SOWFA directory created by "makeNewWorkingDir".
+5.  Run ./Allwclean.
+6.  Run ./Allwmake.
 7.  Make sure that no error messages appeared and that all libraries
     and applications are listed as "up to date."
 

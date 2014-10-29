@@ -60,6 +60,7 @@ SourceFiles
 #include "IFstream.H"
 #include "OFstream.H"
 #include "fvCFD.H"
+#include "Random.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -127,6 +128,9 @@ private:
 
 	//- Last time when output written.
 	scalar lastOutputTime;
+
+        //- Value to perturb blade locations by to break ties when searching for control processor.
+        scalar perturb;
 
     	//- Last time step when output written.
 	label outputIndex;
@@ -458,6 +462,11 @@ private:
 
             //- Actuator line point locations with respect to origin.
             DynamicList<List<List<vector> > > bladePoints;
+
+            //- Random perturbation of blade points applied only when determining control
+            //  processors to break ties.  This does not affect true location where
+            //  velocity is sampled and forces are applied.
+            DynamicList<List<List<vector> > > bladePointsPerturbVector;
 
             //- Total actuator line points in array.
             int totBladePoints;

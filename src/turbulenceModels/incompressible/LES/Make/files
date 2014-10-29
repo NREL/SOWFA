@@ -2,28 +2,4 @@
 dynLagrangianCs/dynLagrangianCs.C
 dynLagrangianCsBound/dynLagrangianCsBound.C
 
-
-
-
-/* Surface Shear Stress Models */
-surfaceStressModels = derivedFvPatchFields/surfaceStressModels
-$(surfaceStressModels)/SchumannGrotzbach/SchumannGrotzbachFvPatchField.C
-
-
-
-
-/* Surface Temperature Flux Models */
-surfaceTemperatureFluxModels = derivedFvPatchFields/surfaceTemperatureFluxModels
-$(surfaceTemperatureFluxModels)/fixedHeatingRate/fixedHeatingRateFvPatchField.C
-
-
-
-
-/* Surface Velocity Models */
-surfaceVelocityModels = derivedFvPatchFields/surfaceVelocityModels
-$(surfaceVelocityModels)/velocityABLWallFunction/velocityABLWallFunctionFvPatchField.C
-
-
-
-
 LIB = $(FOAM_USER_LIBBIN)/libuserincompressibleLESModels

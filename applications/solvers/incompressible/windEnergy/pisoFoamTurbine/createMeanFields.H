@@ -132,5 +132,7 @@
     // Declare averaging start and total times for average fields and correlation fields.
     scalar startTimeMean = readScalar(runTime.controlDict().lookup("startTimeMean"));
     scalar startTimeCorr = readScalar(runTime.controlDict().lookup("startTimeCorr"));
-    scalar sumTimeMean = 0.0;
-    scalar sumTimeCorr = 0.0;
+    scalar sumTimeMean = max(runTime.value() - startTimeMean, 0.0);
+    scalar sumTimeCorr = max(runTime.value() - startTimeCorr, 0.0);
+    Info << "sumTimeMean = " << sumTimeMean << tab << "sumTimeCorr = " << sumTimeCorr << endl;
+

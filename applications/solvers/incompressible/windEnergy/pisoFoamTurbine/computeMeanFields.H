@@ -11,6 +11,7 @@
         kMean = (kMean * sumTimeMean) + (runTime.deltaT().value() * turbulence->k());
 
         sumTimeMean += runTime.deltaT().value();
+        Info << "sumTimeMean = " << sumTimeMean << endl;
 
         UMean = UMean / sumTimeMean;
         pMean = pMean / sumTimeMean;
@@ -29,6 +30,7 @@
         upMean = (upMean * sumTimeCorr) + (runTime.deltaT().value() * pPrime * uPrime);
 
         sumTimeCorr += runTime.deltaT().value();
+        Info << "sumTimeCorr = " << sumTimeCorr << endl;
 
         uuMean = uuMean / sumTimeCorr;
         ppMean = ppMean / sumTimeCorr;
