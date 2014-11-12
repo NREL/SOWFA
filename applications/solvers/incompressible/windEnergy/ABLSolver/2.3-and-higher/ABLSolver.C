@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     U.correctBoundaryConditions();
     phi = linearInterpolate(U) & mesh.Sf();
     T.correctBoundaryConditions();
-    p_rgh.correctBoundaryConditions();
+  //p_rgh.correctBoundaryConditions();
     turbulence->correct();
     Rwall.correctBoundaryConditions();
     qwall.correctBoundaryConditions();

@@ -5,6 +5,7 @@ echo "Building with OpenFOAM-"$OPENFOAM_VERSION
 version=${OPENFOAM_VERSION:0:1}
 variant=${OPENFOAM_VERSION:2:1}
 
+dir=2.0-and-lower
 if [ $version -lt 2 ]
 then
    dir=2.0-and-lower
