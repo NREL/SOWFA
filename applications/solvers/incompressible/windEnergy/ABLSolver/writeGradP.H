@@ -1,20 +1,20 @@
     // Write primary driving pressure gradient file.
     if (runTime.outputTime())
     {
-        OFstream gradPdFile
+        OFstream gradPFile
         (
-            runTime.path()/runTime.timeName()/"uniform"/"gradPd.raw"
+            runTime.path()/runTime.timeName()/"uniform"/"gradP.raw"
         );
 
-        if(gradPdFile.good())
+        if(gradPFile.good())
         {
-            gradPdFile << gradPd << endl;
+            gradPFile << gradP << endl;
         }
         else
         {
             FatalErrorIn(args.executable())
                 << "Cannot open file "
-                << runTime.path()/runTime.timeName()/"uniform"/"gradPd.raw"
+                << runTime.path()/runTime.timeName()/"uniform"/"gradP.raw"
                 << exit(FatalError);
         };
     };

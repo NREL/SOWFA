@@ -9,7 +9,7 @@
       + turbulence->divDevReff(U)               // momentum flux
       + fvc::div(Rwall)
       - fCoriolis                               // Coriolis force
-      + gradPd                                  // driving pressure gradient
+      + gradP                                   // driving pressure gradient
     );
 
     UEqn.relax();

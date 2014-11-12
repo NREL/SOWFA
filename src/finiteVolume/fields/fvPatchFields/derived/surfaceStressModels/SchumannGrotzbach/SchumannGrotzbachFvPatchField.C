@@ -157,7 +157,7 @@ void SchumannGrotzbachFvPatchField::evaluate
     const dictionary& transportProperties = db().lookupObject<dictionary>("transportProperties");
     dimensionedScalar TRefDim = transportProperties.lookup("TRef");
     scalar TRef = TRefDim.value();
-    Info << "TRef = " << TRef << endl;
+//  Info << "TRef = " << TRef << endl;
 
 
     vectorField loc = patch().Cf();

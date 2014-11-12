@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createAverageFields.H"
-    #include "createGradPd.H"
+    #include "createGradP.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
             #include "computeDivergence.H"
 
             // --- Update the driving pressure gradient
-            #include "correctGradPd.H"
+            #include "correctGradP.H"
 
             // --- Update the turbulence fields
             if (pimple.turbCorr())
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 //      #include "statisticsABL.H"
 
         runTime.write();
-        #include "writeGradPd.H"
+        #include "writeGradP.H"
 
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"

@@ -60,18 +60,18 @@
         if (driveWindOn)
         {
             // Correct the driving pressure gradient, velocity field, and flux field.
-            dimensionedVector pdDelta = alpha*(UWind - UWindStarParallel)/rAU.weightedAverage(mesh.V());
+            dimensionedVector pDelta = alpha*(UWind - UWindStarParallel)/rAU.weightedAverage(mesh.V());
 
-            U += rAU*pdDelta;
-            phi += rAUf*(pdDelta & mesh.Sf());
+            U += rAU*pDelta;
+            phi += rAUf*(pDelta & mesh.Sf());
 
-            gradPd -=  ((gradPd & nUp) * nUp) + pdDelta;
+            gradP -=  ((gradP & nUp) * nUp) + pDelta;
         }
 
         // Write driving pressure gradient time history file.
         Info << "Desired Mean Wind Speed - Direction = " << tab << UWindSpeed_ << " m/s - " << UWindDir_ << " degrees" << endl;
         Info << "Desired Mean Wind Vector = "     << tab << UWind.value() << " m/s" << endl;
         Info << "Uncorrected Mean Wind Vector = " << tab << UWindStar.value() << " m/s" << endl;
-        Info << "Corrected Pressure Gradient = "  << tab << gradPd.value()   << " m/s^2" << endl;
-        gradPdHistoryFile << runTime.timeName() << " " << gradPd.value() << " " << UWindSpeed_ << " " << UWindDir_ << " " << UWind.value() << " " << UWindStar.value() << endl;
+        Info << "Corrected Pressure Gradient = "  << tab << gradP.value()   << " m/s^2" << endl;
+        gradPHistoryFile << runTime.timeName() << " " << gradP.value() << " " << UWindSpeed_ << " " << UWindDir_ << " " << UWind.value() << " " << UWindStar.value() << endl;
   }

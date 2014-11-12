@@ -49,6 +49,7 @@ Description
 #include "singlePhaseTransportModel.H"
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
+#include "fixedFluxPressureFvPatchScalarField.H"
 #include "IFstream.H"
 #include "OFstream.H"
 
