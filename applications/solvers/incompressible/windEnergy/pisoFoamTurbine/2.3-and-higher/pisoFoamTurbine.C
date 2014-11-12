@@ -86,11 +86,16 @@ int main(int argc, char *argv[])
             {
                 volScalarField rAU(1.0/UEqn.A());
 
-                U = rAU*UEqn.H();
-                phi = (fvc::interpolate(U) & mesh.Sf())
-                    + fvc::ddtCorr(rAU, U, phi);
+                volVectorField HbyA("HbyA", U);
+                HbyA = rAU*UEqn.H();
+                surfaceScalarField phiHbyA
+                (
+                    "phiHbyA",
+                    (fvc::interpolate(HbyA) & mesh.Sf())
+                   + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
+                );
 
-                adjustPhi(phi, U, p);
+                adjustPhi(phiHbyA, U, p);
 
                 // Non-orthogonal pressure corrector loop
                 for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
@@ -99,7 +104,7 @@ int main(int argc, char *argv[])
 
                     fvScalarMatrix pEqn
                     (
-                        fvm::laplacian(rAU, p) == fvc::div(phi)
+                        fvm::laplacian(rAU, p) == fvc::div(phiHbyA)
                     );
 
                     pEqn.setReference(pRefCell, pRefValue);
@@ -119,12 +124,12 @@ int main(int argc, char *argv[])
 
                     if (nonOrth == nNonOrthCorr)
                     {
-                        phi -= pEqn.flux();
+                        phi = phiHbyA - pEqn.flux();
                     }
                 }
 
                 // Velocity corrector
-                U -= rAU*fvc::grad(p);
+                U = HbyA - rAU*fvc::grad(p);
                 U.correctBoundaryConditions();
             }
         }
