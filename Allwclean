@@ -45,3 +45,13 @@ cd applications/solvers/incompressible/windEnergy/turbineTestHarness
 rmdepall
 wclean
 cd ../../../../../
+
+cd src/fastturb
+rmdepall
+wclean
+cd ../../
+
+cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
+rmdepall
+wclean
+cd ../../../../../

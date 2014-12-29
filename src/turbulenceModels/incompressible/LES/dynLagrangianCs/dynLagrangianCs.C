@@ -49,7 +49,8 @@ void dynLagrangianCs::updateSubGridScaleFields
 )
 {
     Cs_ = Foam::sqrt(flm_/fmm_);
-    nuSgs_ = (flm_/fmm_)*delta()*sqrt(k(gradU));
+  //nuSgs_ = (flm_/fmm_)*delta()*sqrt(k(gradU));
+    nuSgs_ = (flm_/fmm_)*sqr(delta())*sqrt(2.0*magSqr(dev(symm(gradU))));
     nuSgs_.correctBoundaryConditions();
 }
 

@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
 
         #include "readPISOControls.H"
         #include "CourantNo.H"
+        #include "updateDivSchemeBlendingField.H"
 
         // PISO algorithm
         {

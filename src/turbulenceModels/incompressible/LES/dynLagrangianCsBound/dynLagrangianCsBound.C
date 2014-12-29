@@ -52,7 +52,8 @@ void dynLagrangianCsBound::updateSubGridScaleFields
     // Bound Cs
     Cs_ = Foam::max(Cs_,CsMin);
     Cs_ = Foam::min(Cs_,CsMax);
-    nuSgs_ = Foam::sqr(Cs_)*delta()*sqrt(k(gradU));
+  //nuSgs_ = Foam::sqr(Cs_)*delta()*sqrt(k(gradU));
+    nuSgs_ = Foam::sqr(Cs_)*sqr(delta())*sqrt(2.0*magSqr(dev(symm(gradU))));
     nuSgs_.correctBoundaryConditions();
 }
 

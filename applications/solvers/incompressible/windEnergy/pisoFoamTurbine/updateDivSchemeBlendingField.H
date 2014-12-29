@@ -1,35 +1,39 @@
-    Info << "Creating divergence scheme blending factor field, UBlendingFactor..." << endl;
-    surfaceScalarField UBlendingFactor
-    (
-        IOobject
-        (
-            "UBlendingFactor",
-            runTime.timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        1.0 
-    );
-
     // Read blending information
-    scalar xBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending1"));
-    scalar xBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending2"));
-    scalar xBlending3 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending3"));
-    scalar xBlending4 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending4"));
+    xBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending1"));
+    xBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending2"));
+    xBlending3 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending3"));
+    xBlending4 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("xBlending4"));
 
-    scalar blendingFactor1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactor1"));
-    scalar blendingFactor2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactor2"));
+    blendingFactor1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactor1"));
+    blendingFactor2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactor2"));
+
+    // Check to see if the blending factors or face sizes have changed.  If so, recalculate the U and T
+    // blending factor field.
+    
+
+    if ((xBlending1 != xBlending1Old) ||
+        (xBlending2 != xBlending2Old) ||
+        (xBlending3 != xBlending3Old) ||
+        (xBlending4 != xBlending4Old) ||
+        (blendingFactor1 != blendingFactor1Old) ||
+        (blendingFactor2 != blendingFactor2Old))
+    {
 
 
-    scalar xBlending1Old = xBlending1;
-    scalar xBlending2Old = xBlending2;
-    scalar xBlending3Old = xBlending3;
-    scalar xBlending4Old = xBlending4;
+        // Write a message to the log file.
+        Info << "Updating scheme blending factor field..." << endl;
 
-    scalar blendingFactor1Old = blendingFactor1;
-    scalar blendingFactor2Old = blendingFactor2;
+        // Update the old value of these quantities for checking for updated files.
+        xBlending1Old = xBlending1;
+        xBlending2Old = xBlending2;
+        xBlending3Old = xBlending3;
+        xBlending4Old = xBlending4;
+
+        blendingFactor1Old = blendingFactor1;
+        blendingFactor2Old = blendingFactor2;
+
+
+
 
     // Create blending factor field
     // internal field
@@ -95,4 +99,5 @@
                 UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactor1;
             }
         }
+    }
     }

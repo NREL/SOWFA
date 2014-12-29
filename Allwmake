@@ -71,3 +71,16 @@ cd ../../../../../
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness
 wmake
 cd ../../../../../
+
+cd src/openfast/bin
+make
+./libmake
+cd ../../../
+
+cd src/fastturb
+wmake libso
+cd ../../
+
+cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
+wmake
+cd ../../../../../

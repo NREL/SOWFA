@@ -439,6 +439,7 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
 
 
 
+
     // Convert nacelle yaw from compass directions to the standard
     // convention of 0 degrees on the + x axis with positive degrees
     // in the counter-clockwise direction.
@@ -1195,6 +1196,8 @@ void horizontalAxisWindTurbinesALM::computeBladeForce()
 
                 // Find the local airfoil type.
                 label airfoil = interpolate(bladeRadius[i][j][k], BladeStation[m], BladeAirfoilTypeID[m]);
+                label maxIndex = BladeAirfoilTypeID[m].size() - 1;
+                airfoil = min(max(0,airfoil),maxIndex);
 
                 // Find the local velocity magnitude compose of only the axial and tangential flow (do
                 // not include the radial (along blade span) flow).
