@@ -12,18 +12,22 @@
          <<                     "Weighted Mean " << avgLocalPhiContErr << endl;
 
     scalar globalSumPhiBoundary = 0.0;
+    scalar globalSumAreaBoundary = 0.0;
     forAll(phi.boundaryField(), patchi)
     {
         scalar sumPhiBoundary = 0.0;
+        scalar sumAreaBoundary = 0.0;
         const fvsPatchScalarField& phip = phi.boundaryField()[patchi];
         forAll(phip,i)
         {
            sumPhiBoundary += phip[i];
+           sumAreaBoundary += mesh.boundary()[patchi].magSf()[i];
         }
         globalSumPhiBoundary += sumPhiBoundary;
-      //Pout << "Boundary " << mesh.boundaryMesh()[patchi].name() << " Flux:  " << sumPhiBoundary << endl;
+        globalSumAreaBoundary += sumAreaBoundary;
     }
 
     reduce(globalSumPhiBoundary, sumOp<scalar>());
     Info << "Total Boundary Flux: " << globalSumPhiBoundary << endl;
+    Info << "Total Boundary Area: " << globalSumAreaBoundary << endl;
 }

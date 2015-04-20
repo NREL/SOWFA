@@ -5,7 +5,7 @@
     volVectorField HbyA("HbyA", U);
     HbyA = rAU*UEqn.H();
 
-    surfaceScalarField phig(-rAUf*ghf*fvc::snGrad(rhok)*mesh.magSf());
+    surfaceScalarField phig(rAUf * ((fvc::interpolate(rhok) - 1.0) * (g & mesh.Sf())));
 
     surfaceScalarField phiHbyA
     (
@@ -54,7 +54,7 @@
         }
     }
 
-    p = p_rgh + rhok*gh;
+    p = p_rgh + gh;
 
     if (p_rgh.needReference())
     {
@@ -64,6 +64,6 @@
             p.dimensions(),
             pRefValue - getRefCellValue(p, pRefCell)
         );
-        p_rgh = p - rhok*gh;
+        p_rgh = p - gh;
     }
 }

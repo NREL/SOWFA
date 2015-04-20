@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
     #include "findWindHeight.H"
     #include "openCellStatisticsFiles.H"
     #include "computeDivergence.H"
+    #include "createDivSchemeBlendingField.H"
     //#include "openABLStatisticsFiles.H"
 
     pimpleControl pimple(mesh);
@@ -101,6 +102,7 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNo.H"
         #include "setDeltaT.H"
+        #include "updateDivSchemeBlendingField.H"
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())

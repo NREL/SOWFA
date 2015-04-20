@@ -1,7 +1,6 @@
 // Calculate divergence of velocity flux and display
 {
     volScalarField divPhi = fvc::div(phi);
-    f = divPhi;
     volScalarField divPhiMag  = pow(pow(divPhi,2),0.5);
     scalar minLocalPhiContErr = min(divPhiMag).value();
     reduce(minLocalPhiContErr, minOp<scalar>());

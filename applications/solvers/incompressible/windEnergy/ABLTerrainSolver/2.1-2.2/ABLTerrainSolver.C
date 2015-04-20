@@ -51,6 +51,7 @@ Description
 #include "pimpleControl.H"
 #include "IFstream.H"
 #include "OFstream.H"
+#include "wallDist.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -61,7 +62,6 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "readGravitationalAcceleration.H"
-
     #include "createFields.H"
     #include "createDivSchemeBlendingField.H"
     #include "createGradP.H"
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
     Info << nl << "Starting time loop\n" << endl;
 
-    // Update boundary conditions before starting in case anything needs 
+    // Update boundary conditions before starting in case anything needs
     // updating, for example after using mapFields to interpolate initial
     // field.
     U.correctBoundaryConditions();
@@ -133,8 +133,8 @@ int main(int argc, char *argv[])
 
             // --- Update the boundary momentum and
             //     temperature flux conditions
-            qwall.correctBoundaryConditions();
             Rwall.correctBoundaryConditions();
+            qwall.correctBoundaryConditions();
         }   
 
 

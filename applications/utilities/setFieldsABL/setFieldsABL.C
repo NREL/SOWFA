@@ -44,6 +44,7 @@ Description
 #include "interpolateXY.H"
 #include "interpolateSplineXY.H"
 #include "Random.H"
+#include "wallDist.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -177,9 +178,15 @@ scalar deltaV(setFieldsABLDict.lookupOrDefault<scalar>("deltaV",1.0));
 scalar zPeak(setFieldsABLDict.lookupOrDefault<scalar>("zPeak",0.03));
 scalar Uperiods(setFieldsABLDict.lookupOrDefault<scalar>("Uperiods",4));
 scalar Vperiods(setFieldsABLDict.lookupOrDefault<scalar>("Vperiods",4));
+scalar xMin(setFieldsABLDict.lookupOrDefault<scalar>("xMin",0.0));
+scalar yMin(setFieldsABLDict.lookupOrDefault<scalar>("yMin",0.0));
+scalar zMin(setFieldsABLDict.lookupOrDefault<scalar>("zMin",0.0));
 scalar xMax(setFieldsABLDict.lookupOrDefault<scalar>("xMax",3000.0));
 scalar yMax(setFieldsABLDict.lookupOrDefault<scalar>("yMax",3000.0));
 scalar zMax(setFieldsABLDict.lookupOrDefault<scalar>("zMax",1000.0));
+scalar zRef(setFieldsABLDict.lookupOrDefault<scalar>("zRef",600.0));
+bool useWallDistZ(setFieldsABLDict.lookupOrDefault<bool>("useWallDistZ",false));
+bool scaleVelocityWithHeight(setFieldsABLDict.lookupOrDefault<bool>("scaleVelocityWithHeight",false));
 scalar zInversion(setFieldsABLDict.lookupOrDefault<scalar>("zInversion",600.0));
 scalar Ug(setFieldsABLDict.lookupOrDefault<scalar>("Ug",15.0));
 scalar UgDir(setFieldsABLDict.lookupOrDefault<scalar>("UgDir",270.0));
@@ -207,11 +214,16 @@ forAll(zProfile,i)
    TProfile[i] = profileTable[i][3];
 }
 
+// Get distance from the wall
+Info << endl << "Calculating wall distance..." << endl;
+wallDist d(mesh);
+
 // Now calculate the field quantities.
 scalar uStar = (kappa*Ug)/(Foam::log(zInversion/z0));
-Info << endl << "u* = " << uStar << " m/s" << endl << endl;
+Info << "u* = " << uStar << " m/s" << endl;
 
 // Calculate the wind vector direction.
+Info << "Calculating wind vector..." << endl;
 if (UgDir > 180.0)
 {
     UgDir = UgDir - 180.0;
@@ -234,42 +246,67 @@ UgToVector.y() = Foam::sin(UgDir);
 UgToVector.z() = 0.0;
 vector UgVec = Ug * UgToVector;
 
+// Compute the domain extents.
+scalar xExtent = xMax - xMin;
+scalar yExtent = yMax - yMin;
+scalar zExtent = zMax - zMin;
+
 // Update the interior fields.
 if (updateInternalFields)
 {
     // Velocity.
+    Info << "Updating internal U field..." << endl;
     forAll(U,cellI)
     {
-        scalar x = mesh.C()[cellI].x();
-        scalar y = mesh.C()[cellI].y();
-        scalar z = mesh.C()[cellI].z();
+        scalar x = mesh.C()[cellI].x() - xMin;
+        scalar y = mesh.C()[cellI].y() - yMin;
+        scalar z = 0.0;
+        scalar zAbsolute = 0.0;
+        scalar zSurface = 0.0;
+        scalar zColumn = 0.0;
+        scalar velScalar = 1.0;
+        if (useWallDistZ)
+        {
+            z = d[cellI];
+            zAbsolute = mesh.C()[cellI].z();
+            zSurface = zAbsolute - z;
+            zColumn = zMax - zSurface;
+            if (scaleVelocityWithHeight)
+            {
+                velScalar = zRef/zColumn;
+            }
+        }
+        else
+        {
+            z = mesh.C()[cellI].z() - zMin;
+        }
         vector UPrime = vector::zero;
-        UPrime.x() = deltaU * Foam::exp(0.5) * Foam::cos(Uperiods * 2.0 * Foam::constant::mathematical::pi * y/yMax) * 
-                    (z/(zPeak*zMax)) * Foam::exp(-0.5*Foam::pow((z/(zPeak*zMax)),2));
-        UPrime.y() = deltaV * Foam::exp(0.5) * Foam::sin(Vperiods * 2.0 * Foam::constant::mathematical::pi * x/xMax) * 
-                    (z/(zPeak*zMax)) * Foam::exp(-0.5*Foam::pow((z/(zPeak*zMax)),2));
+        UPrime.x() = deltaU * Foam::exp(0.5) * Foam::cos(Uperiods * 2.0 * Foam::constant::mathematical::pi * y/yExtent) * 
+                    (z/(zPeak*zExtent)) * Foam::exp(-0.5*Foam::pow((z/(zPeak*zExtent)),2));
+        UPrime.y() = deltaV * Foam::exp(0.5) * Foam::sin(Vperiods * 2.0 * Foam::constant::mathematical::pi * x/xExtent) * 
+                    (z/(zPeak*zExtent)) * Foam::exp(-0.5*Foam::pow((z/(zPeak*zExtent)),2));
         UPrime.z() = 0.0;
 
         if ((z <= zInversion) && (velocityInitType == "log"))
         {
-            U[cellI] = (uStar/kappa)*Foam::log(z/z0)*UgToVector;
+            U[cellI] = velScalar*(uStar/kappa)*Foam::log(z/z0)*UgToVector;
 
         }
         else if (((z > zInversion) && (velocityInitType == "log")) || (velocityInitType == "geostrophic"))
         {
-            U[cellI] = UgVec;
+            U[cellI] = velScalar*UgVec;
         }
         else if (velocityInitType == "table")
         {
             if (tableInterpTypeU == "cubic")
             {
-                U[cellI].x() = interpolateSplineXY(z,zProfile,UProfile);
-                U[cellI].y() = interpolateSplineXY(z,zProfile,VProfile);
+                U[cellI].x() = velScalar*interpolateSplineXY(z,zProfile,UProfile);
+                U[cellI].y() = velScalar*interpolateSplineXY(z,zProfile,VProfile);
             }
             else
             {
-                U[cellI].x() = interpolateXY(z,zProfile,UProfile);
-                U[cellI].y() = interpolateXY(z,zProfile,VProfile);
+                U[cellI].x() = velScalar*interpolateXY(z,zProfile,UProfile);
+                U[cellI].y() = velScalar*interpolateXY(z,zProfile,VProfile);
             }
         }
 
@@ -277,11 +314,21 @@ if (updateInternalFields)
     }
 
     // Potential temperature.
+    Info << "Updating internal T field..." << endl;
     Random TRandom(1);
     forAll(T,cellI)
     {
         scalar TPrime = TPrimeScale * (TRandom.scalar01() - 0.5);
-        scalar z = mesh.C()[cellI].z();
+        scalar z = 0.0;
+        if (useWallDistZ)
+        {
+            z = d[cellI];
+        }
+        else
+        {
+            z = mesh.C()[cellI].z() - zMin;
+        }
+
         T[cellI] = Tbottom;
         if ((z >= zInversion - 0.5*widthInversion) && (z <= zInversion + 0.5*widthInversion) && (temperatureInitType == "simple"))
         {
@@ -310,6 +357,7 @@ if (updateInternalFields)
     }
 
     // Modified pressure.
+    Info << "Updating internal p_rgh field..." << endl;
     forAll(p_rgh,cellI)
     {
         p_rgh[cellI] = 0.0;
@@ -320,6 +368,7 @@ if (updateInternalFields)
 // Update the boundary field.
 if (updateBoundaryFields)
 {
+    Info << "Updating boundaries..." << endl;
     U.correctBoundaryConditions();
     T.correctBoundaryConditions();
     p_rgh.correctBoundaryConditions();

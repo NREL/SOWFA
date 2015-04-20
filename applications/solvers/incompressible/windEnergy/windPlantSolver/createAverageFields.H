@@ -14,6 +14,23 @@
         dimensionedVector("UAvg",dimensionSet(0, 1, -1, 0, 0, 0, 0),vector::zero)
     );
 
+
+    Info << "Creating time-average vorticity field, omegaAvg..." << endl;
+    volVectorField omegaAvg
+    (
+        IOobject
+        (
+            "omegaAvg",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedVector("omegaAvg",dimensionSet(0, 0, -1, 0, 0, 0, 0),vector::zero)
+    );
+
+
     // Create and read in initial time-averaged temperature field.
     Info << "Creating time-averaged temperature field, TAvg..." << endl;
     volScalarField TAvg

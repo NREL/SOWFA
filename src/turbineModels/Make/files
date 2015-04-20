@@ -1,3 +1,4 @@
 horizontalAxisWindTurbinesALM/horizontalAxisWindTurbinesALM.C
+horizontalAxisWindTurbinesADM/horizontalAxisWindTurbinesADM.C
 
 LIB = $(FOAM_USER_LIBBIN)/libuserTurbineModels

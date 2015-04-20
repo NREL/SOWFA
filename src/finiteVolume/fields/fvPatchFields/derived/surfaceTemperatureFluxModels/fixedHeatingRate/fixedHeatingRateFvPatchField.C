@@ -627,10 +627,12 @@ void  fixedHeatingRateFvPatchField::qwEvaluate
             // Set iterator to zero
             label iter = 0;
 
-            //Info << "U" << U << endl;
+          //Info << "U = " << U << endl;
 
             // Set initial guesse at u*
             scalar uStar0 = (kappa * U) / Foam::log(z1 / z0);
+
+          //Info << "uStar0 = " << uStar0 << endl;
 
             // Limit u* to always be zero or positive
             uStar0 = max(0.0, uStar0);
@@ -638,12 +640,16 @@ void  fixedHeatingRateFvPatchField::qwEvaluate
             // Set initial guess at qw
             scalar qw0 = (-deltaT * uStar0 * kappa) / (alphaH * Foam::log(z1 / z0));
 
-            //Info << "qw0 = " << qw0 << tab <<
-            //        "uStar0 = " << uStar0 << endl;
+          //Info << "qw0 = " << qw0 << tab <<
+          //        "uStar0 = " << uStar0 << endl;
 
 
 
             qw = qw0;
+            if (abs(qw) < 1E-6)
+            {
+                qw = sign(qw)*1E-6;
+            }
             uStar = uStar0;
             L = -(Foam::pow(uStar,3.0)) / (kappa * (g/TRef) * qw);
             phiM = 1.0 + (gammaM * z1/L);
