@@ -88,11 +88,9 @@ int main(int argc, char *argv[])
     // field.
     U.correctBoundaryConditions();
     phi = linearInterpolate(U) & mesh.Sf();
+    #include "turbulenceCorrect.H"
     T.correctBoundaryConditions();
     p_rgh.correctBoundaryConditions();
-    turbulence->correct();
-    Rwall.correctBoundaryConditions();
-    qwall.correctBoundaryConditions();
 
 
     while (runTime.loop())
@@ -113,13 +111,17 @@ int main(int argc, char *argv[])
                 p_rgh.storePrevIter();
             }
 
+            Info << "   Predictor..." << endl;
             #include "UEqn.H"
+            #include "turbulenceCorrect.H"
             #include "TEqn.H"
 
             // --- Pressure corrector loop
             for (int corr=0; corr<pimple.nCorr(); corr++)
             {
+                Info << "   Corrector Step " << corr << "..." << endl;
                 #include "pEqn.H"
+                #include "turbulenceCorrect.H"
                 #include "TEqn.H"
             }
 
@@ -130,15 +132,11 @@ int main(int argc, char *argv[])
             #include "correctGradP.H"
 
             // --- Update the turbulence fields
-            if (pimple.turbCorr())
-            {
-                turbulence->correct();
-            }
-
-            // --- Update the boundary momentum and
-            //     temperature flux conditions
-            qwall.correctBoundaryConditions();
-            Rwall.correctBoundaryConditions();
+//          if (pimple.turbCorr())
+//          {
+//              #include "turbulenceCorrect.H"
+//              turbulence->correct();
+//          }
         }   
 
         if (runTime.outputTime())

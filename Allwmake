@@ -2,8 +2,8 @@
 
 echo "Building with OpenFOAM-"$OPENFOAM_VERSION
 
-version=${OPENFOAM_VERSION:0:1}
-variant=${OPENFOAM_VERSION:2:1}
+version=${WM_PROJECT_VERSION:0:1}
+variant=${WM_PROJECT_VERSION:2:1}
 
 dir=2.0-and-lower
 if [ $version -lt 2 ]
@@ -23,6 +23,12 @@ fi
 
 
 cd src/turbulenceModels/incompressible/LES/
+cd GenEddyViscABL
+rm GenEddyViscABL.H
+rm GenEddyViscABL.C
+ln -s $dir/GenEddyViscABL.H ./
+ln -s $dir/GenEddyViscABL.C ./
+cd ../
 wmake libso
 cd ../../../../
 

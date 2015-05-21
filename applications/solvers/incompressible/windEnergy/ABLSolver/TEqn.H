@@ -1,6 +1,6 @@
 {
-    kappat = turbulence->nut()/Prt;
-    kappat.correctBoundaryConditions();
+  //kappat = turbulence->nut()/Prt;
+  //kappat.correctBoundaryConditions();
 
     volScalarField kappaEff("kappaEff", turbulence->nu()/Pr + kappat);
 
