@@ -1,0 +1,88 @@
+#!/bin/bash
+#PBS -l walltime=72:00:00
+#PBS -l nodes=40
+#PBS -A windFlowModeling
+#PBS -W x="FLAGS:ADVRES:SOWFA.10113"
+
+source $HOME/.bash_profile
+OpenFOAM-2.0.x-gcc-impi
+module list
+
+cd $PBS_O_WORKDIR
+nodes=40                             # Number of nodes
+cores=24                             # Number MPI processes to start on each node; 8 cores/node
+
+
+
+solver=pisoFoamTurbine
+
+
+refineMeshLocal()
+{
+   i=$1
+   while [ $i -gt 0 ]
+   do
+      echo "Performing level $i local refinement"
+      echo "   selecting cells to refine..."
+      cp system/topoSetDict.local.$i system/topoSetDict
+      topoSet > log.topoSet.local.$i 2>&1
+
+      echo "   refining cells..."
+      cp system/refineMeshDict.local system/refineMeshDict
+      refineMesh -dict -overwrite > log.refineMesh.local.$i 2>&1
+
+      let i=i-1
+   done
+}
+
+
+refineMeshGlobal()
+{
+   i=1
+   while [ $i -le $1 ]
+   do
+      echo "Performing level $i global refinement"
+      echo "   refining cells..."
+      mpirun -np $(($nodes*$cores)) refineMesh -parallel -overwrite > log.refineMesh.global.$i 2>&1
+
+      let i=i+1
+   done
+}
+
+
+echo "Starting OpenFOAM job at: " $(date)
+echo "using " $(($nodes*$cores)) " processors"
+
+# Get a clean version of the intial fields
+rm -rf 0
+cp -rf 0.original 0
+
+# Copy the proper controlDict into place
+
+cp system/controlDict.1 system/controlDict
+
+# Make the background coarse mesh using blockMesh (serial)
+echo "Running blockMesh"
+cp constant/polyMesh/blockMeshDict ./
+rm -rf constant/polyMesh/*
+mv ./blockMeshDict constant/polyMesh
+blockMesh > log.blockMesh 2>&1
+
+# Perform local refinement (serial)
+refineMeshLocal 3
+
+# Decompose the mesh and solution files (serial)
+echo "Running decomposePar"
+cp system/decomposeParDict.$(($nodes*$cores)) system/decomposeParDict
+decomposePar -cellDist -force > log.decomposePar
+
+# Perform global refinement to desired resolution (parallel)
+refineMeshGlobal 1
+
+# Check the mesh.
+mpirun -np $(($nodes*$cores)) checkMesh -parallel > log.checkMesh 2>&1
+
+# Run the solver (parallel)
+mpirun -np $(($nodes*$cores)) $solver -parallel > log.1.$solver 2>&1
+
+echo "Ending OpenFOAM job at: " $(date)

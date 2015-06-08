@@ -1,0 +1,32 @@
+#!/bin/bash
+#MSUB -l walltime=72:00:00
+#MSUB -l nodes=12:ppn=24
+#MSUB -l feature=24core
+#MSUB -A windFlowModeling
+
+cd $PBS_O_WORKDIR
+
+nodes=12                   # Number of nodes
+cores=24                   # Number MPI processes to start on each node
+nProcs=288
+
+
+solver=pisoFoamTurbine
+runNumber=1
+
+
+
+
+
+
+echo "Starting OpenFOAM job at: " $(date)
+echo "using " $(($nodes*$cores)) " processors"
+
+# Copy the proper controlDict into place
+cp system/controlDict.$runNumber system/controlDict
+cp constant/turbineArrayProperties.$runNumber constant/turbineArrayProperties
+
+# Run the solver (parallel)
+mpirun -np $nProcs $solver -parallel > log.$solver.$runNumber 2>&1
+
+echo "Ending OpenFOAM job at: " $(date)

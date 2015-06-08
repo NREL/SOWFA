@@ -1,0 +1,50 @@
+#!/bin/bash
+#MSUB -l walltime=120:00:00
+#MSUB -l nodes=5:ppn=24
+
+cd $PBS_O_WORKDIR
+
+nodes=5                    # Number of nodes
+cores=24                   # Number MPI processes to start on each node
+
+initializer=setFieldsABL
+solver=ABLSolver
+runNumber=1
+
+rm -rf 0
+cp -rf 0.original 0
+
+cp system/controlDict.$runNumber system/controlDict
+
+echo "Starting OpenFOAM job at: " $(date)
+echo "using " $(($nodes*$cores)) " processors"
+
+# Make the mesh using blockMesh (serial) and decompose it.
+if [ $runNumber -eq 1 ]
+   cp constant/polyMesh/blockMeshDict ./
+   rm -rf constant/polyMesh/*
+   mv ./blockMeshDict constant/polyMesh
+   blockMesh > log.blockMesh 2>&1
+
+
+   decomposePar -cellDist -force > log.decomposePar 2>&1
+fi
+
+# Copy the nuSgs files since 2.0.x seems to have a bug in which nuSgs does not write.
+if [ $runNumber -gt 1 ]
+   i=0
+   while [ $i -lt $(($nodes*$cores)) ]
+      do
+         cp -rf processor$i/0/nuSgs* processor$i/6000
+         let i=i+1
+   done
+fi
+
+
+# Run the solver (parallel)
+if [ $runNumber -eq 1 ]
+   mpirun -np $(($nodes*$cores)) $initializer -parallel > log.$runNumber.$initializer 2>&1
+fi
+mpirun -np $(($nodes*$cores)) $solver -parallel > log.$runNumber.$solver 2>&1
+
+echo "Ending OpenFOAM job at: " $(date)

@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default                        backward;
+//  default                        CrankNicholson 1.0;
+}
+
+gradSchemes
+{
+    default                        Gauss linear;
+    grad(U)                        Gauss linear;
+}
+
+divSchemes
+{
+    default                        Gauss linear;
+//  div(phi,U)                     Gauss linear;
+    div(phi,U)                     Gauss localBlended midPoint upwind;
+    div(R)                         Gauss linear;
+    div(U)                         Gauss linear;
+    div((nuEff*dev(grad(U).T())))  Gauss linear;
+    div(B)                         Gauss linear;
+    div(phi,B)                     Gauss linear;
+}
+
+laplacianSchemes
+{
+    default                        Gauss linear corrected;
+    laplacian(rUA,p)               Gauss linear corrected;
+    laplacian((1|A(U)),p)          Gauss linear corrected;
+    laplacian(interpolate((1|A(U))),p) Gauss linear corrected;
+    laplacian(interpolate((1|A(U))),pd) Gauss linear corrected;
+    laplacian(nu,U)                Gauss linear corrected;
+    laplacian(nuEff,U)             Gauss linear corrected;
+    laplacian(kappaEff,T)          Gauss linear corrected;
+    laplacian(DBEff,B)             Gauss linear corrected;
+    laplacian(nuSgs,U)             Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default                        linear;
+}
+
+snGradSchemes
+{
+    default                        corrected;
+}
+
+fluxRequired
+{
+    default                        no;
+    p                                ;
+}
+
+schemeBlending
+{
+    xBlending1                     -252.0;
+    xBlending2                        0.0;
+    xBlending3                     3024.0;
+    xBlending4                     4000.0;
+    blendingFactor1                   0.9;
+    blendingFactor2                   1.0;
+}
+
+// ************************************************************************* //

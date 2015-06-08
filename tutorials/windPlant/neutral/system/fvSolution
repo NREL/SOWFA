@@ -1,0 +1,98 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+
+//  pd
+//  {
+//      solver          PCG;
+//      preconditioner  DIC;
+//      tolerance       1e-8;
+//      relTol          0.01;
+//  }
+
+    pd
+    {
+        solver          GAMG;
+        tolerance       1e-6;
+        relTol          0.01;
+        smoother        DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 100;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+    }
+
+//  pdFinal
+//  {
+//      solver          PCG;
+//      preconditioner  DIC;
+//      tolerance       1e-8;
+//      relTol          0;
+//  }
+
+    pdFinal
+    {
+        solver          GAMG;
+        tolerance       1e-8;
+        relTol          0;
+        smoother        DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 100;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+    T
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+}
+
+options
+{
+    nCorrectors              3;
+    nNonOrthogonalCorrectors 0;
+
+    pdRefOn                  true; 
+    pdRefCell                10440;
+    pdRefValue               0;
+
+    tempEqnOn                true;
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [ 0 2 -2 0 0 0 0 ];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    bottom
+    {
+        type            zeroGradient;
+        value           uniform 0.0;
+    }
+    top
+    {
+        type            zeroGradient;
+        value           uniform 0.0;
+    }
+    west 
+    {
+        type            zeroGradient;
+        value           uniform 0.0;
+    }
+    east
+    {
+        type            zeroGradient;  //This gives less boundary flux error than fixedValue 0.
+        value           uniform 0.0;
+    }
+    north
+    {
+        type            cyclic;
+    }
+    south 
+    {
+        type            cyclic;
+    }
+}
+
+
+// ************************************************************************* //

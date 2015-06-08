@@ -1,0 +1,150 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+
+//  p
+//  {
+//      solver          PCG;
+//      preconditioner  DIC;
+//      tolerance       1e-6;
+//      relTol          0.05;
+//  }
+
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-6;
+        relTol          0.05;
+        smoother        DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 100;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+    }
+
+//  p
+//  {
+//      solver          PCG;
+//      preconditioner
+//      {
+//          preconditioner  GAMG;
+//          tolerance       1e-06;
+//          relTol          0.05;
+//          smoother        DICGaussSeidel;
+//          nPreSweeps      0;
+//          nPostSweeps     2;
+//          nFinestSweeps   2;
+//          cacheAgglomeration true;
+//          nCellsInCoarsestLevel 100;
+//          agglomerator    faceAreaPair;
+//          mergeLevels     2;
+//      }
+//      tolerance       1e-06;
+//      relTol           0.05;
+//      maxIter         100;
+//  }
+
+//  pFinal
+//  {
+//      solver          PCG;
+//      preconditioner  DIC;
+//      tolerance       1e-6;
+//      relTol          0;
+//  }
+
+//  pFinal
+//  {
+//      solver          GAMG;
+//      tolerance       1e-6;
+//      relTol          0;
+//      smoother        DIC;
+//      nPreSweeps      0;
+//      nPostSweeps     2;
+//      nFinestSweeps   2;
+//      cacheAgglomeration true;
+//      nCellsInCoarsestLevel 100;
+//      agglomerator    faceAreaPair;
+//      mergeLevels     2;
+//  }
+
+    pFinal
+    {
+        solver          PCG;
+        preconditioner
+        {
+            preconditioner  GAMG;
+            tolerance       1e-05;
+            relTol          0.05;
+            smoother        DICGaussSeidel;
+            nPreSweeps      0;
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 100;
+            agglomerator    faceAreaPair;
+            mergeLevels     2;
+        }
+        tolerance       1e-05;
+        relTol           0.0;
+        maxIter         100;
+    }
+
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+
+    flm
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+
+    fmm
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+}
+
+PISO
+{
+    nCorrectors              3;
+    nNonOrthogonalCorrectors 0;
+
+    pRefPoint              (-377.0 0.0001 0.0);
+    pRefValue               0;
+}
+
+
+// ************************************************************************* //
