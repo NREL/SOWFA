@@ -1,0 +1,38 @@
+#!/bin/bash
+#SBATCH --time=48:00:00             # WALLTIME
+#SBATCH -N 2                        # Number of nodes
+#SBATCH --job-name SOWE             # Name of job
+#SBATCH --account=WHT000            # Wind program account code
+
+nodes=$SLURM_JOB_NUM_NODES          # Number of nodes
+cores=8                             # Number MPI processes to start on each node; 8 cores/node
+
+initializer=setFieldsABL
+solver=ABLSolver
+
+cp system/controlDict.1 system/controlDict
+
+echo "Starting OpenFOAM job at: " $(date)
+echo "using " $(($nodes*$cores)) " processors"
+
+# Make the mesh using blockMesh (serial)a
+cp constant/polyMesh/blockMeshDict ./
+rm -rf constant/polyMesh/*
+mv ./blockMeshDict constant/polyMesh
+blockMesh > log.blockMesh 2>&1
+
+# Get rid of any initial files and replace with 0.original files
+rm -rf 0
+cp -rf 0.original 0
+
+# Decompose the mesh and solution files (serial)
+decomposePar -cellDist -force > log.decomposePar 2>&1
+
+# Initialize the solution files (parallel)
+mpirun -np $(($nodes*$cores)) $initializer -parallel > log.$initializer 2>&1
+
+# Run the solver (parallel)
+mpirun -np $(($nodes*$cores)) $solver -parallel > log.1.$solver 2>&1
+
+echo "Ending OpenFOAM job at: " $(date)
+
