@@ -17,7 +17,7 @@ FoamFile
 
   application       ABLSolver;
 
-  libs              ("libuserincompressibleLESModels.so");
+  libs              ("libuserincompressibleLESModels.so" "libuserfiniteVolume.so");
 
   startFrom         startTime;
 
