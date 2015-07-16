@@ -1,0 +1,112 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          setFieldsABLDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "../17000/include/initialConditions"
+
+// Extents of the domain (assumes x, y, and z start from 0.0).
+xMax                      3000.0;
+yMax                      3000.0;
+zMax                      1000.0;
+
+// Specify how to initialze the base velocity and temperature profile.
+//velocityInitType          "table";
+//velocityInitType          "log";
+velocityInitType          "geostrophic";
+//temperatureInitType       "table";
+temperatureInitType       "simple";
+
+// Maximum perturbation of streamwise/spanwise flow near surface.
+deltaU                    0.5;
+deltaV                    0.5;
+
+// Total periods of perturbations in streamwise/spanwise in the domain.
+Uperiods                  6.0;
+Vperiods                  12.0;
+
+// Percentage of domain height (zMax) where peak in perturbation 
+// magnitude occurs.
+zPeak                     0.03;
+
+// Initial height of the center of the capping inversion.
+zInversion                500.0;
+
+// Width of the capping inversion.
+widthInversion            100.0;
+
+// Potential temperature at the bottom and top of the capping inversion.
+Tbottom                   285.0;
+Ttop                      290.0;
+
+// Maximum temperature fluctuation size below capping inversion.
+TPrimeScale               0.0;
+
+// Height rate of change of potential temperature above the inversion.
+dTdz                      0.003;
+
+// Geostrophic wind speed magnitude.
+Ug                        10.4;
+
+// Geostrophic wind speed direction.
+UgDir                     270.0;
+
+// Aerodynamic roughness height of surface.
+z0                        0.0002;
+
+// von Karman constant.
+kappa                     0.4;
+
+// Vertical profile table.
+profileTable
+(
+//   z          U       V        T
+    (   6.25      3.32    0.00   265.0)
+    (  18.75      4.42    0.00   265.0)
+    (  31.25      5.16    0.00   265.0)
+    (  43.75      5.77    0.00   265.0)
+    (  56.25      6.30    0.00   265.0)
+    (  68.75      6.74    0.00   265.0)
+    (  81.25      7.11    0.00   265.0)
+    (  93.75      7.42    0.00   265.0)
+    ( 106.25      7.65    0.00   265.1)
+    ( 118.75      7.82    0.00   265.2)
+    ( 131.25      7.93    0.00   265.3)
+    ( 143.75      7.99    0.00   265.4)
+    ( 156.25      8.00    0.00   265.6)
+    ( 168.75      8.00    0.00   265.7)
+    ( 181.25      8.00    0.00   265.8)
+    ( 193.75      8.00    0.00   265.9)
+    ( 206.25      8.00    0.00   266.1)
+    ( 218.75      8.00    0.00   266.2)
+    ( 231.25      8.00    0.00   266.3)
+    ( 243.75      8.00    0.00   266.4)
+    ( 500.00      8.00    0.00   269.0)
+);
+
+// Update internal field.
+updateInternalFields      false;
+
+// Update boundary field.
+updateBoundaryFields      true;
+
+// ************************************************************************* //

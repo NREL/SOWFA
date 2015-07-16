@@ -7,7 +7,7 @@ EXE_INC = \
     -I$(WM_PROJECT_USER_DIR)/src/fastturb/lnInclude
 
 EXE_LIBS = \
-    -Lfast/bin \
+    -Lfast \
     -L$(FOAM_USER_LIBBIN) \
     -lfiniteVolume \
     -lmeshTools \

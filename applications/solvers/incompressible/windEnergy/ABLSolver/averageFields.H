@@ -1,8 +1,8 @@
 // Get horizontally averaged quantities
 {
-volSymmTensorField R = turbulence->R();
+volSymmTensorField R = 1.0*turbulence->R();
 volVectorField q = -kappat * fvc::grad(T);
-volScalarField nuSGS = turbulence->nut();
+volScalarField nuSGS = 1.0*turbulence->nut();
 
     forAll(hLevelsValues,hLevelsI)
     {

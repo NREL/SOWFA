@@ -51,7 +51,6 @@ Description
 #include "pimpleControl.H"
 #include "IFstream.H"
 #include "OFstream.H"
-//#include "horizontalAxisWindTurbinesALM.H"
 #include "horizontalAxisWindTurbinesFAST.H"
 
 
@@ -114,8 +113,16 @@ int main(int argc, char *argv[])
 
     Info << nl << "Starting time loop\n" << endl;
 
-    turbulence->correct();
+    // Update boundary conditions before starting in case anything needs
+    // updating, for example after using mapFields to interpolate initial
+    // field.
     U.correctBoundaryConditions();
+    phi = linearInterpolate(U) & mesh.Sf();
+    T.correctBoundaryConditions();
+    p_rgh.correctBoundaryConditions();
+    turbulence->correct();
+    Rwall.correctBoundaryConditions();
+    qwall.correctBoundaryConditions();
 
 
     while (runTime.loop())
@@ -137,7 +144,6 @@ int main(int argc, char *argv[])
                 p_rgh.storePrevIter();
             }
 
-            // compute body force from FAST
             for(int turbNo=0; turbNo<turbfast.turbNum; turbNo++)
             {
 
@@ -149,6 +155,7 @@ int main(int argc, char *argv[])
                 fastgetbldpos_(turbfast.bldptx[turbNo], turbfast.bldpty[turbNo], turbfast.bldptz[turbNo]);
                 fastgetbldforce_(turbfast.bldfx[turbNo], turbfast.bldfy[turbNo], turbfast.bldfz[turbNo]);
               }
+
               turbfast.computeBodyForce(turbNo);
             }
 

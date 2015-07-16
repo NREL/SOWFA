@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createAverageFields.H"
+    #include "createSGSTurbulenceFields.H"
     #include "createGradP.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
             // --- Pressure corrector loop
             for (int corr=0; corr<pimple.nCorr(); corr++)
             {
-                Info << "   Corrector Step " << corr << "..." << endl;
+                Info << "   Corrector Step " << corr + 1 << "..." << endl;
                 #include "pEqn.H"
                 #include "turbulenceCorrect.H"
                 #include "TEqn.H"
@@ -147,6 +148,8 @@ int main(int argc, char *argv[])
         #include "statisticsCell.H"
 //      #include "statisticsFace.H"
 //      #include "statisticsABL.H"
+
+        #include "computeSGSTurbulenceFields.H"
 
         runTime.write();
         #include "writeGradP.H"

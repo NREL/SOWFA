@@ -70,9 +70,9 @@ class GenEddyViscABL
 
 protected:
 
-    // Model coefficient field
-
-        volScalarField ce_;
+    // Model coefficients
+   
+        dimensionedScalar ce_;
 
     // Fields
 

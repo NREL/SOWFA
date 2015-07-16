@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+  application       ABLSolver;
+
+  libs              ("libuserincompressibleLESModels.so");
+
+  startFrom         startTime;
+
+  startTime         15000.0;
+
+  stopAt            endTime;
+
+  endTime           20000.0;
+
+  deltaT            0.5;
+
+  writeControl      adjustableRunTime;
+
+  writeInterval     6000.0; 
+
+  purgeWrite        0;
+
+  writeFormat       binary;
+
+  writePrecision    12;
+
+  writeCompression  compressed;
+
+  timeFormat        general;
+
+  timePrecision     12;
+
+  runTimeModifiable yes;
+
+  adjustTimeStep    no;
+
+  maxCo             0.75;
+
+  maxDeltaT         25.0;
+
+  functions
+  {
+     #include "boundaryDataPre"
+  }
+
+// ************************************************************************* //
+

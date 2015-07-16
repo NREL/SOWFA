@@ -118,7 +118,6 @@ horizontalAxisWindTurbinesFAST::horizontalAxisWindTurbinesFAST
     // set variable sizes
     totalBldpts = bldNum*bldPts;
 
-    contProcNo.setSize(turbNum, List<label>(totalBldpts,0));
     minDistCellID.setSize(turbNum, List<label>(totalBldpts,-1));
 
     bladePoints.setSize(turbNum, List<List<vector> >(bldNum, List<vector>(bldPts,vector::zero)));
@@ -129,6 +128,37 @@ horizontalAxisWindTurbinesFAST::horizontalAxisWindTurbinesFAST
     yawAngle = 2.0*asin(1.0)/180.0*yawAngle;
 
     // initialize data-messenger variables (may not be required on some systems) 
+
+    uin = new float*[turbNum];
+    vin = new float*[turbNum];
+    win = new float*[turbNum];
+
+    bldptx = new float*[turbNum];
+    bldpty = new float*[turbNum];
+    bldptz = new float*[turbNum];
+
+    bldfx = new float*[turbNum];
+    bldfy = new float*[turbNum];
+    bldfz = new float*[turbNum];
+
+    for(int i=0;i<turbNum;i++)
+    {
+   
+      uin[i] = new float[totalBldpts];
+      vin[i] = new float[totalBldpts];
+      win[i] = new float[totalBldpts];
+
+      bldptx[i] = new float[totalBldpts];
+      bldpty[i] = new float[totalBldpts];
+      bldptz[i] = new float[totalBldpts];
+
+      bldfx[i] = new float[totalBldpts];
+      bldfy[i] = new float[totalBldpts];
+      bldfz[i] = new float[totalBldpts];
+
+    }
+
+
     for(int i=0;i<turbNum;i++)
     {
       for(int j=0;j<totalBldpts;j++)
@@ -157,7 +187,7 @@ horizontalAxisWindTurbinesFAST::horizontalAxisWindTurbinesFAST
 
 
 // * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * * //
-void horizontalAxisWindTurbinesFAST::getSphereCellID(int iturb) // change to sphere instead of a box 
+void horizontalAxisWindTurbinesFAST::getSphereCellID(int iturb) 
 {
 
     DynamicList<label> sphereCellsI;
@@ -185,88 +215,87 @@ void horizontalAxisWindTurbinesFAST::getSphereCellID(int iturb) // change to sph
 void horizontalAxisWindTurbinesFAST::getBldPos(int iturb)
 {
 
-    List<List<vector> > bldPtsLocal(Pstream::nProcs(), List<vector> (totalBldpts,vector::zero));
+    List<vector> bldPtsLocal(totalBldpts,vector::zero);
 
-    for (int n=0; n<totalBldpts; n++)
+    for(int j=0;j<bldNum; j++)
     {
-      bldPtsLocal[iturb][n].x() = bldptx[iturb][n]*cos(yawAngle)
-                                - bldpty[iturb][n]*sin(yawAngle)
-                                + refx[iturb];
+      for(int k=0;k<bldPts; k++)
+      {
+        bldPtsLocal[k+bldPts*j].x() = bldptx[iturb][k+bldPts*j]*cos(yawAngle)
+                                    - bldpty[iturb][k+bldPts*j]*sin(yawAngle)
+                                    + refx[iturb];
 
-      bldPtsLocal[iturb][n].y() = bldptx[iturb][n]*sin(yawAngle)
-                                + bldpty[iturb][n]*cos(yawAngle)
-                                + refy[iturb];
+        bldPtsLocal[k+bldPts*j].y() = bldptx[iturb][k+bldPts*j]*sin(yawAngle)
+                                    + bldpty[iturb][k+bldPts*j]*cos(yawAngle)
+                                    + refy[iturb];
 
-      bldPtsLocal[iturb][n].z() = bldptz[iturb][n] + refz[iturb];
+        bldPtsLocal[k+bldPts*j].z() = bldptz[iturb][k+bldPts*j] + refz[iturb];
+      }
     }
 
-    Pstream::gatherList(bldPtsLocal);
-    Pstream::scatterList(bldPtsLocal);
+    Pstream::gather(bldPtsLocal,sumOp<List<vector> >());
+    Pstream::scatter(bldPtsLocal);
 
     for(int j=0;j<bldNum; j++)
     {
       for(int k=0;k<bldPts; k++)
       {
 
-        bladePoints[iturb][j][k].x() = bldPtsLocal[iturb][k + bldPts*j].x();
-        bladePoints[iturb][j][k].y() = bldPtsLocal[iturb][k + bldPts*j].y();
-        bladePoints[iturb][j][k].z() = bldPtsLocal[iturb][k + bldPts*j].z();
+        bladePoints[iturb][j][k].x() = bldPtsLocal[k+bldPts*j].x();
+        bladePoints[iturb][j][k].y() = bldPtsLocal[k+bldPts*j].y();
+        bladePoints[iturb][j][k].z() = bldPtsLocal[k+bldPts*j].z();
 
       }
     }
- 
+
 }
 
 
 void horizontalAxisWindTurbinesFAST::getContProcNoCellID(int iturb)  
 {
 
-    List<List<scalar> > minDisLocal(Pstream::nProcs(), List<scalar>(totalBldpts,1.0E30));
-    List<List<label> > minDisCellIDLocal(Pstream::nProcs(), List<label>(totalBldpts,-1));
-
+    List<scalar> minDisLocal(totalBldpts,1.0E30);
+    List<scalar> minDisGlobal(totalBldpts,1.0E30);
+    
     if (sphereCells[iturb].size() > 0)
     {
-
       for(int j=0;j<bldNum; j++)
       {
         for(int k=0;k<bldPts; k++)
         {
-
-          label minDisCellID = -1;
+          label cellID = -1;
           scalar minDis = 1.0E10;
-    
+ 
           forAll(sphereCells[iturb], m)
           {
             scalar dis = mag(mesh_.C()[sphereCells[iturb][m]] - bladePoints[iturb][j][k]);
             if(dis <= minDis)
             {
-              minDisCellID = sphereCells[iturb][m];
-              minDis = mag(mesh_.C()[minDisCellID] - bladePoints[iturb][j][k]);
+              cellID = sphereCells[iturb][m];
+              minDis = mag(mesh_.C()[cellID] - bladePoints[iturb][j][k]);
             }
           }  
-          minDisLocal[Pstream::myProcNo()][k+bldPts*j] = minDis;
-          minDisCellIDLocal[Pstream::myProcNo()][k+bldPts*j] = minDisCellID;
+          minDisLocal[k+bldPts*j] = minDis;
+          minDisGlobal[k+bldPts*j] = minDis;
+          minDistCellID[iturb][k+bldPts*j] = cellID;
         }
       }
-
     }
 
-    Pstream::gatherList(minDisLocal);
-    Pstream::scatterList(minDisLocal);
-    Pstream::gatherList(minDisCellIDLocal);
-    Pstream::scatterList(minDisCellIDLocal);
+    Pstream::gather(minDisGlobal, minOp<List<scalar> >());
+    Pstream::scatter(minDisGlobal);
 
     // For each grid pts, find the control processor # and the associated cellID within the processor
-    for(int n = 0; n < totalBldpts; n++)
+    if (sphereCells[iturb].size() > 0)
     {
-      scalar minDis = 1.0E30;
-      for(int m = 0; m < Pstream::nProcs(); m++)
+      for(int j=0;j<bldNum; j++)
       {
-        if(minDisLocal[m][n] <= minDis)
+        for(int k=0;k<bldPts; k++)
         {
-          minDis = minDisLocal[m][n];
-          contProcNo[iturb][n] = m;
-          minDistCellID[iturb][n] = minDisCellIDLocal[m][n];
+          if(minDisGlobal[k+bldPts*j] != minDisLocal[k+bldPts*j])
+          {
+             minDistCellID[iturb][k+bldPts*j] = -1;
+          }
         }
       }
     }
@@ -276,69 +305,87 @@ void horizontalAxisWindTurbinesFAST::getContProcNoCellID(int iturb)
 
 void horizontalAxisWindTurbinesFAST::getWndVec(int iturb)
 {
+
+    List<vector> windVectorLocal(totalBldpts, vector::zero);
+
     gradU = fvc::grad(U_);
+
 
     getContProcNoCellID(iturb);  
 
-    List<List<vector> > windVectorsLocal(Pstream::nProcs(), List<vector>(totalBldpts,vector::zero));
 
-    for(int j=0;j<bldNum; j++)
+    if (sphereCells[iturb].size() > 0)
     {
-      for(int k=0;k<bldPts; k++)
+      for(int j=0;j<bldNum; j++)
       {
-        if(Pstream::myProcNo() == contProcNo[iturb][k + bldPts*j])
-        { 
-          windVectorsLocal[Pstream::myProcNo()][k + bldPts*j] = U_[minDistCellID[iturb][k + bldPts*j]];
-
-          if (pointInterpType == 1)
+        for(int k=0;k<bldPts; k++)
+        {
+          if(minDistCellID[iturb][k+bldPts*j] != -1)
           {
-            vector dx = bladePoints[iturb][j][k] - mesh_.C()[minDistCellID[iturb][k + bldPts*j]];
-            vector dU = dx & gradU[minDistCellID[iturb][k + bldPts*j]];
-            windVectorsLocal[Pstream::myProcNo()][k + bldPts*j] += dU;
-          }
+            windVectorLocal[k+bldPts*j] = U_[minDistCellID[iturb][k + bldPts*j]];
 
+            if (pointInterpType == 1)
+            {
+              vector dx = bladePoints[iturb][j][k] - mesh_.C()[minDistCellID[iturb][k + bldPts*j]];
+              vector dU = dx & gradU[minDistCellID[iturb][k + bldPts*j]];
+              windVectorLocal[k+bldPts*j] += dU;
+            }
+
+          }
+        }
+      } 
+    }
+ 
+
+    Pstream::gather(windVectorLocal, sumOp<List<vector> >());
+    Pstream::scatter(windVectorLocal);
+
+      for(int j=0;j<bldNum; j++)
+      {
+        for(int k=0;k<bldPts; k++)
+        {
+ 
+          uin[iturb][k+bldPts*j] = windVectorLocal[k+bldPts*j].x()*cos(yawAngle)
+                                 + windVectorLocal[k+bldPts*j].y()*sin(yawAngle);
+
+          vin[iturb][k+bldPts*j] = -windVectorLocal[k+bldPts*j].x()*sin(yawAngle)
+                                 +  windVectorLocal[k+bldPts*j].y()*cos(yawAngle);
+
+          win[iturb][k+bldPts*j] = windVectorLocal[k+bldPts*j].z();
+          
         }
       }
-    }
-
-    Pstream::gatherList(windVectorsLocal);
-    Pstream::scatterList(windVectorsLocal);
-
-    for(int n=0;n<totalBldpts;n++)
-    {
-        uin[iturb][n] = windVectorsLocal[contProcNo[iturb][n]][n].x()*cos(yawAngle)
-                      + windVectorsLocal[contProcNo[iturb][n]][n].y()*sin(yawAngle);
-
-        vin[iturb][n] = -windVectorsLocal[contProcNo[iturb][n]][n].x()*sin(yawAngle)
-                      +  windVectorsLocal[contProcNo[iturb][n]][n].y()*cos(yawAngle);
-
-        win[iturb][n] = windVectorsLocal[contProcNo[iturb][n]][n].z();
-    }
 
 }
 
-
+ 
 void horizontalAxisWindTurbinesFAST::getBldPosForce(int iturb)
 {
 
-    List<List<vector> > bldPtsLocal(Pstream::nProcs(), List<vector> (totalBldpts,vector::zero));
-    List<List<vector> > bldForceLocal(Pstream::nProcs(), List<vector> (totalBldpts,vector::zero));
-
-    for (int n=0; n<totalBldpts; n++)
+    List<vector> bldPtsLocal(totalBldpts,vector::zero);
+    List<vector> bldForceLocal(totalBldpts,vector::zero);
+ 
+    for(int j=0;j<bldNum; j++)
     {
-      bldPtsLocal[iturb+5][n].x() = double(bldptx[iturb][n]);
-      bldPtsLocal[iturb+5][n].y() = double(bldpty[iturb][n]);
-      bldPtsLocal[iturb+5][n].z() = double(bldptz[iturb][n]);
-      bldForceLocal[iturb+5][n].x() = double(bldfx[iturb][n]);
-      bldForceLocal[iturb+5][n].y() = double(bldfy[iturb][n]);
-      bldForceLocal[iturb+5][n].z() = double(bldfz[iturb][n]);
+      for(int k=0;k<bldPts; k++)
+      {
+
+        bldPtsLocal[k+bldPts*j].x() = double(bldptx[iturb][k+bldPts*j]);
+        bldPtsLocal[k+bldPts*j].y() = double(bldpty[iturb][k+bldPts*j]);
+        bldPtsLocal[k+bldPts*j].z() = double(bldptz[iturb][k+bldPts*j]);
+
+        bldForceLocal[k+bldPts*j].x() = double(bldfx[iturb][k+bldPts*j]);
+        bldForceLocal[k+bldPts*j].y() = double(bldfy[iturb][k+bldPts*j]);
+        bldForceLocal[k+bldPts*j].z() = double(bldfz[iturb][k+bldPts*j]);
+
+      }
     }
+ 
+    Pstream::gather(bldPtsLocal, sumOp<List<vector> >());
+    Pstream::gather(bldForceLocal, sumOp<List<vector> >());
 
-    Pstream::gatherList(bldPtsLocal);
-    Pstream::gatherList(bldForceLocal);
-
-    Pstream::scatterList(bldPtsLocal);
-    Pstream::scatterList(bldForceLocal);
+    Pstream::scatter(bldPtsLocal);
+    Pstream::scatter(bldForceLocal);
 
 
     for(int j=0;j<bldNum; j++)
@@ -346,24 +393,24 @@ void horizontalAxisWindTurbinesFAST::getBldPosForce(int iturb)
       for(int k=0;k<bldPts; k++)
       {
 
-        bladePoints[iturb][j][k].x() = bldPtsLocal[iturb+5][k + bldPts*j].x()*cos(yawAngle)
-                                     - bldPtsLocal[iturb+5][k + bldPts*j].y()*sin(yawAngle) 
+        bladePoints[iturb][j][k].x() = bldPtsLocal[k+bldPts*j].x()*cos(yawAngle)
+                                     - bldPtsLocal[k+bldPts*j].y()*sin(yawAngle) 
                                      + refx[iturb];
 
-        bladePoints[iturb][j][k].y() = bldPtsLocal[iturb+5][k + bldPts*j].x()*sin(yawAngle)
-                                     + bldPtsLocal[iturb+5][k + bldPts*j].y()*cos(yawAngle) 
+        bladePoints[iturb][j][k].y() = bldPtsLocal[k+bldPts*j].x()*sin(yawAngle)
+                                     + bldPtsLocal[k+bldPts*j].y()*cos(yawAngle) 
                                      + refy[iturb];
 
-        bladePoints[iturb][j][k].z() = bldPtsLocal[iturb+5][k + bldPts*j].z() + refz[iturb];
+        bladePoints[iturb][j][k].z() = bldPtsLocal[k+bldPts*j].z() + refz[iturb];
 
 
-        bladeForce[iturb][j][k].x() = -bldForceLocal[iturb+5][k + bldPts*j].x()*cos(yawAngle)
-                                      +bldForceLocal[iturb+5][k + bldPts*j].y()*sin(yawAngle);
+        bladeForce[iturb][j][k].x() = -bldForceLocal[k+bldPts*j].x()*cos(yawAngle)
+                                      +bldForceLocal[k+bldPts*j].y()*sin(yawAngle);
 
-        bladeForce[iturb][j][k].y() = -bldForceLocal[iturb+5][k + bldPts*j].x()*sin(yawAngle)
-                                      -bldForceLocal[iturb+5][k + bldPts*j].y()*cos(yawAngle);
+        bladeForce[iturb][j][k].y() = -bldForceLocal[k+bldPts*j].x()*sin(yawAngle)
+                                      -bldForceLocal[k+bldPts*j].y()*cos(yawAngle);
 
-        bladeForce[iturb][j][k].z() = -bldForceLocal[iturb+5][k + bldPts*j].z();
+        bladeForce[iturb][j][k].z() = -bldForceLocal[k+bldPts*j].z();
 
       }
     }
@@ -395,6 +442,7 @@ void horizontalAxisWindTurbinesFAST::computeBodyForce(int iturb)
         }  
       }
     }
+
 }
 
 volVectorField& horizontalAxisWindTurbinesFAST::force()

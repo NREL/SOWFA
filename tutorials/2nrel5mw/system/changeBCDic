@@ -1,0 +1,109 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      changeDictionaryDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dictionaryReplacement
+{
+
+    // Specify
+    // - all fvPatchFields with potential non-uniform values
+    // - all fvPatchFields originating from meshing
+    // - all fvPatchFields originating from mesh-redistribution
+
+    U
+    {
+        boundaryField
+        {
+            west
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                value           uniform (10.4 0.0 0.0); 
+            }
+
+        }
+    }
+
+    T
+    {
+        boundaryField
+        {
+            west
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                value           uniform 285.0; 
+            }
+
+        }
+
+    }
+
+    flm
+    {
+        boundaryField
+        {
+            west
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                value           uniform 2.56E-6; 
+            }
+
+        }
+    }
+
+    fmm
+    {
+        boundaryField
+        {
+            west
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                value           uniform 0.0001; 
+            }
+
+        }
+    }
+
+
+    Rwall
+    {
+        boundaryField
+        {
+            "procBoundary.*"
+            {
+                type            processor;
+                value           uniform (0.0 0.0 0.0 0.0 0.0 0.0); 
+            }
+        }
+    }
+
+    qwall
+    {
+        boundaryField
+        {
+            "procBoundary.*"
+            {
+                type            processor;
+                value           uniform (0.0 0.0 0.0); 
+            }
+        }
+    }
+
+}
+// ************************************************************************* //

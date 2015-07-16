@@ -102,5 +102,6 @@
             IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        turbulence->nut()
+        mesh,
+        dimensionedScalar("nuSGSmean",dimensionSet(0,2,-1,0,0,0,0),0.0)
     );

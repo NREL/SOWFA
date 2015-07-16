@@ -16,5 +16,4 @@
 
     // update the boundary conditions on surface shear stress.
     Rwall.correctBoundaryConditions();
-
 }

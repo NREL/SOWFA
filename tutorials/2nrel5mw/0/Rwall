@@ -1,0 +1,67 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volSymmTensorField;
+    location    "0";
+    object      Rwall;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "include/initialConditions"
+
+dimensions      [ 0 2 -2 0 0 0 0 ];
+
+internalField   uniform (0.0 0.0 0.0 0.0 0.0 0.0);
+
+boundaryField
+{
+    lower
+    {
+        type            SchumannGrotzbach;
+        kappa           $kappa;
+        z0              uniform $z0;
+        betaM           $betaM;
+        gammaM          $gammaM;
+        averageType     "local";
+        //averageType     "planarAverage";
+        value           uniform $Rwall;
+    }
+    upper
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    west
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+    east
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    north 
+    {
+        type            cyclic;
+        value           $internalField;
+    }
+    south
+    {
+        type            cyclic;
+        value           $internalField;
+    }
+}
+
+
+// ************************************************************************* //

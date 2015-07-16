@@ -106,8 +106,6 @@ private:
 
     List<DynamicList<label> > sphereCells;			
 
-    List<List<label> > contProcNo;
-		
     List<List<label> > minDistCellID;
 
     List<List<List<vector> > > bladePoints;
@@ -126,17 +124,32 @@ public:
 
     int totalBldpts;
 
-    float uin[2][200];
-    float vin[2][200];
-    float win[2][200];
+/*
+    float uin[3][200];
+    float vin[3][200];
+    float win[3][200];
 
-    float bldptx[2][200];
-    float bldpty[2][200];
-    float bldptz[2][200];
+    float bldptx[3][200];
+    float bldpty[3][200];
+    float bldptz[3][200];
 
-    float bldfx[2][200];
-    float bldfy[2][200];
-    float bldfz[2][200];
+    float bldfx[3][200];
+    float bldfy[3][200];
+    float bldfz[3][200];
+*/
+
+    float **uin;
+    float **vin;
+    float **win;
+
+    float **bldptx;
+    float **bldpty;
+    float **bldptz;
+
+    float **bldfx;
+    float **bldfy;
+    float **bldfz;
+
 
     //- Constructor
     horizontalAxisWindTurbinesFAST
@@ -146,7 +159,38 @@ public:
     
     //- Destructor
     virtual ~horizontalAxisWindTurbinesFAST()
-    {}
+    {
+
+      for(int i=0;i<turbNum;i++)
+      {
+
+        delete [] uin[i];
+        delete [] vin[i];
+        delete [] win[i]; 
+
+        delete [] bldptx[i];
+        delete [] bldpty[i];
+        delete [] bldptz[i];
+
+        delete [] bldfx[i];
+        delete [] bldfy[i];
+        delete [] bldfz[i];
+
+      }
+
+      delete [] uin;
+      delete [] vin;
+      delete [] win;
+
+      delete [] bldptx;
+      delete [] bldpty;
+      delete [] bldptz;
+
+      delete [] bldfx;
+      delete [] bldfy;
+      delete [] bldfz;
+   
+    }
 
     void getBldPos(int iturb);
     

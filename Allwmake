@@ -5,19 +5,31 @@ echo "Building with OpenFOAM-"$OPENFOAM_VERSION
 version=${WM_PROJECT_VERSION:0:1}
 variant=${WM_PROJECT_VERSION:2:1}
 
-dir=2.0-and-lower
+dir20=2.0-and-lower
+dir21=2.1-2.2
+dir23=2.3-and-higher
+
+dir=$dir20
 if [ $version -lt 2 ]
 then
-   dir=2.0-and-lower
+   dir=$dir20
+   dirrm1=$dir21
+   dirrm2=$dir23
 elif [ $version -eq 2 ] && [ $variant -le 0 ]
 then
-   dir=2.0-and-lower
+   dir=$dir20
+   dirrm1=$dir21
+   dirrm2=$dir23
 elif [ $version -eq 2 ] && [ $variant -ge 1 ] && [ $variant -le 2 ]
 then
-   dir=2.1-2.2
+   dir=$dir21
+   dirrm1=$dir20
+   dirrm2=$dir23
 elif [ $version -eq 2 ] && [ $variant -ge 3 ]
 then
-   dir=2.3-and-higher
+   dir=$dir23
+   dirrm1=$dir20
+   dirrm2=$dir21
 fi
 
 
@@ -28,6 +40,7 @@ rm GenEddyViscABL.H
 rm GenEddyViscABL.C
 ln -s $dir/GenEddyViscABL.H ./
 ln -s $dir/GenEddyViscABL.C ./
+rm -rf $dirrm1 $dirrm2
 cd ../
 wmake libso
 cd ../../../../
@@ -49,6 +62,7 @@ rm pEqn.H
 rm ABLSolver.C
 ln -s $dir/pEqn.H ./
 ln -s $dir/ABLSolver.C ./
+rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -57,6 +71,7 @@ rm pEqn.H
 rm ABLTerrainSolver.C
 ln -s $dir/pEqn.H ./
 ln -s $dir/ABLTerrainSolver.C ./
+rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -65,18 +80,21 @@ rm pEqn.H
 rm windPlantSolver.C
 ln -s $dir/pEqn.H ./
 ln -s $dir/windPlantSolver.C ./
+rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
 rm pisoFoamTurbine.C
 ln -s $dir/pisoFoamTurbine.C
+rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
 rm pisoFoamTurbine.C
 ln -s $dir/pisoFoamTurbine.C
+rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 

@@ -91,6 +91,11 @@ class oneEqEddyABL
         dimensionedScalar ck_;
 
 
+    // Model coefficient field (necessary if the coefficient becomes variable).
+
+        volScalarField ceField_;
+
+
     // Private Member Functions
 
         //- Update sub-grid scale fields
@@ -130,6 +135,12 @@ public:
         virtual tmp<volScalarField> k() const
         {
             return k_;
+        }
+
+        //- Return sub-grid disipation rate
+        virtual tmp<volScalarField> epsilon() const
+        {
+            return ceField_*k()*sqrt(k())/l_;
         }
 
         //- Return the effective diffusivity for k

@@ -1,0 +1,139 @@
+sliceDataInstantaneous
+{
+    type                surfaces;
+    functionObjectLibs  ("libsampling.so");
+    enabled             true;
+    interpolationScheme cell;
+    outputControl       outputTime;
+    outputInterval      1;
+    surfaceFormat       raw;
+    fields
+    (
+        U
+        T
+    );
+
+    surfaces
+    (
+        sliceStreamwise
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 500);
+                normalVector    (1 0 0);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceCrossstream
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 500);
+                normalVector    (0 1 0);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal5
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 5);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal40
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 40);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal80
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 80);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal200
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 200);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal400
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 400);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal600
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 600);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal800
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 800);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+        sliceHorizontal995
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       (1500 3000 995);
+                normalVector    (0 0 1);
+            }
+            interpolate     true;
+            triangulate     false;
+        }
+    );
+}

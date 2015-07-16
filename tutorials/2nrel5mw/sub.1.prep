@@ -1,0 +1,94 @@
+#!/bin/bash
+
+
+# Start time of simulation
+timeStart=0
+
+# number of Procs
+nProcs=16
+
+# Function for refining the mesh globally in parallel.
+refineMeshByCellSetLocal()
+{
+   for i in `seq 1 $1`;
+   do
+      echo "LEVEL $i SERIAL LOCAL REFINEMENT"
+      echo "   selecting cells to refine with topoSet..."
+      cp system/topoSetDict.local.$i system/topoSetDict
+      topoSet > log.topoSet.local.$i 2>&1
+
+      echo "   refining cells with refineMesh..."
+      cp system/refineMeshDict.local.$i system/refineMeshDict
+      refineMesh -dict -overwrite > log.refineMesh.local.$i 2>&1
+  done
+}
+
+
+changeBoundaryConditions()
+{
+   i=0
+   while [ $i -lt $nProcs ];
+   do 
+        echo "make change to processor $i directory ..."
+        changeDictionary -case processor$i -dict system/changeBCDic > log.changeBC.$i
+        let i=i+1
+   done
+
+}
+
+renumMeshSerial()
+{
+   i=0
+   while [ $i -lt $nProcs ];
+   do 
+        echo "make change to processor $i directory ..."
+        renumberMesh -case processor$i -overwrite > log.renumMesh.$i
+        let i=i+1
+   done
+}
+
+
+
+# Make the mesh using blockMesh (serial)
+cd constant/polyMesh
+mv blockMeshDict ../
+rm -r *
+mv ../blockMeshDict .
+cd ../..
+
+echo "BUILDING THE BASE MESH WITH blockMesh..."
+blockMesh > log.blockMesh 2>&1
+
+# Get rid of any initial files and replace with 0.original files (serial)
+rm -rf $timeStart
+cp -rf $timeStart.original $timeStart
+
+# Add the turbine/wake local refinement regions (serial)
+#refineMeshByCellSetLocal 2 
+
+# reduce the matrix band
+#echo "renumbering Mesh..."
+#renumberMesh -overwrite > log.renumberMesh 2>&1
+
+# checking mesh quality
+echo "checking mesh quality..."
+checkMesh > log.checkMesh 2>&1
+
+# Decompose the mesh and solution files (serial)
+echo "DECOMPOSING THE MESH WITH decomposePar..."
+decomposePar -cellDist -force > log.decomposePar 2>&1
+
+
+# change boundary conditions for qwall, Rwall, U, T, fmm and flm
+#changeBoundaryConditions
+
+# data interpolation from another case
+#echo "MAPPING THE FLOW FIELD WITH mapFields..."
+#mapFields ../../inflow/precursor10.4ms -sourceTime $timeStart -parallelSource -parallelTarget -mapMethod mapNearest > log.mapFields 2>&1
+
+
+# reduce the matrix band
+#echo "renumbering Mesh..."
+#renumMeshSerial
+
+

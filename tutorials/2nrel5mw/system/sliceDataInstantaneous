@@ -1,0 +1,36 @@
+      sliceDataInstantaneous
+      {
+          type                 surfaces;
+          functionObjectLibs   ("libsampling.so");
+          enabled              true;
+          interpolationScheme  isThisNeeded;
+          outputControl        timeStep;
+          outputInterval       5;
+          surfaceFormat        vtk;
+          fields
+          (
+              U
+          );
+          surfaces
+          (
+              slice_0
+              {
+                  type         plane;
+                  basePoint    (250 250 98.189);
+                  normalVector (0 0 1);
+                  interpolate  false;
+                  triangulate  false;
+              }
+
+              slice_1
+              {
+                  type         plane;
+                  basePoint    (250.1 250.1 98.189);
+                  normalVector (0 1 0);
+                  interpolate  false;
+                  triangulate  false;
+              }
+
+           ); 
+      }
+
