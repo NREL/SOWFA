@@ -51,22 +51,17 @@ GenEddyViscABL::GenEddyViscABL
 )
 :
     LESModel(modelName, U, phi, transport, turbulenceModelName),
-    
-    
+
     ce_
     (
-        IOobject
+        dimensioned<scalar>::lookupOrAddToDict
         (
             "ce",
-            runTime_.timeName(),
-            mesh_,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh_,
-        dimensionedScalar("ce",dimensionSet(0,0,0,0,0,0,0),0.7)
+            coeffDict_,
+            0.93
+        )
     ),
-
+    
     nuSgs_
     (
         IOobject
@@ -152,21 +147,23 @@ tmp<fvVectorMatrix> GenEddyViscABL::divDevBeff(volVectorField& U) const
 
 void GenEddyViscABL::computeLengthScale()
 {
-    volVectorField gradT = fvc::grad(T_);
-    const volScalarField& k_ = k();
-    forAll(gradT,i)
+    volScalarField gradTdotg = fvc::grad(T_) & g_;
+    volScalarField k_ = 1.0*k();
+    forAll(gradTdotg,i)
     {
         // neutral/unstable
-        if ((gradT[i] & g_).value() >= 0.0)
+        if (gradTdotg[i] >= 0.0)
         {
             l_[i] = delta()[i];
         }
         // stable
         else
         {
-            l_[i] = min(delta()[i], 0.76*sqrt(k_[i])*sqrt(TRef_.value()/mag(g_.value() & gradT[i])));
+            l_[i] = min(delta()[i], 0.76*sqrt(k_[i])*sqrt(TRef_.value()/mag(gradTdotg[i])));
         }
     }
+    gradTdotg.clear();
+    k_.clear();
 }
 
 void GenEddyViscABL::correct(const tmp<volTensorField>& gradU)
@@ -179,6 +176,8 @@ bool GenEddyViscABL::read()
 {
     if (LESModel::read())
     {
+        ce_.readIfPresent(coeffDict());
+
         return true;
     }
     else

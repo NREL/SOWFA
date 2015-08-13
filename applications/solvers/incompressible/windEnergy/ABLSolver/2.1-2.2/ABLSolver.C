@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createAverageFields.H"
+    #include "createSGSTurbulenceFields.H"
     #include "createGradP.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
@@ -142,6 +143,8 @@ int main(int argc, char *argv[])
         #include "statisticsCell.H"
 //      #include "statisticsFace.H"
 //      #include "statisticsABL.H"
+
+        #include "computeSGSTurbulenceFields.H"
 
         runTime.write();
         #include "writeGradP.H"

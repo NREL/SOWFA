@@ -29,7 +29,8 @@ Group
 
 Description
     General base class for all incompressible models that can be implemented
-    as an eddy viscosity, i.e. algebraic and one-equation models.
+    as an eddy viscosity, i.e. algebraic and one-equation models.  Modified
+    from original version to better handle the atmospheric SGS models.
 
     Contains fields for k (SGS turbulent kinetic energy), gamma
     (modelled viscosity) and epsilon (SGS dissipation).
@@ -74,7 +75,7 @@ protected:
 
     // Model coefficients
 
-        volScalarField ce_;
+        dimensionedScalar ce_;
 
     // Fields
 
