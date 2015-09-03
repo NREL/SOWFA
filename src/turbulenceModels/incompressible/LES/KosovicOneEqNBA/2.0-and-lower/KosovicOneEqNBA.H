@@ -22,50 +22,26 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::incompressible::LESModels::KosovicNBA
+    Foam::incompressible::LESModels::KosovicOneEqNBA
 
 Description
-    One Equation Eddy Viscosity Model for incompressible atmospheric flows. 
-    It is based on the original oneEqEddy OpenFOAM model, but has some small
-    modifications, such as buoyancy production, specific to atmospheric flow.
+    Kosovic's one-equation nonlinear anisotropic backscatter SGS model.
 
-    Eddy viscosity SGS model using a modeled balance equation to simulate the
-    behaviour of k, hence,
-    \verbatim
-        d/dt(k) 
-      + div(U*k)
-        =
-      - dev(R)*(grad(U)
-      + (1/theta_0)*g&q
-      + div(2*nuSgs*grad(k))
-      - eps
-
-    and
-
-        R = 2/3*k*I - 2*nuSgs*dev(D)
-        Reff = 2/3*k*I - 2*nuEff*dev(D)
-        eps = ce*k^(3/2)/l
-
-    where
-
-        D = symm(grad(U));
-        nuSgs = ck*sqrt(k)*delta
-        nuEff = nuSgs + nu
-        theta_0 = reference potential temperature
-        g = gravity
-        q = -2*(nuSgs/Pr_t)*grad(T)
-        l = length scale
-    \endverbatim
+    Kosovic, B. and Curry J., "A Large Eddy Simulation Study of a Quasi-Steady,
+    Stably Stratified Atmospheric Boundary Layer," Journal of the Atmospheric
+    Sciences, Vol 57, pp. 1052--1068, 2000.
 
 SourceFiles
-    KosovicNBA.C
+    KosovicOneEqNBA.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef KosovicNBA_H
-#define KosovicNBA_H
+#ifndef KosovicOneEqNBA_H
+#define KosovicOneEqNBA_H
 
-#include "NonLinEddyViscABL.H"
+#include "LESModel.H"
+#include "uniformDimensionedFields.H"
+#include "IOdictionary.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -77,39 +53,58 @@ namespace LESModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class KosovicNBA Declaration
+                      Class KosovicOneEqNBA Declaration
 \*---------------------------------------------------------------------------*/
 
-class KosovicNBA
+class KosovicOneEqNBA
 :
-    public NonLinEddyViscABL
+    public LESModel
 {
-    // Private data
 
-        volScalarField k_;
+protected:
 
-        dimensionedScalar ck_;
+    // Protected data
+
+        // Model coefficients
+
+            dimensionedScalar cb_;
+            dimensionedScalar cs_;
+            dimensionedScalar ce_;
+            dimensionedScalar ceps_;
+            dimensionedScalar Ske_;
+            dimensionedScalar c1_;
+            dimensionedScalar c2_;
 
 
-    // Private Member Functions
+        // Fields
 
-        //- Update sub-grid scale fields
-        void updateSubGridScaleFields();
+            volScalarField k_;
+            volScalarField nuSgs_;
+            volSymmTensorField nonlinearStress_;
+            volScalarField leps_;
+            volScalarField ln_;
+            volScalarField ls_;
 
-        // Disallow default bitwise copy construct and assignment
-        KosovicNBA(const KosovicNBA&);
-        KosovicNBA& operator=(const KosovicNBA&);
+      
+        // Other model parameters or needed information.
+
+            word TName_;
+            word kappatName_;
+            const volScalarField& T_;
+            const uniformDimensionedVectorField& g_;
+            IOdictionary transportDict_;
+            dimensionedScalar TRef_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("KosovicNBA");
+    TypeName("KosovicOneEqNBA");
 
     // Constructors
 
         //- Construct from components
-        KosovicNBA
+        KosovicOneEqNBA
         (
             const volVectorField& U,
             const surfaceScalarField& phi,
@@ -120,16 +115,28 @@ public:
 
 
     //- Destructor
-    virtual ~KosovicNBA()
+    virtual ~KosovicOneEqNBA()
     {}
 
 
     // Member Functions
-
+    
         //- Return SGS kinetic energy
         virtual tmp<volScalarField> k() const
         {
             return k_;
+        }
+
+        //- Return sub-grid disipation rate
+        virtual tmp<volScalarField> epsilon() const
+        {
+            return ceps_*k()*sqrt(k())/leps_;
+        }
+
+        //- Return the SGS viscosity
+        virtual tmp<volScalarField> nuSgs() const
+        {
+            return nuSgs_;
         }
 
         //- Return the effective diffusivity for k
@@ -141,7 +148,21 @@ public:
             );
         }
 
-        //- Correct Eddy-Viscosity and related properties
+        //- Return the sub-grid stress tensor.
+        virtual tmp<volSymmTensorField> B() const;
+
+        //- Return the effective sub-grid turbulence deviatoric stress
+        //  tensor including the laminar stress
+        virtual tmp<volSymmTensorField> devBeff() const;
+
+        //- Return the divergence of the deviatoric part of the effective
+        //  sub-grid turbulence stress tensor including the laminar stress
+        virtual tmp<fvVectorMatrix> divDevBeff(volVectorField& U) const;
+
+        //- Correct the stability-dependent length scales
+        virtual void computeLengthScales();
+
+        //- Correct eddy-viscosity and related properties
         virtual void correct(const tmp<volTensorField>& gradU);
 
         //- Read LESProperties dictionary
