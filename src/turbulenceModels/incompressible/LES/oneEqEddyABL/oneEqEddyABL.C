@@ -111,8 +111,10 @@ oneEqEddyABL::oneEqEddyABL
     )
 
 {
+    // Bound SGS energy from below so that it isn't negative.
     bound(k_, kMin_);
 
+    // Update the SGS viscosity.
     updateSubGridScaleFields();
 
     printCoeffs();
@@ -191,7 +193,7 @@ void oneEqEddyABL::correct(const tmp<volTensorField>& gradU)
     updateSubGridScaleFields();
 
 
-    // Update the SGS thermal conductivity.
+    // Update the SGS thermal diffusivity.
     volScalarField& kappat_ = const_cast<volScalarField&>(U().db().lookupObject<volScalarField>(kappatName_));
     kappat_ = nuSgs_/Prt;
 //  kappat_.correctBoundaryConditions();

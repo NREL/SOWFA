@@ -42,6 +42,14 @@ ln -s $dir/GenEddyViscABL.H ./
 ln -s $dir/GenEddyViscABL.C ./
 rm -rf $dirrm1 $dirrm2
 cd ../
+
+cd KosovicOneEqNBA
+rm KosovicOneEqNBA.H
+rm KosovicOneEqNBA.C
+ln -s $dir/KosovicOneEqNBA.H ./
+ln -s $dir/KosovicOneEqNBA.C ./
+rm -rf $dirrm1 $dirrm2
+cd ../
 wmake libso
 cd ../../../../
 
@@ -60,8 +68,10 @@ cd ../../../
 cd applications/solvers/incompressible/windEnergy/ABLSolver
 rm pEqn.H
 rm ABLSolver.C
+rm Make/options
 ln -s $dir/pEqn.H ./
 ln -s $dir/ABLSolver.C ./
+ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
@@ -69,8 +79,10 @@ cd ../../../../../
 cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
 rm pEqn.H
 rm ABLTerrainSolver.C
+rm Make/options
 ln -s $dir/pEqn.H ./
 ln -s $dir/ABLTerrainSolver.C ./
+ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
@@ -78,27 +90,36 @@ cd ../../../../../
 cd applications/solvers/incompressible/windEnergy/windPlantSolver
 rm pEqn.H
 rm windPlantSolver.C
+rm Make/options
 ln -s $dir/pEqn.H ./
 ln -s $dir/windPlantSolver.C ./
+ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
 rm pisoFoamTurbine.C
+rm Make/options
 ln -s $dir/pisoFoamTurbine.C
+ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
 rm pisoFoamTurbine.C
+rm Make/options
 ln -s $dir/pisoFoamTurbine.C
+ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness
+rm Make/options
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -114,3 +135,4 @@ cd ../../
 cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
 wmake
 cd ../../../../../
+

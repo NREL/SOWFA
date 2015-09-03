@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::incompressible::LESModels::GenEddyViscABLABL
+    Foam::incompressible::LESModels::GenEddyViscABL
 
 Description
     General base class for all incompressible models that can be implemented
@@ -135,11 +135,11 @@ public:
         //- Return the sub-grid stress tensor.
         virtual tmp<volSymmTensorField> B() const;
 
-        //- Return the effective sub-grid turbulence stress tensor
-        //  including the laminar stress
+        //- Return the deviatoric part of the effective sub-grid 
+        //  turbulence stress tensor including the laminar stress
         virtual tmp<volSymmTensorField> devBeff() const;
 
-        //- Return the deviatoric part of the effective sub-grid
+        //- Return the divergence of the effective deviatoric sub-grid
         //  turbulence stress tensor including the laminar stress
         virtual tmp<fvVectorMatrix> divDevBeff(volVectorField& U) const;
 
