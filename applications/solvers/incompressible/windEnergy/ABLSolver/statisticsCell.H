@@ -6,45 +6,55 @@
              #include "averageFields.H"
 
 	     // Then get the statistics at each vertical level
+             List<symmTensor> velFluxMeanVol(hLevelsTotal,symmTensor::zero);
+             List<symmTensor> velFluxFluxMeanVol(hLevelsTotal,symmTensor::zero);
+             List<vector> tempFluxMeanVol(hLevelsTotal,vector::zero);
 	     forAll(hLevelsValues,hLevelsI)
 	     {
-	          symmTensor velFluxMeanVol = symmTensor::zero;
-		  symmTensor velFluxFluxMeanVol = symmTensor::zero;
-		  vector tempFluxMeanVol = vector::zero;
+//                symmTensor velFluxMeanVol = symmTensor::zero;
+//                symmTensor velFluxFluxMeanVol = symmTensor::zero;
+//                vector tempFluxMeanVol = vector::zero;
 
 	  	  // sum variable times cell volume over the cells at a certain level
 		  for (label i = 0; i < numCellPerLevel[hLevelsI]; i++)
 		  {
 		       label cellI = hLevelsCellList[hLevelsI][i];
-	               velFluxMeanVol.xx() += Uprime[cellI].x() * Uprime[cellI].x() * mesh.V()[cellI];
-	               velFluxMeanVol.xy() += Uprime[cellI].x() * Uprime[cellI].y() * mesh.V()[cellI];
-	               velFluxMeanVol.xz() += Uprime[cellI].x() * Uprime[cellI].z() * mesh.V()[cellI];
-	               velFluxMeanVol.yy() += Uprime[cellI].y() * Uprime[cellI].y() * mesh.V()[cellI];
-	               velFluxMeanVol.yz() += Uprime[cellI].y() * Uprime[cellI].z() * mesh.V()[cellI];
-	               velFluxMeanVol.zz() += Uprime[cellI].z() * Uprime[cellI].z() * mesh.V()[cellI];
+	               velFluxMeanVol[hLevelsI].xx() += Uprime[cellI].x() * Uprime[cellI].x() * mesh.V()[cellI];
+	               velFluxMeanVol[hLevelsI].xy() += Uprime[cellI].x() * Uprime[cellI].y() * mesh.V()[cellI];
+	               velFluxMeanVol[hLevelsI].xz() += Uprime[cellI].x() * Uprime[cellI].z() * mesh.V()[cellI];
+	               velFluxMeanVol[hLevelsI].yy() += Uprime[cellI].y() * Uprime[cellI].y() * mesh.V()[cellI];
+	               velFluxMeanVol[hLevelsI].yz() += Uprime[cellI].y() * Uprime[cellI].z() * mesh.V()[cellI];
+	               velFluxMeanVol[hLevelsI].zz() += Uprime[cellI].z() * Uprime[cellI].z() * mesh.V()[cellI];
 
-	               velFluxFluxMeanVol.xx() += Uprime[cellI].z() * Uprime[cellI].x() * Uprime[cellI].x() * mesh.V()[cellI];
-	               velFluxFluxMeanVol.xy() += Uprime[cellI].z() * Uprime[cellI].x() * Uprime[cellI].y() * mesh.V()[cellI];
-	               velFluxFluxMeanVol.xz() += Uprime[cellI].z() * Uprime[cellI].x() * Uprime[cellI].z() * mesh.V()[cellI];
-	               velFluxFluxMeanVol.yy() += Uprime[cellI].z() * Uprime[cellI].y() * Uprime[cellI].y() * mesh.V()[cellI];
-	               velFluxFluxMeanVol.yz() += Uprime[cellI].z() * Uprime[cellI].y() * Uprime[cellI].z() * mesh.V()[cellI];
-	               velFluxFluxMeanVol.zz() += Uprime[cellI].z() * Uprime[cellI].z() * Uprime[cellI].z() * mesh.V()[cellI];
+	               velFluxFluxMeanVol[hLevelsI].xx() += Uprime[cellI].z() * Uprime[cellI].x() * Uprime[cellI].x() * mesh.V()[cellI];
+	               velFluxFluxMeanVol[hLevelsI].xy() += Uprime[cellI].z() * Uprime[cellI].x() * Uprime[cellI].y() * mesh.V()[cellI];
+	               velFluxFluxMeanVol[hLevelsI].xz() += Uprime[cellI].z() * Uprime[cellI].x() * Uprime[cellI].z() * mesh.V()[cellI];
+	               velFluxFluxMeanVol[hLevelsI].yy() += Uprime[cellI].z() * Uprime[cellI].y() * Uprime[cellI].y() * mesh.V()[cellI];
+	               velFluxFluxMeanVol[hLevelsI].yz() += Uprime[cellI].z() * Uprime[cellI].y() * Uprime[cellI].z() * mesh.V()[cellI];
+	               velFluxFluxMeanVol[hLevelsI].zz() += Uprime[cellI].z() * Uprime[cellI].z() * Uprime[cellI].z() * mesh.V()[cellI];
 
-		       tempFluxMeanVol.x() += Tprime[cellI]     * Uprime[cellI].x() * mesh.V()[cellI];
-		       tempFluxMeanVol.y() += Tprime[cellI]     * Uprime[cellI].y() * mesh.V()[cellI];
-		       tempFluxMeanVol.z() += Tprime[cellI]     * Uprime[cellI].z() * mesh.V()[cellI];
+		       tempFluxMeanVol[hLevelsI].x() += Tprime[cellI]     * Uprime[cellI].x() * mesh.V()[cellI];
+		       tempFluxMeanVol[hLevelsI].y() += Tprime[cellI]     * Uprime[cellI].y() * mesh.V()[cellI];
+		       tempFluxMeanVol[hLevelsI].z() += Tprime[cellI]     * Uprime[cellI].z() * mesh.V()[cellI];
 		  }
+              }
 
-		  // parallel gather the sums from each processor and scatter back out to processors
-		  reduce(velFluxMeanVol,sumOp<symmTensor>());
-		  reduce(velFluxFluxMeanVol,sumOp<symmTensor>());
-		  reduce(tempFluxMeanVol,sumOp<vector>());
+              // parallel gather the sums from each processor.  No need to scatter back out to processors because only 
+              // master writes statistics to file.
+              Pstream::gather(velFluxMeanVol,sumOp<List<symmTensor> >());
+              Pstream::gather(velFluxFluxMeanVol,sumOp<List<symmTensor> >());
+              Pstream::gather(tempFluxMeanVol,sumOp<List<vector> >());
+//		  reduce(velFluxMeanVol,sumOp<symmTensor>());
+//		  reduce(velFluxFluxMeanVol,sumOp<symmTensor>());
+//		  reduce(tempFluxMeanVol,sumOp<vector>());
 
-		  // divide the volume-weighted sums by total volume at a certain level
-                  velFluxLevelsList[hLevelsI] = velFluxMeanVol/totVolPerLevel[hLevelsI];
-                  velFluxFluxLevelsList[hLevelsI] = velFluxFluxMeanVol/totVolPerLevel[hLevelsI];
-                  tempFluxLevelsList[hLevelsI] = tempFluxMeanVol/totVolPerLevel[hLevelsI];
-	     }
+             // divide the volume-weighted sums by total volume at a certain level
+             forAll(hLevelsValues,hLevelsI)
+             {
+                  velFluxLevelsList[hLevelsI] = velFluxMeanVol[hLevelsI]/totVolPerLevel[hLevelsI];
+                  velFluxFluxLevelsList[hLevelsI] = velFluxFluxMeanVol[hLevelsI]/totVolPerLevel[hLevelsI];
+                  tempFluxLevelsList[hLevelsI] = tempFluxMeanVol[hLevelsI]/totVolPerLevel[hLevelsI];
+             }
 
              // Write the statistics to files
 	     if (Pstream::myProcNo() == 0)
