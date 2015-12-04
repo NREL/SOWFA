@@ -73,7 +73,6 @@
         mesh
     );
 
-
     // Create initial average velocity field
     Info<< "Creating mean velocity field, Umean..." << endl;
     volVectorField Umean

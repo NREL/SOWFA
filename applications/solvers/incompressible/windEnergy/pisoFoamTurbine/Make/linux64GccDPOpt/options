@@ -1,8 +1,0 @@
-# 1 "options"
-# 1 "<command-line>"
-# 1 "options"
-EXE_INC = -I$(LIB_SRC)/turbulenceModels/incompressible/turbulenceModel -I$(LIB_SRC)/transportModels -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel -I$(LIB_SRC)/finiteVolume/lnInclude -I$(LIB_SRC)/meshTools/lnInclude -I$(LIB_SRC)/fvOptions/lnInclude -I$(LIB_SRC)/sampling/lnInclude -I$(WM_PROJECT_USER_DIR)/src/turbineModels/lnInclude
-# 10 "options"
-
-
-EXE_LIBS = -L$(FOAM_USER_LIBBIN) -lincompressibleTransportModels -lincompressibleTurbulenceModel -lincompressibleRASModels -lincompressibleLESModels -luserTurbineModels -lfiniteVolume -lmeshTools -lfvOptions -lsampling

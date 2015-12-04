@@ -15,6 +15,11 @@ then
    dir=$dir20
    dirrm1=$dir21
    dirrm2=$dir23
+elif [ $version -gt 2 ]
+then
+   dir=$dir23
+   dirrm1=$dir20
+   dirrm2=$dir21
 elif [ $version -eq 2 ] && [ $variant -le 0 ]
 then
    dir=$dir20

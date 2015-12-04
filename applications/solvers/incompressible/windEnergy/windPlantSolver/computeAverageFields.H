@@ -2,11 +2,11 @@
     volVectorField uPrime = U;
     volScalarField TPrime = T;
 
-    volSymmTensorField R = turbulence->R();
+    volSymmTensorField R = 1.0*turbulence->R();
     volVectorField q = -kappat * fvc::grad(T);
-    volScalarField nuSGS = turbulence->nut();
-    kSGS = turbulence->k();
-    volScalarField epsilonSGS = turbulence->epsilon();
+    volScalarField nuSGS = 1.0*turbulence->nut();
+    kSGS = 1.0*turbulence->k();
+    volScalarField epsilonSGS = 1.0*turbulence->epsilon();
 
 
     // Compute the running time averages of the fields and then get the fluctuation.

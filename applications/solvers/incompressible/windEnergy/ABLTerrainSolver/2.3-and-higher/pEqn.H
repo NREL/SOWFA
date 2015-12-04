@@ -5,7 +5,7 @@
     volVectorField HbyA("HbyA", U);
     HbyA = rAU*UEqn.H();
 
-    surfaceScalarField phig(rAUf * ((fvc::interpolate(rhok) - 1.0) * (g & mesh.Sf())));
+    surfaceScalarField phig(-rAUf*ghf*fvc::snGrad(rhok)*mesh.magSf());
 
     surfaceScalarField phiHbyA
     (
@@ -16,6 +16,10 @@
 
     adjustPhi(phiHbyA, U, p_rgh);
 
+    surfaceScalarField phiFixedFlux = fvc::interpolate(U) & mesh.Sf();
+
+    adjustPhi(phiFixedFlux, U, p_rgh);
+
     phiHbyA += phig;
 
     // Update the fixedFluxPressure BCs to ensure flux consistency
@@ -24,7 +28,7 @@
         p_rgh.boundaryField(),
         (
             phiHbyA.boundaryField()
-          - (mesh.Sf().boundaryField() & U.boundaryField())
+          - phiFixedFlux.boundaryField()
         )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
     );
 
@@ -54,7 +58,7 @@
         }
     }
 
-    p = p_rgh + gh;
+    p = p_rgh + rhok*gh;
 
     if (p_rgh.needReference())
     {
@@ -64,6 +68,6 @@
             p.dimensions(),
             pRefValue - getRefCellValue(p, pRefCell)
         );
-        p_rgh = p - gh;
+        p_rgh = p - rhok*gh;
     }
 }

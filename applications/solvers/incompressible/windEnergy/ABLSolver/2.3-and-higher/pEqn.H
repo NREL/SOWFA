@@ -16,6 +16,10 @@
 
     adjustPhi(phiHbyA, U, p_rgh);
 
+    surfaceScalarField phiFixedFlux = fvc::interpolate(U) & mesh.Sf();
+
+    adjustPhi(phiFixedFlux, U, p_rgh);
+
     phiHbyA += phig;
 
     // Update the fixedFluxPressure BCs to ensure flux consistency
@@ -24,7 +28,7 @@
         p_rgh.boundaryField(),
         (
             phiHbyA.boundaryField()
-          - (mesh.Sf().boundaryField() & U.boundaryField())
+          - phiFixedFlux.boundaryField()
         )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
     );
 

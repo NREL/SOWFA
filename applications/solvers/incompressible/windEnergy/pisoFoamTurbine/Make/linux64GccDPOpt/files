@@ -1,6 +1,0 @@
-# 1 "files"
-# 1 "<command-line>"
-# 1 "files"
-pisoFoamTurbine.C
-
-EXE = $(FOAM_USER_APPBIN)/pisoFoamTurbine

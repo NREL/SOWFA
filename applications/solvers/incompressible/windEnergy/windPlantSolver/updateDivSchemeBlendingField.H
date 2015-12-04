@@ -1,34 +1,36 @@
     // Re-read blending information
-    faceSize1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("faceSize1"));
-    faceSize2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("faceSize2"));
-    faceSize3 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("faceSize3"));
-    faceSize4 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("faceSize4"));
+    List<List<scalar> > profileTable(mesh.schemesDict().subDict("schemeBlending").lookup("faceSizeBlendingTable"));
+    forAll(faceAreaList,i)
+    {
+        faceAreaList[i] = profileTable[i][0];
+        UBlendingList[i] = profileTable[i][1];
+        TBlendingList[i] = profileTable[i][2];
+    }
 
-    blendingFactorU1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorU1"));
-    blendingFactorU2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorU2"));
-    blendingFactorU3 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorU3"));
-    blendingFactorU4 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorU4"));
+    zBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z1"));
+    zBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z2"));
 
-    blendingFactorT1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorT1"));
-    blendingFactorT2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorT2"));
-    blendingFactorT3 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorT3"));
-    blendingFactorT4 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorT4"));
+    blendingFactorUz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z1"));
+    blendingFactorTz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z1"));
+    blendingFactorUz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z2"));
+    blendingFactorTz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z2"));
+
+
+    bool useWallDistZ(mesh.schemesDict().subDict("schemeBlending").lookupOrDefault<bool>("useWallDistZ",false));
+
 
 
     // Check to see if the blending factors or face sizes have changed.  If so, recalculate the U and T
     // blending factor field.
-    if ((faceSize1 != faceSize1Old) ||
-        (faceSize2 != faceSize2Old) ||
-        (faceSize3 != faceSize3Old) ||
-        (faceSize4 != faceSize4Old) ||
-        (blendingFactorU1 != blendingFactorU1Old) ||
-        (blendingFactorU2 != blendingFactorU2Old) ||
-        (blendingFactorU3 != blendingFactorU3Old) ||
-        (blendingFactorU4 != blendingFactorU4Old) ||
-        (blendingFactorT1 != blendingFactorT1Old) ||
-        (blendingFactorT2 != blendingFactorT2Old) ||
-        (blendingFactorT3 != blendingFactorT3Old) ||
-        (blendingFactorT4 != blendingFactorT4Old))
+    if ((profileTable != profileTableOld) ||
+        (zBlending1 != zBlending1Old) ||
+        (zBlending2 != zBlending2Old) ||
+        (blendingFactorUz1 != blendingFactorUz1Old) ||
+        (blendingFactorTz1 != blendingFactorTz1Old) ||
+        (blendingFactorUz2 != blendingFactorUz2Old) ||
+        (blendingFactorTz2 != blendingFactorTz2Old) ||
+        (useWallDistZ != useWallDistZOld))
+
     {
 
 
@@ -37,20 +39,31 @@
 
 
         // Update the old value of these quantities for checking for updated files.
-        faceSize1Old = faceSize1;
-        faceSize2Old = faceSize2;
-        faceSize3Old = faceSize3;
-        faceSize4Old = faceSize4;
+        profileTableOld = profileTable;
 
-        blendingFactorU1Old = blendingFactorU1; 
-        blendingFactorU2Old = blendingFactorU2; 
-        blendingFactorU3Old = blendingFactorU3; 
-        blendingFactorU4Old = blendingFactorU4; 
+        zBlending1Old = zBlending1;
+        zBlending2Old = zBlending2;
 
-        blendingFactorT1Old = blendingFactorT1; 
-        blendingFactorT2Old = blendingFactorT2; 
-        blendingFactorT3Old = blendingFactorT3; 
-        blendingFactorT4Old = blendingFactorT4; 
+        blendingFactorUz1Old = blendingFactorUz1;
+        blendingFactorTz1Old = blendingFactorTz1;
+        blendingFactorUz2Old = blendingFactorUz2;
+        blendingFactorTz2Old = blendingFactorTz2;
+
+        useWallDistZOld = useWallDistZ;
+
+        // Get distance from the wall
+        vector up = vector::zero;
+        up.z() = 1.0;
+        surfaceScalarField dFace = mesh.Cf() & up;
+        if (useWallDistZ)
+        {
+            Info << "Calculating wall distance..." << endl;
+            wallDist d(mesh);
+            dFace = fvc::interpolate(d);
+        }
+
+
+
 
 
         // Update the blending factor fields.
@@ -59,29 +72,37 @@
         {
             scalar area = mesh.magSf()[faceI];
 
-            UBlendingFactor[faceI] = blendingFactorU1;
-            TBlendingFactor[faceI] = blendingFactorT1;
- 
-            if ( area <= faceSize1 )
+            UBlendingFactor[faceI] = max(min(interpolateSplineXY(area,faceAreaList,UBlendingList),1.0),0.0);
+            TBlendingFactor[faceI] = max(min(interpolateSplineXY(area,faceAreaList,TBlendingList),1.0),0.0);
+
+
+
+
+            scalar z = 0.0;
+            if (useWallDistZ)
             {
-                UBlendingFactor[faceI] = blendingFactorU1;
-                TBlendingFactor[faceI] = blendingFactorT1;
+                z = dFace[faceI];
             }
-            if ( area <= faceSize2 )
+            else
             {
-                UBlendingFactor[faceI] = blendingFactorU2;
-                TBlendingFactor[faceI] = blendingFactorT2;
+                z = mesh.Cf()[faceI].z();
             }
-            if ( area <= faceSize3 )
+  
+            if ((z > zBlending1) && (z < zBlending2))
             {
-                UBlendingFactor[faceI] = blendingFactorU3;
-                TBlendingFactor[faceI] = blendingFactorT3;
+                UBlendingFactor[faceI] = blendingFactorUz2 +
+                                         0.5 * (blendingFactorUz1 - blendingFactorUz2) *
+                                        (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
+                TBlendingFactor[faceI] = blendingFactorTz2 +
+                                         0.5 * (blendingFactorTz1 - blendingFactorTz2) *
+                                        (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
             }
-            if ( area <= faceSize4 )
+            else if ( z > zBlending2 )
             {
-                UBlendingFactor[faceI] = blendingFactorU4;
-                TBlendingFactor[faceI] = blendingFactorT4;
+                UBlendingFactor[faceI] = blendingFactorUz2;
+                TBlendingFactor[faceI] = blendingFactorTz2;
             }
+
         }
 
         // boundary field
@@ -91,29 +112,35 @@
             {
                 scalar area = mesh.boundary()[patchI].magSf()[faceI];
 
-                UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorU1;
-                TBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorT1;
+                UBlendingFactor.boundaryField()[patchI][faceI] = max(min(interpolateSplineXY(area,faceAreaList,UBlendingList),1.0),0.0);
+                TBlendingFactor.boundaryField()[patchI][faceI] = max(min(interpolateSplineXY(area,faceAreaList,TBlendingList),1.0),0.0);
 
-                if ( area < faceSize1 )
+                scalar z = 0.0;
+                if (useWallDistZ)
                 {
-                    UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorU1;
-                    TBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorT1;
+                    z = dFace.boundaryField()[patchI][faceI];
                 }
-                if ( area < faceSize2 )
+                else
                 {
-                    UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorU2;
-                    TBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorT2;
+                    z = mesh.boundary()[patchI].Cf()[faceI].z();
                 }
-                if ( area < faceSize3 )
+
+
+                if ((z > zBlending1) && (z < zBlending2))
                 {
-                    UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorU3;
-                    TBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorT3;
+                    UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorUz2 +
+                                             0.5 * (blendingFactorUz1 - blendingFactorUz2) *
+                                            (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
+                    TBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorTz2 +
+                                             0.5 * (blendingFactorTz1 - blendingFactorTz2) *
+                                            (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
                 }
-                if ( area < faceSize4 )
+                else if ( z > zBlending2 )
                 {
-                    UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorU4;
-                    TBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorT4;
+                    UBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorUz2;
+                    TBlendingFactor.boundaryField()[patchI][faceI] = blendingFactorTz2;
                 }
+
             }
         }
     }

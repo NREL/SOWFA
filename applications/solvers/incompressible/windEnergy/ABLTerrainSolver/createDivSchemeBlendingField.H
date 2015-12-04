@@ -32,7 +32,7 @@
 
     // Read blending information.
     //
-    List<List<scalar> > profileTable(mesh.schemesDict().subDict("schemeBlending").lookup("schemeBlendingTable"));
+    List<List<scalar> > profileTable(mesh.schemesDict().subDict("schemeBlending").lookup("faceSizeBlendingTable"));
     scalarField faceAreaList(profileTable.size(),0.0);
     scalarField UBlendingList(profileTable.size(),0.0);
     scalarField TBlendingList(profileTable.size(),0.0);
@@ -43,13 +43,13 @@
         TBlendingList[i] = profileTable[i][2];
     }
 
-    scalar zBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("zBlending1"));
-    scalar zBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("zBlending2"));
+    scalar zBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z1"));
+    scalar zBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z2"));
 
-    scalar blendingFactorUz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorUz1"));
-    scalar blendingFactorTz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorTz1"));
-    scalar blendingFactorUz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorUz2"));
-    scalar blendingFactorTz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorTz2"));
+    scalar blendingFactorUz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z1"));
+    scalar blendingFactorTz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z1"));
+    scalar blendingFactorUz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z2"));
+    scalar blendingFactorTz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z2"));
 
     bool useWallDistZ(mesh.schemesDict().subDict("schemeBlending").lookupOrDefault<bool>("useWallDistZ",false));
 
@@ -72,8 +72,15 @@
 
 
     // Get distance from the wall
-    wallDist d(mesh);
-    surfaceScalarField dFace = fvc::interpolate(d);
+    vector up = vector::zero;
+    up.z() = 1.0;
+    surfaceScalarField dFace = mesh.Cf() & up;
+    if (useWallDistZ)
+    {
+        Info << "Calculating wall distance..." << endl;
+        wallDist d(mesh);
+        dFace = fvc::interpolate(d);
+    }
 
 
 

@@ -1,5 +1,5 @@
     // Re-read blending information
-    List<List<scalar> > profileTable(mesh.schemesDict().subDict("schemeBlending").lookup("schemeBlendingTable"));
+    List<List<scalar> > profileTable(mesh.schemesDict().subDict("schemeBlending").lookup("faceSizeBlendingTable"));
     forAll(faceAreaList,i)
     {
         faceAreaList[i] = profileTable[i][0];
@@ -7,13 +7,14 @@
         TBlendingList[i] = profileTable[i][2];
     }
 
-    zBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("zBlending1"));
-    zBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("zBlending2"));
+    zBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z1"));
+    zBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z2"));
 
-    blendingFactorUz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorUz1"));
-    blendingFactorTz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorTz1"));
-    blendingFactorUz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorUz2"));
-    blendingFactorTz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("blendingFactorTz2"));
+    blendingFactorUz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z1"));
+    blendingFactorTz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z1"));
+    blendingFactorUz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z2"));
+    blendingFactorTz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z2"));
+
 
     bool useWallDistZ(mesh.schemesDict().subDict("schemeBlending").lookupOrDefault<bool>("useWallDistZ",false));
 
@@ -49,6 +50,18 @@
         blendingFactorTz2Old = blendingFactorTz2;
 
         useWallDistZOld = useWallDistZ;
+
+        // Get distance from the wall
+        vector up = vector::zero;
+        up.z() = 1.0;
+        surfaceScalarField dFace = mesh.Cf() & up;
+        if (useWallDistZ)
+        {
+            Info << "Calculating wall distance..." << endl;
+            wallDist d(mesh);
+            dFace = fvc::interpolate(d);
+        }
+
 
 
 
