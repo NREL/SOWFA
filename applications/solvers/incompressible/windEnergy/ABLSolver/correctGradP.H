@@ -73,5 +73,8 @@
         Info << "Desired Mean Wind Vector = "     << tab << UWind.value() << " m/s" << endl;
         Info << "Uncorrected Mean Wind Vector = " << tab << UWindStar.value() << " m/s" << endl;
         Info << "Corrected Pressure Gradient = "  << tab << gradP.value()   << " m/s^2" << endl;
-        gradPHistoryFile << runTime.timeName() << " " << gradP.value() << " " << UWindSpeed_ << " " << UWindDir_ << " " << UWind.value() << " " << UWindStar.value() << endl;
+        if (Pstream::master())
+        {
+            gradPHistoryFile() << runTime.timeName() << " " << gradP.value() << " " << UWindSpeed_ << " " << UWindDir_ << " " << UWind.value() << " " << UWindStar.value() << endl;
+        }
   }

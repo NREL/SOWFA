@@ -51,6 +51,7 @@ Description
 #include "pimpleControl.H"
 #include "IFstream.H"
 #include "OFstream.H"
+#include "wallDist.H"
 #include "interpolateXY.H"
 #include "interpolateSplineXY.H"
 

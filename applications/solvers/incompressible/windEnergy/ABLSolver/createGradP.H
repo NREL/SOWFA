@@ -36,12 +36,14 @@
     {
         mkDir(postProcessingDir/"gradPHistory"/runTime.timeName());
     }
-    OFstream gradPHistoryFile
-    (
-        postProcessingDir/"gradPHistory"/runTime.timeName()/"gradPHistory"
-    );
-    gradPHistoryFile << "Time (s)" << " " << "pressure gradient (m/s^2)" << " "
-                                           << "Desired Wind Speed (m/s)" << " " 
-                                           << "Desired Wind Direction (deg)" << " "
-                                           << "Desired Wind Vector (m/s)" << " "
-                                           << "Uncorrected Wind Vector (m/s)" << endl;
+
+    autoPtr<OFstream> gradPHistoryFile(NULL);
+    if (Pstream::master())
+    {
+        gradPHistoryFile.reset(new OFstream(postProcessingDir/"gradPHistory"/runTime.timeName()/"gradPHistory"));
+        gradPHistoryFile() << "Time (s)" << " " << "pressure gradient (m/s^2)" << " "
+                                                << "Desired Wind Speed (m/s)" << " " 
+                                                << "Desired Wind Direction (deg)" << " "
+                                                << "Desired Wind Vector (m/s)" << " "
+                                                << "Uncorrected Wind Vector (m/s)" << endl;
+    }

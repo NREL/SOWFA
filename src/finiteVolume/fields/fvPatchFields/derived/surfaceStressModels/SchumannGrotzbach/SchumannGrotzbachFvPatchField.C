@@ -731,8 +731,8 @@ void  SchumannGrotzbachFvPatchField::uStarEvaluate
             {
                 //Info << "Unstable" << endl;
 
-                scalar f0 = 0;
-                scalar f1 = 0;
+                scalar f0 = 1.0E30;
+                scalar f1 = 1.0E30;
 
                 do
                 {

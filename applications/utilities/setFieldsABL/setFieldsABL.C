@@ -214,9 +214,17 @@ forAll(zProfile,i)
    TProfile[i] = profileTable[i][3];
 }
 
-// Get distance from the wall
+// Get distance from the wall only if required.
 Info << endl << "Calculating wall distance..." << endl;
-wallDist d(mesh);
+vector up = vector::zero;
+up.z() = 1.0;
+volScalarField d = mesh.C() & up;    
+if (useWallDistZ)
+{
+    Info << "Calculating wall distance..." << endl;
+    wallDist dWall(mesh);
+    d = dWall;
+}
 
 // Now calculate the field quantities.
 scalar uStar = (kappa*Ug)/(Foam::log(zInversion/z0));
