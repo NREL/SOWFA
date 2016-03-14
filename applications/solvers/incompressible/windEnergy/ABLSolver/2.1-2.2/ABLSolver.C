@@ -113,12 +113,14 @@ int main(int argc, char *argv[])
             #include "TEqn.H"
 
             // --- Pressure corrector loop
+            int corr = 0;
             while (pimple.correct())
             {
                 Info << "   Corrector Step " << corr << "..." << endl;
                 #include "pEqn.H"
                 #include "turbulenceCorrect.H"
                 #include "TEqn.H"
+                corr++;
             }
 
             // --- Compute the velocity flux divergence

@@ -113,6 +113,7 @@ private:
              scalar qw,
              scalar eps,
              scalar tol,
+             label iter,
              label iterMax
         );  
 

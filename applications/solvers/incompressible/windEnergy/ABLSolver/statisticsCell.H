@@ -57,7 +57,7 @@
              }
 
              // Write the statistics to files
-	     if (Pstream::myProcNo() == 0)
+	     if (Pstream::master())
              {
 	          TmeanFile << runTime.timeName() << " " << runTime.deltaT().value();
 

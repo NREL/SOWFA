@@ -239,11 +239,15 @@ void SchumannGrotzbachFvPatchField::evaluate
     //    Define non-dimensional shear
     scalarField phiM(patch().size(),0.0);
 
+    //    Define the iteration count for the u* solve
+    scalarField iterFace(patch().size(),0.0);
+    scalar iterAvg(0.0);
+
     forAll(uStar, facei)
     {
         if(averageType_ == "planarAverage")
         {
-//            Info << "planarAverage" << endl;
+//          Info << "planarAverage" << endl;
             if(facei == 0)
             {
                 uStarEvaluate
@@ -263,6 +267,7 @@ void SchumannGrotzbachFvPatchField::evaluate
                     qwMean,
                     1.0E-1,
                     1.0E-8,
+                    iterFace[facei],
                     1000
                 );
             }
@@ -271,12 +276,13 @@ void SchumannGrotzbachFvPatchField::evaluate
                 uStar[facei] = uStar[0];
                 L[facei] = L[0];
                 phiM[facei] = phiM[0];
+                iterFace[facei] = iterFace[0];
             }
        
         }
         else if (averageType_ == "local")
         {
-    //        Info << "local -- no average" << endl;
+//          Info << "local -- no average" << endl;
             uStarEvaluate
             (
                 uStar[facei],
@@ -293,20 +299,25 @@ void SchumannGrotzbachFvPatchField::evaluate
                 qw[facei],
                 1.0E-1,
                 1.0E-8,
+                iterFace[facei],
                 1000
             );
 
         }
 
     }
+
    
     //    Get average friction velocity
     scalar uStarMean = gSum(uStar * area) / areaTotal;
     scalar LMean = gSum(L * area) / areaTotal;
     scalar phiMMean = gSum(phiM * area) / areaTotal;
+    iterAvg = gAverage(iterFace);
+
     Info << "uStarMean = " << uStarMean << tab
          << "LMean = " << LMean << tab
-         << "phiMMean = " << phiMMean << endl;
+         << "phiMMean = " << phiMMean << tab
+         << "Avg iterations = " << iterAvg << endl;
     Info << "UParallelMeanMag = " << UParallelMeanMag << tab
          << "UParallelPMeanMag = " << UParallelPMeanMag << endl;
 
@@ -565,7 +576,8 @@ void  SchumannGrotzbachFvPatchField::uStarEvaluate
     scalar TRef, 
     scalar qw, 
     scalar eps, 
-    scalar tol, 
+    scalar tol,
+    label iter,
     label iterMax
 )
 {
@@ -575,7 +587,7 @@ void  SchumannGrotzbachFvPatchField::uStarEvaluate
             // is a nonlinear Newton solver for finding u*
 
             // Set iterator to zero
-            label iter = 0;
+            iter = 0;
 
             // Set initial guesses at u*
             scalar uStar0 = (kappa * U) / Foam::log(z1 / z0);
@@ -710,8 +722,6 @@ void  SchumannGrotzbachFvPatchField::uStarEvaluate
                     L = L1;
                     phiM = 1.0 + (gammaM * zeta1);
 
-                    
-
                 } while ((mag(f1) > tol) && (uStar0 != uStar1) && (iter < iterMax));
 
                 if (iter >= iterMax-1)
@@ -719,6 +729,50 @@ void  SchumannGrotzbachFvPatchField::uStarEvaluate
                     Info << "Max uStar iterations reached!!!" << endl;
                 }
 
+                // Sometimes the only solution to the stable version of the Monin-Obukhov
+                // scaling law is that friction velocity is zero, which does not make physical
+                // sense.  The equation above that we are trying to drive to zero increases
+                // with increasing friction velocity, but it often has a local minimum.  When
+                // there is a solution, the local minimum passes through zero (so there are really
+                // two solutions, but the solver above picks the larger zero passing, which is
+                // closer to the neutral scaling law solution).  When there is no solution,
+                // try picking this local minimum.  In extreme situations, the minimum disappears
+                // because the profile gets stretched out.  So, we rearrange the equation that
+                // we are driving to zero and pick its maximum.  See below.
+                if (uStar < 1.0E-2)
+                {
+                    scalar duStar = 0.5/100;
+                    uStar0 = 1.0E-10;
+                    uStar1 = uStar0 + duStar;
+                    scalar L0 = -(Foam::pow(uStar0,3.0)) / (kappa * (g/TRef) * qw);
+                    scalar L1 = -(Foam::pow(uStar1,3.0)) / (kappa * (g/TRef) * qw);
+                    scalar zeta0 = z1/L0;
+                    scalar zeta1 = z1/L1;
+                    scalar psiM0 = -gammaM * zeta0;
+                    scalar psiM1 = -gammaM * zeta1;
+                    f0 = U - (uStar0/kappa)*(Foam::log(z1/z0) - psiM0);
+                    f1 = U - (uStar1/kappa)*(Foam::log(z1/z0) - psiM1);
+                    do
+                    {
+                        uStar0 = uStar1;
+                        uStar1 = uStar0 + duStar;
+                        L0 = -(Foam::pow(uStar0,3.0)) / (kappa * (g/TRef) * qw);
+                        L1 = -(Foam::pow(uStar1,3.0)) / (kappa * (g/TRef) * qw);
+                        zeta0 = z1/L0;
+                        zeta1 = z1/L1;
+                        psiM0 = -gammaM * zeta0;
+                        psiM1 = -gammaM * zeta1;
+                        f0 = U - (uStar0/kappa)*(Foam::log(z1/z0) - psiM0);
+                        f1 = U - (uStar1/kappa)*(Foam::log(z1/z0) - psiM1);
+                    } while (f1 > f0);
+                    uStar = uStar0;
+                    L = L0;
+                    phiM = 1.0 + (gammaM * zeta1);
+                }
+                if (phiM > 10.0)
+                {
+                    Pout << "phiM = " << phiM << tab << "U = " << U << tab <<  "gammaM = " << gammaM << tab << "z1 =" << z1 << tab << "z0 = " << z0 << tab << "L = " << L << tab << "qw = " << qw << tab << "iter = " << iter << tab << "uStar = " << uStar << endl;
+                }
             }
 
             // --unstable
