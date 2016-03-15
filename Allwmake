@@ -128,7 +128,7 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
-cd src/openfast/bin
+cd src/openfast7/bin
 make
 ./libmake
 cd ../../../
