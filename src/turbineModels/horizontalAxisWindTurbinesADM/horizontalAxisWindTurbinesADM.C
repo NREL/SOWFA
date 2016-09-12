@@ -157,6 +157,8 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         pointInterpType.append(word(turbineArrayProperties.subDict(turbineName[i]).lookup("pointInterpType")));
         bladeUpdateType.append(word(turbineArrayProperties.subDict(turbineName[i]).lookup("bladeUpdateType")));
         epsilon.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("epsilon"))));
+        forceScalar.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("forceScalar"))));
+        inflowVelocityScalar.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("inflowVelocityScalar"))));
         tipRootLossCorrType.append(word(turbineArrayProperties.subDict(turbineName[i]).lookup("tipRootLossCorrType")));
         rotationDir.append(word(turbineArrayProperties.subDict(turbineName[i]).lookup("rotationDir")));
         rotSpeed.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("RotSpeed"))));
@@ -602,7 +604,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
             }
 
             // Calculate the solidity factor at this radius.
-            scalar chord = interpolate(bladeRadius[i][m], BladeStation[j], BladeChord[j]);
+          //scalar chord = interpolate(bladeRadius[i][m], BladeStation[j], BladeChord[j]);
           //solidity[i][m] = NumBl[j]*chord / (2.0 * Foam::constant::mathematical::pi * bladeRadius[i][m] * Foam::cos(PreCone[j][0]));
             solidity[i][m] = scalar(NumBl[j]) / scalar(nAzimuth[i][m]);
         }
@@ -1164,6 +1166,9 @@ void horizontalAxisWindTurbinesADM::computeWindVectors()
                 // Now put the velocity in that cell into blade-oriented coordinates.
                 windVectors[i][j][k] = windVectorsLocal[iter];
 
+                // Scale the inflow velocity by the specified scaling factor.
+                windVectors[i][j][k] *= inflowVelocityScalar[i];
+
                 iter++;
             }
         }
@@ -1285,10 +1290,10 @@ void horizontalAxisWindTurbinesADM::computeBladeForce()
                 {
                     scalar g = 1.0;
 
-                    scalar ftip  = (TipRad[m] - bladeRadius[i][j])/(bladeRadius[i][j] * sin(windAng*degRad));
+                    scalar ftip  = (TipRad[m] - bladeRadius[i][j])/(bladeRadius[i][j] * sin(mag(windAng)*degRad));
                     scalar Ftip  = (2.0/(Foam::constant::mathematical::pi)) * acos(exp(-g * (NumBl[m] / 2.0) * ftip));
 
-                    scalar froot = (bladeRadius[i][j] - HubRad[i])/(bladeRadius[i][j] * sin(windAng*degRad));
+                    scalar froot = (bladeRadius[i][j] - HubRad[m])/(bladeRadius[i][j] * sin(mag(windAng)*degRad));
                     scalar Froot = (2.0/(Foam::constant::mathematical::pi)) * acos(exp(-g * (NumBl[m] / 2.0) * froot));
 
                     F = Ftip * Froot;
@@ -1298,8 +1303,8 @@ void horizontalAxisWindTurbinesADM::computeBladeForce()
                 // lift and drag per density.
                 //lift[i][j][k] = 0.5 * F * Cl[i][j][k] * Vmag[i][j][k] * Vmag[i][j][k] * chord * dr[i][k];
                 //drag[i][j][k] = 0.5 * F * Cd[i][j][k] * Vmag[i][j][k] * Vmag[i][j][k] * chord * dr[i][k];
-                Cl[i][j][k] *= F;
-                Cd[i][j][k] *= F;
+                Cl[i][j][k] *= F * forceScalar[i];
+                Cd[i][j][k] *= F * forceScalar[i];
                 lift[i][j][k] = 0.5 * Cl[i][j][k] * Vmag[i][j][k] * Vmag[i][j][k] * chord * dr[i][j];
                 drag[i][j][k] = 0.5 * Cd[i][j][k] * Vmag[i][j][k] * Vmag[i][j][k] * chord * dr[i][j];
 

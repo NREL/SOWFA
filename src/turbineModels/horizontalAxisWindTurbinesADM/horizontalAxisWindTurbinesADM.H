@@ -190,6 +190,11 @@ private:
             //  in the first place.
             DynamicList<scalar> epsilon;
 
+            //- List of scalars for scaling down/up the computed forces and/or the sampled
+            //  inflow velocity.
+            DynamicList<scalar> forceScalar;
+            DynamicList<scalar> inflowVelocityScalar;
+
             //- The projection of actuator forces to body forces uses a Gaussian (or some
             //  other smooth normalization could be used).  At some distance away from the
             //  actuator point from which the force is being projected, this normalization

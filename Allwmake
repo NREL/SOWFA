@@ -103,6 +103,17 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
+rm pEqn.H
+rm windPlantSolver.C
+rm Make/options
+ln -s $dir/pEqn.H ./
+ln -s $dir/windPlantSolver.C ./
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../
+
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
 rm pisoFoamTurbine.C
 rm Make/options

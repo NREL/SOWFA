@@ -36,6 +36,11 @@ rmdepall
 wclean
 cd ../../../../../
 
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
+rmdepall
+wclean
+cd ../../../../../
+
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
 rmdepall
 wclean

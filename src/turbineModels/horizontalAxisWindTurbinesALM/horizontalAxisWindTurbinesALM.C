@@ -235,6 +235,8 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
         ShftTilt.append(scalar(readScalar(turbineProperties.lookup("ShftTilt"))));
         PreCone.append(turbineProperties.lookup("PreCone"));
         GBRatio.append(scalar(readScalar(turbineProperties.lookup("GBRatio"))));
+        GBEfficiency.append(scalar(readScalar(turbineProperties.lookup("GBEfficiency"))));
+        GenEfficiency.append(scalar(readScalar(turbineProperties.lookup("GenEfficiency"))));
         RatedRotSpeed.append(scalar(readScalar(turbineProperties.lookup("RatedRotSpeed"))));
         GenIner.append(scalar(readScalar(turbineProperties.lookup("GenIner"))));
         HubIner.append(scalar(readScalar(turbineProperties.lookup("HubIner"))));
@@ -676,6 +678,9 @@ horizontalAxisWindTurbinesALM::horizontalAxisWindTurbinesALM
         // Define the size of the rotor power lists and set to zero.
         powerRotor.append(0.0);
 
+        // Define the size of the generator power lists and set to zero.
+        powerGenerator.append(0.0);
+
         // Define the size of the cell-containing-actuator-point ID list and set to -1.
         minDisCellID.append(List<List<label> >(NumBl[j], List<label>(numBladePoints[i],-1)));
     }
@@ -803,8 +808,15 @@ void horizontalAxisWindTurbinesALM::computeRotSpeed()
         // based on the summation of aerodynamic and generator torque on the rotor.
         else
         {
-            rotSpeed[i] += (dt/DriveTrainIner[j])*(torqueRotor[i]*fluidDensity[i] - GBRatio[j]*torqueGen[i]);
+            rotSpeed[i] += (dt/DriveTrainIner[j])*(GBEfficiency[j]*torqueRotor[i]*fluidDensity[i] - GBRatio[j]*torqueGen[i]);
         }
+        Info << "rotor sped = " << rotSpeed[0] << endl;
+        Info << "drive train inertia = " << DriveTrainIner[j] << endl;
+        Info << "gear box efficiency = " << GBEfficiency[j] << endl;
+        Info << "generator torque = " << torqueGen[0] << endl;
+        Info << "rotor torque = " << torqueRotor[0] << endl;
+        Info << "fluid density = " << fluidDensity[0] << endl;
+        Info << "gear box ratio = " << GBRatio[j] << endl;
 
 
         // Limit the rotor speed to be positive and such that the generator does not turn
@@ -877,7 +889,7 @@ void horizontalAxisWindTurbinesALM::controlGenTorque()
             #include "limiters/genTorqueRateLimiter.H"
         }
 
-        // Update the pitch array.
+        // Update the generator torque array.
         torqueGen[i] = torqueGenCommanded;
     }
 }
@@ -1226,10 +1238,10 @@ void horizontalAxisWindTurbinesALM::computeBladeForce()
                 {
                     scalar g = 1.0;
 
-                    scalar ftip  = (TipRad[m] - bladeRadius[i][j][k])/(bladeRadius[i][j][k] * sin(windAng*degRad));
+                    scalar ftip  = (TipRad[m] - bladeRadius[i][j][k])/(bladeRadius[i][j][k] * sin(mag(windAng)*degRad));
                     scalar Ftip  = (2.0/(Foam::constant::mathematical::pi)) * acos(exp(-g * (NumBl[m] / 2.0) * ftip));
 
-                    scalar froot = (bladeRadius[i][j][k] - HubRad[i])/(bladeRadius[i][j][k] * sin(windAng*degRad));
+                    scalar froot = (bladeRadius[i][j][k] - HubRad[i])/(bladeRadius[i][j][k] * sin(mag(windAng)*degRad));
                     scalar Froot = (2.0/(Foam::constant::mathematical::pi)) * acos(exp(-g * (NumBl[m] / 2.0) * froot));
 
                     F = Ftip * Froot;
@@ -1275,6 +1287,9 @@ void horizontalAxisWindTurbinesALM::computeBladeForce()
 
         // Compute rotor power based on aerodynamic torque and rotation speed.
         powerRotor[i] = torqueRotor[i] * rotSpeed[i];
+
+        // Compute the generator electrical power.
+        powerGenerator[i] = torqueGen[i] * (rotSpeed[i] * GBRatio[m]) * GenEfficiency[m];
     }
 }
 
@@ -1620,9 +1635,13 @@ void horizontalAxisWindTurbinesALM::openOutputFiles()
         thrustFile_ = new OFstream(rootDir/time/"thrust");
         *thrustFile_ << "#Turbine    Time(s)    dt(s)    thrust (N)" << endl;
 
-        // Create a total power file.
+        // Create a rotor power file.
         powerRotorFile_ = new OFstream(rootDir/time/"powerRotor");
         *powerRotorFile_ << "#Turbine    Time(s)    dt(s)    rotor power (W)" << endl;
+
+        // Create an electrical power file.
+        powerGeneratorFile_ = new OFstream(rootDir/time/"powerGenerator");
+        *powerGeneratorFile_ << "#Turbine    Time(s)    dt(s)    generator power (W)" << endl;
 
         // Create a rotation rate file.
         rotSpeedFile_ = new OFstream(rootDir/time/"rotSpeed");
@@ -1715,6 +1734,7 @@ void horizontalAxisWindTurbinesALM::printOutputFiles()
             *torqueGenFile_ << i << " " << time << " " << dt << " ";
             *thrustFile_ << i << " " << time << " " << dt << " ";
             *powerRotorFile_ << i << " " << time << " " << dt << " ";
+            *powerGeneratorFile_ << i << " " << time << " " << dt << " ";
             *rotSpeedFile_ << i << " " << time << " " << dt << " ";
             *rotSpeedFFile_ << i << " " << time << " " << dt << " ";
             *azimuthFile_ << i << " " << time << " " << dt << " ";
@@ -1726,6 +1746,7 @@ void horizontalAxisWindTurbinesALM::printOutputFiles()
             *torqueGenFile_ << torqueGen[i] << endl;
             *thrustFile_ << thrust[i]*fluidDensity[i] << endl;
             *powerRotorFile_ << powerRotor[i]*fluidDensity[i] << endl;
+            *powerGeneratorFile_ << powerGenerator[i]*fluidDensity[i] << endl;
             *rotSpeedFile_ << rotSpeed[i]/rpmRadSec << endl;
             *rotSpeedFFile_ << rotSpeedF[i]/rpmRadSec << endl;
             *azimuthFile_ << azimuth[i]/degRad << endl;
@@ -1789,6 +1810,7 @@ void horizontalAxisWindTurbinesALM::printOutputFiles()
         *torqueGenFile_ << endl;
         *thrustFile_ << endl;
         *powerRotorFile_ << endl;
+        *powerGeneratorFile_ << endl;
         *rotSpeedFile_ << endl;
         *rotSpeedFFile_ << endl;
         *azimuthFile_ << endl;
@@ -1841,6 +1863,8 @@ void horizontalAxisWindTurbinesALM::printDebug()
     Info << "ShftTilt = " << ShftTilt << endl;
     Info << "PreCone = " << PreCone << endl;
     Info << "GBRatio = " << GBRatio << endl;
+    Info << "GBEfficiency = " << GBEfficiency << endl;
+    Info << "GenEfficiency = " << GenEfficiency << endl;
     Info << "HubIner = " << HubIner << endl;
     Info << "GenIner = " << GenIner << endl;
     Info << "BladeIner = " << BladeIner << endl;

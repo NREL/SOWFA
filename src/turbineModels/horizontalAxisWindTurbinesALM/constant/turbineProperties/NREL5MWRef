@@ -25,6 +25,8 @@ Twr2Shft                    1.96256;
 ShftTilt                   -5.0;
 PreCone                   (-2.5 -2.5 -2.5);
 GBRatio                    97.0;
+GBEfficiency                0.96;
+GenEfficiency               0.96;
 RatedRotSpeed              12.1;
 GenIner                   534.116;
 HubIner                   115.926E3;
