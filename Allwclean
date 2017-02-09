@@ -6,15 +6,25 @@ rmdepall
 wclean
 cd ../../../../
 
-cd src/turbineModels
+cd src/turbineModels/turbineModelsStandard
 rmdepall
 wclean
-cd ../../
+cd ../../../
 
 cd src/finiteVolume
 rmdepall
 wclean
 cd ../../
+
+cd src/sampling
+rmdepall
+wclean
+cd ../../
+
+cd src/postProcessing/functionObjects/utilities
+rmdepall
+wclean
+cd ../../../../
 
 cd applications/utilities/setFieldsABL
 rmdepall
@@ -31,7 +41,12 @@ rmdepall
 wclean
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/windPlantSolver
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALM
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvanced
 rmdepall
 wclean
 cd ../../../../../
@@ -41,7 +56,12 @@ rmdepall
 wclean
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALM
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvanced
 rmdepall
 wclean
 cd ../../../../../
@@ -52,16 +72,6 @@ wclean
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness
-rmdepall
-wclean
-cd ../../../../../
-
-cd src/fastturb
-rmdepall
-wclean
-cd ../../
-
-cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
 rmdepall
 wclean
 cd ../../../../../

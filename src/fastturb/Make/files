@@ -1,3 +1,0 @@
-horizontalAxisWindTurbinesFAST/horizontalAxisWindTurbinesFAST.C
-
-LIB = $(FOAM_USER_LIBBIN)/libuserfastturb

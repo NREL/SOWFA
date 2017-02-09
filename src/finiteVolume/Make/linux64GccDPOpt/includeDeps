@@ -1,6 +1,0 @@
-include $(derivedFvPatchFields)/timeVaryingMappedFluctuatingFixedValue/timeVaryingMappedFluctuatingFixedValueFvPatchFields.dep
-include $(derivedFvPatchFields)/turbulentABLVelocityControlled/turbulentABLVelocityControlledFvPatchField.dep
-include $(derivedFvPatchFields)/turbulentABLTemperatureControlled/turbulentABLTemperatureControlledFvPatchField.dep
-include $(surfaceStressModels)/SchumannGrotzbach/SchumannGrotzbachFvPatchField.dep
-include $(surfaceTemperatureFluxModels)/fixedHeatingRate/fixedHeatingRateFvPatchField.dep
-include $(surfaceVelocityModels)/velocityABLWallFunction/velocityABLWallFunctionFvPatchField.dep

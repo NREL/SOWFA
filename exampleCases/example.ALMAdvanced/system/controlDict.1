@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+  application       ABLSolver;
+
+  libs              ("libuserfiniteVolume.so" "libuserincompressibleLESModels.so");
+
+  startFrom         startTime;
+
+  startTime         20000.0;
+
+  stopAt            endTime;
+
+  endTime           20600.0;
+
+  deltaT            0.04;
+
+  writeControl      adjustableRunTime;
+
+  writeInterval     50.0; 
+
+  purgeWrite        0;
+
+  writeFormat       binary;
+
+  writePrecision    12;
+
+  writeCompression  compressed;
+
+  timeFormat        general;
+
+  timePrecision     12;
+
+  runTimeModifiable yes;
+
+  adjustTimeStep    no;
+
+  maxCo             0.75;
+
+  maxDeltaT         25.0;
+
+  functions
+  {
+     #include "sampling/sliceDataInstantaneous"
+
+     #include "sampling/cloud_1D"
+     #include "sampling/cloud_2D"
+     #include "sampling/cloud_3D"
+     #include "sampling/cloud_4D"
+     #include "sampling/cloud_5D"
+     #include "sampling/cloud_6D"
+     #include "sampling/cloud_7D"
+     #include "sampling/cloud_8D"
+     #include "sampling/cloud_9D"
+     #include "sampling/cloud_10D"
+
+     #include "sampling/sliceDataMean"
+  }
+
+// ************************************************************************* //
+

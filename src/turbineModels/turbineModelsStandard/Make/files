@@ -1,0 +1,5 @@
+horizontalAxisWindTurbinesALM/horizontalAxisWindTurbinesALM.C
+horizontalAxisWindTurbinesALMAdvanced/horizontalAxisWindTurbinesALMAdvanced.C
+horizontalAxisWindTurbinesADM/horizontalAxisWindTurbinesADM.C
+
+LIB = $(FOAM_USER_LIBBIN)/libuserTurbineModelsStandard

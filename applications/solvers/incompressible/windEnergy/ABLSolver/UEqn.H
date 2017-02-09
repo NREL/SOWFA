@@ -9,7 +9,7 @@
       + turbulence->divDevReff(U)               // momentum flux
       + fvc::div(Rwall)
       - fCoriolis                               // Coriolis force
-      + gradP                                   // driving pressure gradient
+      - SourceU                                 // mesoscale source terms
     );
 
     UEqn.relax();

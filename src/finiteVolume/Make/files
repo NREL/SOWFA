@@ -1,5 +1,7 @@
 fvPatchFields = fields/fvPatchFields
 derivedFvPatchFields = $(fvPatchFields)/derived
+
+/* Basic Inflow With Perturbations */
 $(derivedFvPatchFields)/turbulentABLVelocityControlled/turbulentABLVelocityControlledFvPatchField.C
 $(derivedFvPatchFields)/turbulentABLTemperatureControlled/turbulentABLTemperatureControlledFvPatchField.C
 
@@ -11,6 +13,7 @@ $(surfaceStressModels)/SchumannGrotzbach/SchumannGrotzbachFvPatchField.C
 /* Surface Temperature Flux Models */
 surfaceTemperatureFluxModels = $(derivedFvPatchFields)/surfaceTemperatureFluxModels
 $(surfaceTemperatureFluxModels)/fixedHeatingRate/fixedHeatingRateFvPatchField.C
+$(surfaceTemperatureFluxModels)/specifiedSurfaceTemperature/specifiedSurfaceTemperatureFvPatchField.C
 
 /* Surface Velocity Models */
 surfaceVelocityModels = $(derivedFvPatchFields)/surfaceVelocityModels

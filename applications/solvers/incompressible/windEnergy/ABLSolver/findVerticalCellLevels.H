@@ -1,5 +1,11 @@
     // On each processor, do a search through all cells and make a list of 
     // all distinct cell heights
+
+    // Up index
+    label upIndex = 2;
+    vector nUp(vector::zero);
+    nUp.z() = 1.0;
+
     scalar hLevelsTol = 1.0E-8;
     HashSet<scalar> hLevelsValuesP;
     label hLevelsTotal = 0;
@@ -97,7 +103,6 @@
 	}
 	hLevelsValues[hLabelJ] = hLevelsValues[hLevelsI];
 	hLevelsValues[hLevelsI] = hValue;
-	//Pout << "  level " << hLevelsI+1 << " = " << hLevelsValues[hLevelsI] << " m" << endl;
     }
 
 
@@ -153,7 +158,6 @@
         }
     }
 
-    //Pout << "Total volume per level: " << totVolPerLevel << endl;
 
 
 
@@ -161,6 +165,4 @@
     {
         label numCellPerLevelGlobal = numCellPerLevel[i];
         reduce(numCellPerLevelGlobal,sumOp<label>());
-        Info << numCellPerLevelGlobal << tab << totVolPerLevel[i] << endl;
     }
-    //Info << "Number of cells per level: " << numCellPerLevel <<  endl;

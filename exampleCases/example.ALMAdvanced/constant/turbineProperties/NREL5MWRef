@@ -1,0 +1,130 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbineProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+NumBl                       3;
+TipRad                     63.0;
+HubRad                      1.5;
+UndSling                    0.0;
+OverHang                   -5.01910;
+NacelleLength               8;
+NacelleFrontalArea          2;
+NacelleCd                   0.5;
+TowerHt                    87.6;
+Twr2Shft                    1.96256;
+ShftTilt                   -5.0;
+PreCone                   (-2.5 -2.5 -2.5);
+GBRatio                    97.0;
+GBEfficiency                1.0;
+GenEfficiency               0.944;
+RatedRotSpeed              12.1;
+GenIner                   534.116;
+HubIner                   115.926E3;
+BladeIner                  11.776047E6;
+GenTorqueControllerType    "fiveRegion";
+//GenTorqueControllerType  "speedTorqueTable";
+//GenTorqueControllerType  "none";
+BladePitchControllerType   "PID";
+//BladePitchControllerType "none";
+NacYawControllerType       "none";
+RotSpeedLimiter             false;
+GenTorqueRateLimiter        true;
+NacYawRateLimiter           true;
+BladePitchRateLimiter       true;
+SpeedFilterCornerFrequency  2.0;
+
+
+GenTorqueControllerParams
+{
+    RateLimitGenTorque       15.0E3;
+    SpeedTorqueTable
+    (
+        //      gen speed (RPM) gen torque (N-m)
+        (       670.00              0.0 )
+        (       871.00          20000.0 )
+        (       1161.96         32000.0 )
+        (       1173.70         43093.6 )
+    );
+    CutInGenSpeed           670.0;
+    Region2StartGenSpeed    871.0;
+    Region2EndGenSpeed     1161.963;
+    CutInGenTorque            0.0;
+    RatedGenTorque           43.09355E3;
+    KGen                      2.55764E-2;
+}
+
+BladePitchControllerParams
+{
+    RateLimitBladePitch       4.500;
+    PitchMin                  0.000;
+    PitchMax                 80.000;
+    PitchK                    6.302336;
+    PitchControlKP            1.82620057;
+    PitchControlKI            0.78265750;
+    PitchControlKD            0.000;
+}
+
+NacYawControllerParams
+{
+    RateLimitNacYaw           2.0;
+}
+
+
+
+
+Airfoils
+(
+    "Cylinder1" 
+    "Cylinder2" 
+    "DU40_A17"  
+    "DU35_A17"  
+    "DU30_A17"  
+    "DU25_A17"  
+    "DU21_A17"  
+    "NACA64_A17"
+);
+
+
+BladeData
+(
+//  radius(m)   c(m)     twist(deg)  thickness(% of c)  userDef airfoil 
+    (2.8667     3.542    13.308      1.0                0       0)
+    (5.6        3.854    13.308      1.0                0       0)
+    (8.3333     4.167    13.308      1.0                0       1)
+    (11.75      4.557    13.308      0.4                0       2)
+    (15.85      4.652    11.48       0.35               0       3)
+    (19.95      4.458    10.162      0.35               0       3)
+    (24.05      4.249    9.011       0.30               0       4)
+    (28.15      4.007    7.795       0.25               0       5)
+    (32.25      3.748    6.544       0.25               0       5)
+    (36.35      3.502    5.361       0.21               0       6)
+    (40.45      3.256    4.188       0.21               0       6)
+    (44.55      3.01     3.125       0.18               0       7)
+    (48.65      2.764    2.319       0.18               0       7)
+    (52.75      2.518    1.526       0.18               0       7)
+    (56.1667    2.313    0.863       0.18               0       7)
+    (58.9       2.086    0.37        0.18               0       7)
+    (61.6333    1.419    0.106       0.18               0       7)
+);
+
+
+TowerData
+(
+//  height(m)   c(m)    twist(deg)  thickness(% of c)   userDef  airfoil
+    (0.0         6.00    0.0        1.0                 0        0)
+    (50.0        6.00    0.0        1.0                 0        0)
+    (87.6        3.87    0.0        1.0                 0        0)
+);
