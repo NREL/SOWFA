@@ -1,3 +1,0 @@
-interpolate2DUnitTest.C
-
-EXE = $(FOAM_USER_APPBIN)/interpolate2DUnitTest

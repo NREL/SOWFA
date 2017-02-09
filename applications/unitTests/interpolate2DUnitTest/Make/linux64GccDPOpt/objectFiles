@@ -1,2 +1,0 @@
-OBJECTS = \
-$(OBJECTS_DIR)/interpolate2DUnitTest.o
