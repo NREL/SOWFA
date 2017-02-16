@@ -7,23 +7,23 @@
 \*---------------------------------------------------------------------------*/
 
 // Domain size and number of cells.
-xMin                 0.0;                         // Minimum x-extent of domain (m).
-yMin                 0.0;                         // Minimum y-extent of domain (m).
-zMin                 0.0;                         // Minimum z-extent of domain (m).
-xMax                 3000.0;                      // Maximum x-extent of domain (m).
-yMax                 3000.0;                      // Maximum y-extent of domain (m).
-zMax                 1020.0;                      // Maximum z-extent of domain (m).
-nx                   300;                         // Number of cells in x-direction.
-ny                   300;                         // Number of cells in y-direction.
-nz                   102;                         // Number of cells in z-direction.
+xMin               -40.0;                         // Minimum x-extent of domain (m).
+yMin              -18.30;                         // Minimum y-extent of domain (m).
+zMin                0.00;                         // Minimum z-extent of domain (m).
+xMax                80.0;                         // Maximum x-extent of domain (m).
+yMax               18.30;                         // Maximum y-extent of domain (m).
+zMax               24.40;                         // Maximum z-extent of domain (m).
+nx                    75;                         // Number of cells in x-direction.
+ny                    23;                         // Number of cells in y-direction.
+nz                    16;                         // Number of cells in z-direction.
 
 
 
 
 // Number of cores and domain decomposition information.
-nCores               216;                         // Number of cores on which to run this case.
-decompType           simple;                      // Decomposition algorithm.  "simple" and "scotch" are good choices.
-decompOrder          (6 6 6);                   // Order of the decomposition number of partitions in (x y z)-directions.
+nCores               432;                         // Number of cores on which to run this case.
+decompType           scotch;                      // Decomposition algorithm.  "simple" and "scotch" are good choices.
+decompOrder          (10 10 6);                   // Order of the decomposition number of partitions in (x y z)-directions.
 
 
 
@@ -37,7 +37,7 @@ statisticsFrequency  5;                           // Frequency in time steps of 
 
 // Initial values for the variables.
 // Note that U and T get overwritten if setFieldsABL is called.
-U0Mag                8.0;                         // Initial condition for wind speed (m/s).
+U0Mag                7.00;                        // Initial condition for wind speed (m/s).
 dir                  270.0;                       // Initial condition for wind direction (deg).
 windHeight           99.27;                       // Height at which to drive mean wind to U0Mag/dir (m).
 p_rgh0               0.0;                         // Initial pressure (minus the hydrostatic variation and normalized by density) (m^2/s^2).
@@ -65,7 +65,7 @@ EarthPeriod          24.0;                        // Earth's rotation period (hr
 
 
 // SGS model inputs.
-LESModel             oneEqEddyABL;                // SGS model selection.
+LESModel             oneEqEddy;                   // SGS model selection.
 ce                   0.93;                        // SGS model constant.
 ck                   0.0673;                      // SGS model constant.
 

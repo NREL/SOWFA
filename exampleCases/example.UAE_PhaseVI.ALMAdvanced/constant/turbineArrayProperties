@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbineProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+globalProperties
+{
+    outputControl       "timeStep";
+//  outputControl       "runTime";
+    outputInterval       1;
+}
+
+turbine0
+{
+    turbineType                      "NREL_Phase_VI_Ames";
+    includeNacelle                    true;
+    includeTower                      true;
+    baseLocation                     (1.401 0.0 0.0);
+    numBladePoints                    60;
+    numNacellePoints                  10;
+    numTowerPoints                    80;
+    bladePointDistType               "uniform";
+    nacellePointDistType             "uniform";
+    towerPointDistType               "uniform";
+    bladeSearchCellMethod            "disk";
+    bladeActuatorPointInterpType     "linear";
+//  bladeActuatorPointInterpType     "cellCenter";
+    nacelleActuatorPointInterpType   "linear";
+    towerActuatorPointInterpType     "linear";
+    actuatorUpdateType               "oldPosition";
+//  actuatorUpdateType               "newPosition";
+    velocityDragCorrType             "none";
+    bladeForceProjectionType         "uniformGaussian";
+    nacelleForceProjectionType       "diskGaussian";
+//  towerForceProjectionType         "diskGaussian";
+    towerForceProjectionType         "advanced";
+//  bladeForceProjectionDirection    "localVelocityAligned";
+    bladeForceProjectionDirection    "sampleVelocityAligned";
+    bladeEpsilon                     (0.35 0.00 0.00);
+    nacelleEpsilon                   (0.35 0.20 0.00);
+    towerEpsilon                     (0.10 0.35 0.00);
+    nacelleSampleDistance             1.0;
+    towerSampleDistance               1.0;
+    tipRootLossCorrType              "none";
+//  tipRootLossCorrType              "Glauert";
+//  rotationDir                      "cw";
+    rotationDir                      "ccw";
+    Azimuth                           0.0;
+    RotSpeed                         71.9;
+    TorqueGen                         0.0;
+    Pitch                             4.815;
+    NacYaw                          270.0;
+    fluidDensity                      1.23;
+}
