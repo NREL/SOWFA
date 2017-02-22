@@ -13,7 +13,7 @@
 OpenFOAMversion=2.4.x           # OpenFOAM version
 
 startTime=20000                 # Start time
-precursorDir=/projects//precursor/neutral3x3
+precursorDir=/projects/precursor/neutral3x3
 
 updateBCType=1                  # Boolean for whether or not the boundary condition types will be updated over 
                                 #    what is in the initial conditions files. Leave it 0 for precursors.

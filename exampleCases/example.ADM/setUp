@@ -31,7 +31,7 @@ decompOrder          (6 6 5);                   // Order of the decomposition nu
 // Planar averaging and source term statistics options.
 statisticsOn         true;                        // Gather planar-averaged flow statistics.
 statisticsFrequency  5;                           // Frequency in time steps of statistics gathering.
-meanStartTime        20200;                       // Time to begin accumulating the mean;
+avgStartTime         20200;                       // Time to begin accumulating the mean;
 corrStartTime        20400;                       // Time to begin accumulating the correlations;
 
 

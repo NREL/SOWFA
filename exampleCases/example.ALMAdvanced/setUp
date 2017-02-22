@@ -29,7 +29,7 @@ decompOrder          (6 6 5);                   // Order of the decomposition nu
 
 
 // Time averaging and statistics options.
-meanStartTime        20100;
+avgStartTime         20100;
 corrStartTime        20300;
 
 

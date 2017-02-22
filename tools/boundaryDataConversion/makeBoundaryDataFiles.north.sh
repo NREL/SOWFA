@@ -56,8 +56,7 @@ do
    cp ../../../boundaryDataPre/$time/$boundaryNameOld/vectorField/U ./UPre
    #cp ../../../boundaryDataPre/$time/$boundaryNameOld/scalarField/pd ./pdPre
    cp ../../../boundaryDataPre/$time/$boundaryNameOld/scalarField/T ./TPre
-   cp ../../../boundaryDataPre/$time/$boundaryNameOld/scalarField/fmm ./fmmPre
-   cp ../../../boundaryDataPre/$time/$boundaryNameOld/scalarField/flm ./flmPre
+   cp ../../../boundaryDataPre/$time/$boundaryNameOld/scalarField/k ./kPre
    #cp ../../../boundaryDataPre/$time/$boundaryNameOld/scalarField/nuLES ./nuLESPre
    #cp ../../../boundaryDataPre/$time/$boundaryNameOld/scalarField/kappaLES ./kappaLESPre
    cp ../../../makeBoundaryDataFiles/data.py ./
@@ -65,8 +64,7 @@ do
    ./data.py UPre U ../index
    #./data.py pdPre pd ../index
    ./data.py TPre T ../index
-   ./data.py fmmPre fmm ../index
-   ./data.py flmPre flm ../index
+   ./data.py kPre k ../index
    #./data.py nuLESPre nuLES ../index
    #./data.py kappaLESPre kappaLES ../index
    rm data.py *Pre	
