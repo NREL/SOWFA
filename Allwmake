@@ -191,10 +191,17 @@ cd ../../../../../
 
 
 # A simple solver shell meant for testing wind turbine models.
-cd applications/solvers/incompressible/windEnergy/turbineTestHarness
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALM
 rm Make/options
 ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
+# A simple solver shell meant for testing wind turbine models.
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced
+rm Make/options
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../

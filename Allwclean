@@ -71,7 +71,12 @@ rmdepall
 wclean
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/turbineTestHarness
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALM
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced
 rmdepall
 wclean
 cd ../../../../../
