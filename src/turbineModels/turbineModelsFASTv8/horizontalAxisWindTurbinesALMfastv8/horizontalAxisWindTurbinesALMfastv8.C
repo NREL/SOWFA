@@ -184,8 +184,16 @@ horizontalAxisWindTurbinesALMfastv8::horizontalAxisWindTurbinesALMfastv8
     // Read input files.
     readInput();
 
+    Info << "-----------" << endl;
+    Pout << "outputControl = " << outputControl << endl;
+    Pout << "outputIndex = " << outputIndex << endl;
+
     // Send inputs to FAST.
     sendInput();
+
+    Info << "-----------" << endl;
+    Pout << "outputControl = " << outputControl << endl;
+    Pout << "outputIndex = " << outputIndex << endl;
 
     // Initialize FAST.
     if ((p < numTurbines) && (! FAST.isDryRun()))
@@ -197,6 +205,10 @@ horizontalAxisWindTurbinesALMfastv8::horizontalAxisWindTurbinesALMfastv8
           //FAST.solution0();
         }
     }
+
+    Info << "-----------" << endl;
+    Pout << "outputControl = " << outputControl << endl;
+    Pout << "outputIndex = " << outputIndex << endl;
 
     // Initialize arrays that hold blade, tower, nacelle information.
     initializeArrays();
@@ -319,9 +331,8 @@ horizontalAxisWindTurbinesALMfastv8::horizontalAxisWindTurbinesALMfastv8
     }
 
     // Open the turbine data output files and print initial information.
-  openOutputFiles();
-  printOutputFiles();
-
+    openOutputFiles();
+    printOutputFiles();
 }
 
 // * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * * //
@@ -3588,11 +3599,11 @@ void horizontalAxisWindTurbinesALMfastv8::openOutputFiles()
         towerPointVverticalFile_ = new OFstream(rootDir/time/"towerPointVvertical");
        *towerPointVverticalFile_ << "#Turbine    Time(s)    dt(s)    Vvertical (m/s)" << endl;
        
-        towerPointClFile_ = new OFstream(rootDir/time/"towerPointCl");
-       *towerPointClFile_ << "#Turbine    Time(s)    dt(s)    Cl" << endl;
+    //  towerPointClFile_ = new OFstream(rootDir/time/"towerPointCl");
+    // *towerPointClFile_ << "#Turbine    Time(s)    dt(s)    Cl" << endl;
 
-        towerPointCdFile_ = new OFstream(rootDir/time/"towerPointCd");
-       *towerPointCdFile_ << "#Turbine    Time(s)    dt(s)    Cd" << endl;
+    //  towerPointCdFile_ = new OFstream(rootDir/time/"towerPointCd");
+    // *towerPointCdFile_ << "#Turbine    Time(s)    dt(s)    Cd" << endl;
 
         towerPointLiftFile_ = new OFstream(rootDir/time/"towerPointLift");
        *towerPointLiftFile_ << "#Turbine    Time(s)    dt(s)    lift (N)" << endl;
@@ -3628,17 +3639,17 @@ void horizontalAxisWindTurbinesALMfastv8::openOutputFiles()
         rotorPowerFile_ = new OFstream(rootDir/time/"rotorPower");
        *rotorPowerFile_ << "#Turbine    Time(s)    dt(s)    rotor power (W)" << endl;
 
-        generatorPowerFile_ = new OFstream(rootDir/time/"generatorPower");
-       *generatorPowerFile_ << "#Turbine    Time(s)    dt(s)    generator power (W)" << endl;
+   //   generatorPowerFile_ = new OFstream(rootDir/time/"generatorPower");
+   //  *generatorPowerFile_ << "#Turbine    Time(s)    dt(s)    generator power (W)" << endl;
 
-        rotorSpeedFile_ = new OFstream(rootDir/time/"rotorSpeed");
-       *rotorSpeedFile_ << "#Turbine    Time(s)    dt(s)    rotor rotation rate(rpm)" << endl;
+   //   rotorSpeedFile_ = new OFstream(rootDir/time/"rotorSpeed");
+   //  *rotorSpeedFile_ << "#Turbine    Time(s)    dt(s)    rotor rotation rate(rpm)" << endl;
 
-        rotorSpeedFFile_ = new OFstream(rootDir/time/"rotorSpeedFiltered");
-       *rotorSpeedFFile_ << "#Turbine    Time(s)    dt(s)    filtered rotor rotation rate(rpm)" << endl;
+   //   rotorSpeedFFile_ = new OFstream(rootDir/time/"rotorSpeedFiltered");
+   //  *rotorSpeedFFile_ << "#Turbine    Time(s)    dt(s)    filtered rotor rotation rate(rpm)" << endl;
 
-        rotorAzimuthFile_ = new OFstream(rootDir/time/"rotorAzimuth");
-       *rotorAzimuthFile_ << "#Turbine    Time(s)    dt(s)    blade 1 azimuth angle (degrees)" << endl;
+   //   rotorAzimuthFile_ = new OFstream(rootDir/time/"rotorAzimuth");
+   //  *rotorAzimuthFile_ << "#Turbine    Time(s)    dt(s)    blade 1 azimuth angle (degrees)" << endl;
 
 
 
@@ -3652,8 +3663,8 @@ void horizontalAxisWindTurbinesALMfastv8::openOutputFiles()
         nacelleVerticalForceFile_ = new OFstream(rootDir/time/"nacelleVerticalForce");
        *nacelleVerticalForceFile_ << "#Turbine    Time(s)    dt(s)    nacelle vertical force (N)" << endl;
 
-        nacelleYawFile_ = new OFstream(rootDir/time/"nacelleYaw");
-       *nacelleYawFile_ << "#Turbine    Time(s)    dt(s)    nacelle yaw angle (degrees)" << endl;
+    //  nacelleYawFile_ = new OFstream(rootDir/time/"nacelleYaw");
+    // *nacelleYawFile_ << "#Turbine    Time(s)    dt(s)    nacelle yaw angle (degrees)" << endl;
 
 
 
@@ -3667,14 +3678,14 @@ void horizontalAxisWindTurbinesALMfastv8::openOutputFiles()
 
     
     // BLADE-RELATED FILES
-        bladePitchFile_ = new OFstream(rootDir/time/"bladePitch");
-       *bladePitchFile_ << "#Turbine    Time(s)    dt(s)    blade pitch angle (degrees)" << endl;
+   //   bladePitchFile_ = new OFstream(rootDir/time/"bladePitch");
+   //  *bladePitchFile_ << "#Turbine    Time(s)    dt(s)    blade pitch angle (degrees)" << endl;
 
        
 
     // GENERATOR-RELATED FILES
-        generatorTorqueFile_ = new OFstream(rootDir/time/"generatorTorque");
-       *generatorTorqueFile_ << "#Turbine    Time(s)    dt(s)    generator torque (N-m)" << endl;
+   //   generatorTorqueFile_ = new OFstream(rootDir/time/"generatorTorque");
+   //  *generatorTorqueFile_ << "#Turbine    Time(s)    dt(s)    generator torque (N-m)" << endl;
 
     }
 }
@@ -3705,15 +3716,15 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
             *nacellePointAxialForceFile_ << i << " " << time << " " << dt << " ";
             *nacellePointHorizontalForceFile_ << i << " " << time << " " << dt << " ";
             *nacellePointVerticalForceFile_ << i << " " << time << " " << dt << " ";
-            *towerPointAlphaFile_ << i << " " << time << " " << dt << " ";
+   //       *towerPointAlphaFile_ << i << " " << time << " " << dt << " ";
             *towerPointVmagFile_ << i << " " << time << " " << dt << " ";
             *towerPointVaxialFile_ << i << " " << time << " " << dt << " ";
             *towerPointVhorizontalFile_ << i << " " << time << " " << dt << " ";
             *towerPointVverticalFile_ << i << " " << time << " " << dt << " ";
-            *towerPointClFile_ << i << " " << time << " " << dt << " ";
-            *towerPointCdFile_ << i << " " << time << " " << dt << " ";
-            *towerPointLiftFile_ << i << " " << time << " " << dt << " ";
-            *towerPointDragFile_ << i << " " << time << " " << dt << " ";
+   //       *towerPointClFile_ << i << " " << time << " " << dt << " ";
+   //       *towerPointCdFile_ << i << " " << time << " " << dt << " ";
+  //        *towerPointLiftFile_ << i << " " << time << " " << dt << " ";
+   //       *towerPointDragFile_ << i << " " << time << " " << dt << " ";
             *towerPointAxialForceFile_ << i << " " << time << " " << dt << " ";
             *towerPointHorizontalForceFile_ << i << " " << time << " " << dt << " ";
             *towerPointVerticalForceFile_ << i << " " << time << " " << dt << " ";
@@ -3722,18 +3733,19 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
             *rotorHorizontalForceFile_ << i << " " << time << " " << dt << " ";
             *rotorVerticalForceFile_ << i << " " << time << " " << dt << " ";
             *rotorPowerFile_ << i << " " << time << " " << dt << " ";
-            *generatorPowerFile_ << i << " " << time << " " << dt << " ";
-            *rotorSpeedFile_ << i << " " << time << " " << dt << " ";
-            *rotorSpeedFFile_ << i << " " << time << " " << dt << " ";
-            *rotorAzimuthFile_ << i << " " << time << " " << dt << " ";
+   //       *generatorPowerFile_ << i << " " << time << " " << dt << " ";
+   //       *rotorSpeedFile_ << i << " " << time << " " << dt << " ";
+   //       *rotorSpeedFFile_ << i << " " << time << " " << dt << " ";
+   //       *rotorAzimuthFile_ << i << " " << time << " " << dt << " ";
             *nacelleAxialForceFile_ << i << " " << time << " " << dt << " ";
             *nacelleHorizontalForceFile_ << i << " " << time << " " << dt << " ";
             *nacelleVerticalForceFile_ << i << " " << time << " " << dt << " ";
-            *nacelleYawFile_ << i << " " << time << " " << dt << " ";
+   //       *nacelleYawFile_ << i << " " << time << " " << dt << " ";
             *towerAxialForceFile_ << i << " " << time << " " << dt << " ";
             *towerHorizontalForceFile_ << i << " " << time << " " << dt << " ";
-            *generatorTorqueFile_ << i << " " << time << " " << dt << " ";
-            *bladePitchFile_ << i << " " << time << " " << dt << " ";
+   //       *generatorTorqueFile_ << i << " " << time << " " << dt << " ";
+   //       *bladePitchFile_ << i << " " << time << " " << dt << " ";
+         
 
 
             // Write out bulk information for each turbine (i.e., quantities not distributed
@@ -3743,18 +3755,18 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
             *rotorHorizontalForceFile_ << rotorHorizontalForce[i]*fluidDensity[i] << endl;
             *rotorVerticalForceFile_ << rotorVerticalForce[i]*fluidDensity[i] << endl;
             *rotorPowerFile_ << rotorPower[i]*fluidDensity[i] << endl;
-            *generatorPowerFile_ << generatorPower[i]*fluidDensity[i] << endl;
-            *rotorSpeedFile_ << rotorSpeed[i]/rpmRadSec << endl;
-            *rotorSpeedFFile_ << rotorSpeedF[i]/rpmRadSec << endl;
-            *rotorAzimuthFile_ << rotorAzimuth[i]/degRad << endl;
+   //       *generatorPowerFile_ << generatorPower[i]*fluidDensity[i] << endl;
+   //       *rotorSpeedFile_ << rotorSpeed[i]/rpmRadSec << endl;
+   //       *rotorSpeedFFile_ << rotorSpeedF[i]/rpmRadSec << endl;
+   //       *rotorAzimuthFile_ << rotorAzimuth[i]/degRad << endl;
             *nacelleAxialForceFile_ << nacelleAxialForce[i]*fluidDensity[i] << endl;
             *nacelleHorizontalForceFile_ << nacelleHorizontalForce[i]*fluidDensity[i] << endl;
             *nacelleVerticalForceFile_ << nacelleVerticalForce[i]*fluidDensity[i] << endl;
-            *nacelleYawFile_ <<  standardToCompass(nacYaw[i]/degRad) << endl;
+   //       *nacelleYawFile_ <<  standardToCompass(nacYaw[i]/degRad) << endl;
             *towerAxialForceFile_ << towerAxialForce[i]*fluidDensity[i] << endl;
             *towerHorizontalForceFile_ << towerHorizontalForce[i]*fluidDensity[i] << endl;
-            *generatorTorqueFile_ << generatorTorque[i] << endl;
-            *bladePitchFile_ << bladePitch[i] << endl;
+   //       *generatorTorqueFile_ << generatorTorque[i] << endl;
+   //       *bladePitchFile_ << bladePitch[i] << endl;
 
 
             // Write out information for the nacelle, which is distributed along a points, but along
@@ -3781,29 +3793,29 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
 
 
 
-        // Write out information for the tower, which is distributed along a points, but along
-        // only one set of points (as opposed to blades of which there are multiple sets of points)
-        forAll(towerPoints[i], k)
+           // Write out information for the tower, which is distributed along a points, but along
+            // only one set of points (as opposed to blades of which there are multiple sets of points)
+            forAll(towerPoints[i], k)
             {
-                *towerPointAlphaFile_ << towerPointAlpha[i][k] << " "; 
+         //     *towerPointAlphaFile_ << towerPointAlpha[i][k] << " "; 
                 *towerPointVmagFile_ << towerPointVmag[i][k] << " "; 
                 *towerPointVaxialFile_ << (towerWindVectors[i][k] & axialVector) << " "; 
                 *towerPointVhorizontalFile_ << (towerWindVectors[i][k] & horizontalVector) << " "; 
                 *towerPointVverticalFile_ << (towerWindVectors[i][k] & verticalVector) << " "; 
-                *towerPointClFile_ << towerPointCl[i][k] << " "; 
-                *towerPointCdFile_ << towerPointCd[i][k] << " "; 
-                *towerPointLiftFile_ << towerPointLift[i][k]*fluidDensity[i] << " "; 
-                *towerPointDragFile_ << towerPointDrag[i][k]*fluidDensity[i] << " "; 
+         //     *towerPointClFile_ << towerPointCl[i][k] << " "; 
+         //     *towerPointCdFile_ << towerPointCd[i][k] << " "; 
+         //     *towerPointLiftFile_ << towerPointLift[i][k]*fluidDensity[i] << " "; 
+         //     *towerPointDragFile_ << towerPointDrag[i][k]*fluidDensity[i] << " "; 
                 *towerPointAxialForceFile_ << towerPointAxialForce[i][k]*fluidDensity[i] << " "; 
                 *towerPointHorizontalForceFile_ << towerPointHorizontalForce[i][k]*fluidDensity[i] << " "; 
             }
-            *towerPointAlphaFile_ << endl;
+       //   *towerPointAlphaFile_ << endl;
             *towerPointVmagFile_ << endl;
             *towerPointVaxialFile_ << endl;
             *towerPointVhorizontalFile_ << endl;
             *towerPointVverticalFile_ << endl;
-            *towerPointClFile_ << endl;
-            *towerPointCdFile_ << endl;
+       //   *towerPointClFile_ << endl;
+       //   *towerPointCdFile_ << endl;
             *towerPointLiftFile_ << endl;
             *towerPointDragFile_ << endl;
             *towerPointAxialForceFile_ << endl;
@@ -3815,15 +3827,15 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
             forAll(bladePoints[i], j)
             {
                 // Write out time and delta t.
-                *bladePointAlphaFile_ << i << " " << j << " " << time << " " << dt << " ";
+       //       *bladePointAlphaFile_ << i << " " << j << " " << time << " " << dt << " ";
                 *bladePointVmagFile_ << i << " " << j << " " <<  time << " " << dt << " ";
                 *bladePointVaxialFile_ << i << " " << j << " " <<  time << " " << dt << " ";
                 *bladePointVtangentialFile_ << i << " " << j << " " <<  time << " " << dt << " ";
                 *bladePointVradialFile_ << i << " " << j << " " <<  time << " " << dt << " ";
-                *bladePointClFile_ << i << " " << j << " " <<  time << " " << dt << " ";
-                *bladePointCdFile_ << i << " " << j << " " <<  time << " " << dt << " ";
-                *bladePointLiftFile_ << i << " " << j << " " <<  time << " " << dt << " ";
-                *bladePointDragFile_ << i << " " << j << " " <<  time << " " << dt << " ";
+       //       *bladePointClFile_ << i << " " << j << " " <<  time << " " << dt << " ";
+       //       *bladePointCdFile_ << i << " " << j << " " <<  time << " " << dt << " ";
+       //       *bladePointLiftFile_ << i << " " << j << " " <<  time << " " << dt << " ";
+       //       *bladePointDragFile_ << i << " " << j << " " <<  time << " " << dt << " ";
                 *bladePointAxialForceFile_ << i << " " << j << " " <<  time << " " << dt << " ";
                 *bladePointHorizontalForceFile_ << i << " " << j << " " <<  time << " " << dt << " ";
                 *bladePointVerticalForceFile_ << i << " " << j << " " <<  time << " " << dt << " ";
@@ -3835,15 +3847,15 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
                 // Write the information for each point on the blade.
                 forAll(bladePoints[i][j], k)
                 {   
-                    *bladePointAlphaFile_ << bladePointAlpha[i][j][k] << " ";
+       //           *bladePointAlphaFile_ << bladePointAlpha[i][j][k] << " ";
                     *bladePointVmagFile_ << bladePointVmag[i][j][k] << " ";
                     *bladePointVaxialFile_ << bladeWindVectors[i][j][k].x() << " ";
                     *bladePointVtangentialFile_ << bladeWindVectors[i][j][k].y() << " ";
                     *bladePointVradialFile_ << bladeWindVectors[i][j][k].z() << " ";
-                    *bladePointClFile_ << bladePointCl[i][j][k] << " ";
-                    *bladePointCdFile_ << bladePointCd[i][j][k] << " ";
-                    *bladePointLiftFile_ << bladePointLift[i][j][k]*fluidDensity[i] << " ";
-                    *bladePointDragFile_ << bladePointDrag[i][j][k]*fluidDensity[i] << " ";
+       //           *bladePointClFile_ << bladePointCl[i][j][k] << " ";
+       //           *bladePointCdFile_ << bladePointCd[i][j][k] << " ";
+       //           *bladePointLiftFile_ << bladePointLift[i][j][k]*fluidDensity[i] << " ";
+       //           *bladePointDragFile_ << bladePointDrag[i][j][k]*fluidDensity[i] << " ";
                     *bladePointAxialForceFile_ << bladePointAxialForce[i][j][k]*fluidDensity[i] << " ";
                     *bladePointHorizontalForceFile_ << bladePointHorizontalForce[i][j][k]*fluidDensity[i] << " ";
                     *bladePointVerticalForceFile_ << bladePointVerticalForce[i][j][k]*fluidDensity[i] << " ";
@@ -3854,15 +3866,15 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
                 }
 
                 // End the line so we can go on to the next blade.
-                *bladePointAlphaFile_ << endl;
+       //       *bladePointAlphaFile_ << endl;
                 *bladePointVmagFile_ << endl;
                 *bladePointVaxialFile_ << endl;
                 *bladePointVtangentialFile_ << endl;
                 *bladePointVradialFile_ << endl;
-                *bladePointClFile_ << endl;
-                *bladePointCdFile_ << endl;
-                *bladePointLiftFile_ << endl;
-                *bladePointDragFile_ << endl;
+       //       *bladePointClFile_ << endl;
+       //       *bladePointCdFile_ << endl;
+       //       *bladePointLiftFile_ << endl;
+       //       *bladePointDragFile_ << endl;
                 *bladePointAxialForceFile_ << endl;
                 *bladePointHorizontalForceFile_ << endl;
                 *bladePointVerticalForceFile_ << endl;
@@ -3883,28 +3895,28 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
         *rotorHorizontalForceFile_ << endl;
         *rotorVerticalForceFile_ << endl;
         *rotorPowerFile_ << endl;
-        *generatorPowerFile_ << endl;
-        *rotorSpeedFile_ << endl;
-        *rotorSpeedFFile_ << endl;
-        *rotorAzimuthFile_ << endl;
+    //  *generatorPowerFile_ << endl;
+    //  *rotorSpeedFile_ << endl;
+    //  *rotorSpeedFFile_ << endl;
+    //  *rotorAzimuthFile_ << endl;
         *nacelleAxialForceFile_ << endl;
         *nacelleHorizontalForceFile_ << endl;
         *nacelleVerticalForceFile_ << endl;
-        *nacelleYawFile_ << endl;
+    //  *nacelleYawFile_ << endl;
         *towerAxialForceFile_ << endl;
         *towerHorizontalForceFile_ << endl;
-        *generatorTorqueFile_ << endl;
-        *bladePitchFile_ << endl;
+    //  *generatorTorqueFile_ << endl;
+    //  *bladePitchFile_ << endl;
 
-        *bladePointAlphaFile_ << endl;
+    //  *bladePointAlphaFile_ << endl;
         *bladePointVmagFile_ << endl;
         *bladePointVaxialFile_ << endl;
         *bladePointVtangentialFile_ << endl;
         *bladePointVradialFile_ << endl;
-        *bladePointClFile_ << endl;
-        *bladePointCdFile_ << endl;
-        *bladePointLiftFile_ << endl;
-        *bladePointDragFile_ << endl;
+    //  *bladePointClFile_ << endl;
+    //  *bladePointCdFile_ << endl;
+    //  *bladePointLiftFile_ << endl;
+    //  *bladePointDragFile_ << endl;
         *bladePointAxialForceFile_ << endl;
         *bladePointTorqueFile_ << endl;
         *bladePointXFile_ << endl;
@@ -3920,15 +3932,15 @@ void horizontalAxisWindTurbinesALMfastv8::printOutputFiles()
         *nacellePointHorizontalForceFile_ << endl;
         *nacellePointVerticalForceFile_ << endl;
 
-        *towerPointAlphaFile_ << endl;
+    //  *towerPointAlphaFile_ << endl;
         *towerPointVmagFile_ << endl;
         *towerPointVaxialFile_ << endl;
         *towerPointVhorizontalFile_ << endl;
         *towerPointVverticalFile_ << endl;
-        *towerPointClFile_ << endl;
-        *towerPointCdFile_ << endl;
-        *towerPointLiftFile_ << endl;
-        *towerPointDragFile_ << endl;
+    //  *towerPointClFile_ << endl;
+    //  *towerPointCdFile_ << endl;
+    //  *towerPointLiftFile_ << endl;
+    //  *towerPointDragFile_ << endl;
         *towerPointAxialForceFile_ << endl;
         *towerPointHorizontalForceFile_ << endl;
         *towerPointVerticalForceFile_ << endl;
