@@ -489,6 +489,11 @@ private:
                 //- Maximum rate of change of nacelle yaw (degrees/s).
                 DynamicList<scalar> RateLimitNacYaw;
 
+                //- Nacelle yaw vs. time table (s, deg).
+                DynamicList<List<List<scalar> > > TimeYawTable;
+                DynamicList<DynamicList<scalar> > TimeYawProfile;
+                DynamicList<DynamicList<scalar> > YawYawProfile;
+
 
 
             //- List of airfoils that compose turbine blade;

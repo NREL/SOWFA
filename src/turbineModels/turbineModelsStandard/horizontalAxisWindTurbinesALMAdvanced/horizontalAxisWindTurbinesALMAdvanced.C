@@ -440,6 +440,20 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         }
         else if (NacYawControllerType[i] == "timeYawTable")
         {
+            TimeYawTable.append(turbineProperties.subDict("NacYawControllerParams").lookup("TimeYawTable"));
+            DynamicList<scalar> timeInt;
+            DynamicList<scalar> yawInt;
+            forAll(TimeYawTable[i],j)
+            {
+                timeInt.append(TimeYawTable[i][j][0]);
+                yawInt.append(TimeYawTable[i][j][1]);
+            }
+
+            TimeYawProfile.append(timeInt);
+            YawYawProfile.append(yawInt);
+
+            timeInt.clear();
+            yawInt.clear();
         }
 
 
@@ -1455,6 +1469,10 @@ void horizontalAxisWindTurbinesALMAdvanced::yawNacelle()
             {
                 nacYaw[i] -= 2.0 * Foam::constant::mathematical::pi;
             }
+            if (nacYaw[i] < 0.0)
+            {
+                nacYaw[i] += 2.0 * Foam::constant::mathematical::pi;
+            }
         }
     }
 }
@@ -1559,7 +1577,7 @@ void horizontalAxisWindTurbinesALMAdvanced::controlGenTorque()
             #include "limiters/genTorqueRateLimiter.H"
         }
 
-        // Update the pitch array.
+        // Update the torque array.
         generatorTorque[i] = generatorTorqueCommanded;
     }
 }
@@ -1573,13 +1591,14 @@ void horizontalAxisWindTurbinesALMAdvanced::controlNacYaw()
         // Get the turbine type index.
         int j = turbineTypeID[i];
 
+        // Initialize the commanded nacelle yaw variable;
+        scalar nacYawCommanded = nacYaw[i];
 
         
         // Apply a controller to update the nacelle yaw position.
         if (NacYawControllerType[j] == "none")
         {
             // Do nothing.
-            deltaNacYaw[i] = 0.0;
         }
 
         else if (NacYawControllerType[j] == "simple")
@@ -1589,15 +1608,28 @@ void horizontalAxisWindTurbinesALMAdvanced::controlNacYaw()
         
         else if (NacYawControllerType[j] == "timeYawTable")
         {
+            #include "controllers/nacYawControllers/timeYawTable.H"
         }
 
 
-        
-        // Limit the change in nacelle yaw angle.
+      //Info << "nacYaw = " << nacYaw << endl;
+        if (((nacYawCommanded - nacYaw[i]) / degRad) <= 180.0)
+        {
+            deltaNacYaw[i] = nacYawCommanded - nacYaw[i];
+        }
+        else
+        {
+            deltaNacYaw[i] = nacYaw[i] - ((360.0*degRad) - nacYawCommanded);
+        }
+      //Info << "deltaNacYaw = " << deltaNacYaw / degRad << endl;
+   
+         // Limit the change in nacelle yaw angle.
         if (NacYawRateLimiter[j])
         {
+            #include "limiters/nacYawRateLimiter.H"
         }
 
+      //Info << "deltaNacYaw = " << deltaNacYaw / degRad << endl;
     }
 }
         

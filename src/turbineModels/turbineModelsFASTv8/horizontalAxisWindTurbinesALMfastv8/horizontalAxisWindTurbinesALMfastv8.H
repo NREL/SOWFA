@@ -138,7 +138,8 @@ private:
         volVectorField Urel;
 
         //- Declare an instance of the class that interfaces with FAST.
-        FAST_cInterface FAST;
+      //FAST_cInterface FAST;
+        autoPtr<FAST_cInterface> FAST;
 
         //- Write every "outputInterval" time steps or seconds.  Options are
         //  "timeStep" or "runTime".  "runTime" writes out as closely to every
@@ -202,6 +203,9 @@ private:
 
             //- FAST restart file name (.chkpt).
             DynamicList<word> FASTRestartFileName;
+
+            //- Number of FAST time steps to take per one OpenFOAM time step.
+            DynamicList<int> nFASTSubSteps;
 
             //- List of booleans for including nacelle and a global boolean that is
             //  true if at least one turbine nacelle is included.
@@ -403,6 +407,7 @@ private:
 
             //- List of locations of the rotor apex relative to the origin (m).
             DynamicList<vector> rotorApex;
+            DynamicList<vector> rotorApexBeforeSearch;
 
             //- List of list of labels of cells that turbine could lie within to narrow
             //  the search for cells for integral velocity sampling and for body force
@@ -442,8 +447,9 @@ private:
             int totTowerSamplePoints;
             int totNacellePoints;
 
-            //- Blade radius away from rotor apex.  Must take into account coning.
+            //- Blade radius away from rotor apex.  Takes into account coning and bending.
             DynamicList<List<List<scalar> > > bladePointRadius;
+            DynamicList<List<List<scalar> > > bladeSamplePointRadius;
 
             //- Blade chord, twist, thickness, user defined quantity, and airfoil type
             //  interpolated to the blade actuator elements from the blade definition.
@@ -464,6 +470,7 @@ private:
 
             //- Unit vector pointing along the rotor shaft (axis of blade rotation).
             DynamicList<vector> mainShaftOrientation;
+            DynamicList<vector> mainShaftOrientationBeforeSearch;
 
             //- Three vectors for each blade of each turbine that define the local
             //  blade-aligned coordinate system.  Vector 2 is along the blade pointed
@@ -474,11 +481,16 @@ private:
             //  vector 0 is not perfectly aligned with downstream due to rotor coning
             //  and nacelle tilt).
             DynamicList<List<List<List<vector> > > > bladeAlignedVectors;
+            DynamicList<List<List<List<vector> > > > bladeAlignedVectorsSample;
 
-            // Wind vectors at each velocity sampling point
+            // Wind vectors at each velocity sampling point in the Cartesian system.
+            DynamicList<List<List<vector> > > bladeWindVectorsCartesian;
+
+            // Wind vectors at each velocity sampling point in the turbine geometry-aligned system.
             DynamicList<List<List<vector> > > bladeWindVectors;
             DynamicList<List<vector> > towerWindVectors;
             DynamicList<vector> nacelleWindVector;            
+            
 
             //- Blade force at each actuator point.
             DynamicList<List<List<vector> > > bladePointForce;
@@ -491,7 +503,7 @@ private:
 
             //- Wind vector at each blade, tower, or nacelle actuator point in
             //  geometry-aligned coordinate system (i.e., bladeWindVectors are in the
-            //  bladeAlignedVectors coordinate system).
+            //  Cartesian coordinate system).
             DynamicList<List<List<vector> > > bladeWindVectorsFAST;
             DynamicList<vector> nacelleWindVectorFAST;
             DynamicList<List<vector> > towerWindVectorsFAST;
@@ -682,6 +694,7 @@ private:
     
     // Private Member Functions
 
+        void initialize();
         void readInput();
         void initializeArrays();
 
@@ -700,6 +713,8 @@ private:
         void sampleBladePointWindVectors();
         void sampleNacellePointWindVectors();
         void sampleTowerPointWindVectors();
+        void computeBladeAlignedVelocity();
+        void computeBladePointRadius();
 
         //- FAST access functions.
         void sendInput();

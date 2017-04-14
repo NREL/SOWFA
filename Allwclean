@@ -11,6 +11,11 @@ rmdepall
 wclean
 cd ../../../
 
+cd src/turbineModels/turbineModelsFASTv8
+rmdepall
+wclean
+cd ../../../
+
 cd src/finiteVolume
 rmdepall
 wclean
@@ -51,6 +56,11 @@ rmdepall
 wclean
 cd ../../../../../
 
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
+rmdepall
+wclean
+cd ../../../../../
+
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
 rmdepall
 wclean
@@ -62,6 +72,11 @@ wclean
 cd ../../../../../
 
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvanced
+rmdepall
+wclean
+cd ../../../../../
+
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
 rmdepall
 wclean
 cd ../../../../../

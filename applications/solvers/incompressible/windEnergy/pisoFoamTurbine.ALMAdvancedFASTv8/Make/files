@@ -1,3 +1,1 @@
-pisoFoamTurbine.C
-
-EXE = $(FOAM_USER_APPBIN)/pisoFoamTurbine.ALMAdvancedFASTv8
+/home/mchurchf/bin/OpenFOAM/SOWFA/applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8/Make/files

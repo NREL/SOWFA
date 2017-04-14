@@ -68,6 +68,12 @@ wmake libso
 cd ../../../
 
 
+# FAST 8 coupled turbine models.
+cd src/turbineModels/turbineModelsFASTv8
+wmake libso
+cd ../../../
+
+
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
 wmake libso
@@ -144,6 +150,19 @@ wmake
 cd ../../../../../
 
 
+# The wind plant solver with the FAST 8 coupled advanced actuator line.
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
+rm pEqn.H
+rm windPlantSolver.C
+rm Make/options
+ln -s $dir/pEqn.H ./
+ln -s $dir/windPlantSolver.C ./
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../
+
+
 # The wind plant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
 rm pEqn.H
@@ -179,6 +198,17 @@ wmake
 cd ../../../../../
 
 
+# The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
+rm pisoFoamTurbine.C
+rm Make/options
+ln -s $dir/pisoFoamTurbine.C
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../
+
+
 # The basic non-buoyant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
 rm pisoFoamTurbine.C
@@ -197,6 +227,7 @@ ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
+
 
 # A simple solver shell meant for testing wind turbine models.
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced

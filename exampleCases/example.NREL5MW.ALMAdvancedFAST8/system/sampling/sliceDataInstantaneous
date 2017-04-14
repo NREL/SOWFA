@@ -1,0 +1,34 @@
+      sliceDataInstantaneous
+      {
+          type                 surfaces;
+          functionObjectLibs   ("libsampling.so");
+          enabled              true;
+          interpolationScheme  cell;
+          outputControl        timeStep;
+          outputInterval       200;
+          surfaceFormat        vtk;
+          fields
+          (
+              U
+              omega
+              Q
+              bodyForce
+          );
+          surfaces
+          (
+              slice_horizontal
+              {
+                  type         plane;
+                  basePoint    (0.01 0.01 0.01);
+                  normalVector (0 0 1);
+                  triangulate  false;
+              }
+              slice_streamwise
+              {
+                  type         plane;
+                  basePoint    (0.01 0.01 0.01);
+                  normalVector (1 0 0);
+                  triangulate  false;
+              }
+          );
+      }
