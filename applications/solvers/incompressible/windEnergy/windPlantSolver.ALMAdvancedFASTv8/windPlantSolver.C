@@ -1,1 +1,1 @@
-/home/mchurchf/bin/OpenFOAM/SOWFA/applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8/windPlantSolver.C
+2.3-and-higher/windPlantSolver.C

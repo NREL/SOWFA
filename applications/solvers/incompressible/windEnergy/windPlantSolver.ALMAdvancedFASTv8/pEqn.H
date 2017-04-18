@@ -1,1 +1,1 @@
-/home/mchurchf/bin/OpenFOAM/SOWFA/applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8/pEqn.H
+2.3-and-higher/pEqn.H
