@@ -1,0 +1,3 @@
+sampledSet/cylinder/cylinderSet.C
+
+LIB = $(FOAM_USER_LIBBIN)/libusersampling

@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.4.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+// Domain size in diameter and number of cells.
+xMin                -10.0;                        // Minimum x-extent of domain (D).
+yMin                -10.0;                        // Minimum y-extent of domain (D).
+zMin                -10.0;                        // Minimum z-extent of domain (D).
+xMax                 10.0;                        // Maximum x-extent of domain (D).
+yMax                 10.0;                        // Maximum y-extent of domain (D).
+zMax                 10.0;                        // Maximum z-extent of domain (D).
+nx                   80;                          // Number of cells in x-direction.
+ny                   80;                          // Number of cells in y-direction.
+nz                   80;                          // Number of cells in z-direction.
+
+
+// Turbine size.
+D                    126.0;
+
+
+
+
+// Number of cores and domain decomposition information.
+nCores               96;                          // Number of cores on which to run this case.
+decompType           scotch;                      // Decomposition algorithm.  "simple" and "scotch" are good choices.
+decompOrder          (6 6 5);                     // Order of the decomposition number of partitions in (x y z)-directions.
+
+
+
+
+// Initial values for the variables.
+// Note that U and T get overwritten if setFieldsABL is called.
+U0Mag                8.0;                         // Initial condition for wind speed (m/s).
+windHeight           90.0;                        // Height at which to drive mean wind to U0Mag/dir (m).
+p0                   0.0;                         // Initial pressure (minus the hydrostatic variation and normalized by density) (m^2/s^2).
+nuSgs0               0.0;                         // Initial SGS viscosity (m^2/s).
+k0                   0.1;                         // Initial SGS turbulent kinetic energy (m^2/s^2).
+
+
+
+
+// General conditions and parameters.
+nu                   1.0E-5;                      // Molecular viscosity (m^2/s).
+
+
+
+
+// SGS model inputs.
+LESModel             oneEqEddy;                   // SGS model selection.
+ce                   0.93;                        // SGS model constant.
+ck                   0.0673;                      // SGS model constant.
+
+
+#inputMode           merge
+
+// ************************************************************************* //
+

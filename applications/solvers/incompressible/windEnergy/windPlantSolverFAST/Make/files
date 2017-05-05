@@ -1,3 +1,0 @@
-windPlantSolverFAST.C
-
-EXE = $(FOAM_USER_APPBIN)/windPlantSolverFAST

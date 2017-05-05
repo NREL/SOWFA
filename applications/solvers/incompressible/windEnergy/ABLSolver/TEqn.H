@@ -10,6 +10,7 @@
       + fvm::div(phi, T)
       - fvm::laplacian(kappaEff, T)
       - fvc::div(qwall)
+      - SourceT
     );
 
     TEqn.relax();

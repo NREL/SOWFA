@@ -1,0 +1,58 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbineArrayProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+ 
+globalProperties
+{
+    outputControl       "timeStep";
+    outputInterval       1;
+}
+ 
+turbine0
+{
+    turbineType                      "NREL5MWRef";
+    includeNacelle                    true;
+    includeTower                      false;
+    baseLocation                     (5.0 0.0 -90.0);
+    numBladePoints                    40;
+    numNacellePoints                  10;
+    numTowerPoints                    40;
+    bladePointDistType               "uniform";
+    nacellePointDistType             "uniform";
+    towerPointDistType               "uniform";
+    bladeSearchCellMethod            "disk";
+    bladeActuatorPointInterpType     "integral";
+    nacelleActuatorPointInterpType   "linear";
+    towerActuatorPointInterpType     "linear";
+    actuatorUpdateType               "oldPosition";
+    bladeForceProjectionType         "uniformGaussian";
+    nacelleForceProjectionType       "diskGaussian";
+    towerForceProjectionType         "advanced";
+    bladeForceProjectionDirection    "localVelocityAligned";
+    bladeEpsilon                     (4.4 0.0 0.0);
+    nacelleEpsilon                   (4.0 4.0 0.0);
+    towerEpsilon                     (4.0 4.0 0.0);
+    nacelleSampleDistance             1.0;
+    towerSampleDistance               3.5;
+    tipRootLossCorrType              "Glauert";
+    velocityDragCorrType             "none";
+    rotationDir                      "cw";
+    Azimuth                           0.0;
+    RotSpeed                          9.1552;
+    TorqueGen                         0.0;
+    Pitch                             0.0;
+    NacYaw                          270.0;
+    fluidDensity                      1.23;
+}

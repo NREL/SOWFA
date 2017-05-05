@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Do some logic to set things up for the proper version.
 echo "Building with OpenFOAM-"$WM_PROJECT_VERSION
 
 version=${WM_PROJECT_VERSION:0:1}
@@ -38,8 +39,9 @@ then
 fi
 
 
-
+# Turbulence models.
 cd src/turbulenceModels/incompressible/LES/
+
 cd GenEddyViscABL
 rm GenEddyViscABL.H
 rm GenEddyViscABL.C
@@ -55,21 +57,48 @@ ln -s $dir/KosovicOneEqNBA.H ./
 ln -s $dir/KosovicOneEqNBA.C ./
 rm -rf $dirrm1 $dirrm2
 cd ../
+
 wmake libso
 cd ../../../../
 
-cd src/turbineModels
+
+# Actuator turbine models.
+cd src/turbineModels/turbineModelsStandard
+wmake libso
+cd ../../../
+
+
+# FAST 8 coupled turbine models.
+cd src/turbineModels/turbineModelsFASTv8
+wmake libso
+cd ../../../
+
+
+# Custom sampling (this includes sampling on an annulus).
+cd src/sampling
 wmake libso
 cd ../../
 
+
+# Custom boundary conditions.
 cd src/finiteVolume
 wmake libso
 cd ../../
 
+
+# Custom function objects (this includes the lidar sampling).
+cd src/postProcessing/functionObjects/utilities
+wmake libso
+cd ../../../../
+
+
+# Utility to set the initial fields for the ABL solver.
 cd applications/utilities/setFieldsABL
 wmake
 cd ../../../
 
+
+# The atmospheric LES solver for precursors.
 cd applications/solvers/incompressible/windEnergy/ABLSolver
 rm pEqn.H
 rm ABLSolver.C
@@ -81,6 +110,8 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
+
+# The atmospheric LES solver for terrain cases.
 cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
 rm pEqn.H
 rm ABLTerrainSolver.C
@@ -92,7 +123,9 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/windPlantSolver
+
+# The wind plant solver with the standard actuator line.
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALM
 rm pEqn.H
 rm windPlantSolver.C
 rm Make/options
@@ -103,6 +136,34 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
+
+# The wind plant solver with the advanced actuator line.
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvanced
+rm pEqn.H
+rm windPlantSolver.C
+rm Make/options
+ln -s $dir/pEqn.H ./
+ln -s $dir/windPlantSolver.C ./
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../
+
+
+# The wind plant solver with the FAST 8 coupled advanced actuator line.
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
+rm pEqn.H
+rm windPlantSolver.C
+rm Make/options
+ln -s $dir/pEqn.H ./
+ln -s $dir/windPlantSolver.C ./
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../
+
+
+# The wind plant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
 rm pEqn.H
 rm windPlantSolver.C
@@ -114,7 +175,9 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine
+
+# The basic non-buoyant solver with the standard actuator line.
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALM
 rm pisoFoamTurbine.C
 rm Make/options
 ln -s $dir/pisoFoamTurbine.C
@@ -123,6 +186,30 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
+
+# The basic non-buoyant solver with the advanced actuator line.
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvanced
+rm pisoFoamTurbine.C
+rm Make/options
+ln -s $dir/pisoFoamTurbine.C
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../
+
+
+# The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
+rm pisoFoamTurbine.C
+rm Make/options
+ln -s $dir/pisoFoamTurbine.C
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
+wmake
+cd ../../../../../
+
+
+# The basic non-buoyant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
 rm pisoFoamTurbine.C
 rm Make/options
@@ -132,23 +219,20 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/turbineTestHarness
+
+# A simple solver shell meant for testing wind turbine models.
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALM
 rm Make/options
 ln -s ../$dir/options ./Make
 rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
-cd src/openfast7/bin
-make
-./libmake
-cd ../../../
 
-cd src/fastturb
-wmake libso
-cd ../../
-
-cd applications/solvers/incompressible/windEnergy/windPlantSolverFAST
+# A simple solver shell meant for testing wind turbine models.
+cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced
+rm Make/options
+ln -s ../$dir/options ./Make
+rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
-

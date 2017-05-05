@@ -1,17 +1,12 @@
-  label hLevelsWind1I = 0; 
-  label hLevelsWind2I = 0;
   scalar hLevelsWind1Diff = 0;
   scalar hLevelsWind2Diff = 0;
-  scalar hLevelsWind1 = 0;
-  scalar hLevelsWind2 = 0;
 
-  //if (driveWindOn)
   {
        // Find the grid levels closest to the specified wind height
        List<scalar> hLevelsDiff(hLevelsTotal);
        forAll(hLevelsValues,hLevelsI)
        {
-            hLevelsDiff[hLevelsI] = (hLevelsValues[hLevelsI] - hWind.value());
+            hLevelsDiff[hLevelsI] = (hLevelsValues[hLevelsI] - sourceHeightsMomentumSpecified[0]);
        }
 
        // Find the two levels closest to the specified wind height
@@ -59,5 +54,4 @@
 	         j++;
 	    }
        }
-
   }

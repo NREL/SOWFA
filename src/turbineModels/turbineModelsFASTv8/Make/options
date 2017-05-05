@@ -1,0 +1,20 @@
+EXE_INC = \
+    -I$(LIB_SRC)/triSurface/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/turbulenceModels \
+    -I$(LIB_SRC)/turbulenceModels/LES/LESdeltas/lnInclude \
+    -I$(LIB_SRC)/turbulenceModels/LES/LESfilters/lnInclude \
+    -I$(LIB_SRC)/transportModels \
+    -I$(FAST_DIR)/include
+
+LIB_LIBS = \
+    -ltriSurface \
+    -lfiniteVolume \
+    -lmeshTools \
+    -lincompressibleTurbulenceModel \
+    -lLESdeltas \
+    -lLESfilters \
+    -L$(FAST_DIR)/lib \
+    -lFAST_glin64_release \
+    -lFAST_cInterface_glin64_release

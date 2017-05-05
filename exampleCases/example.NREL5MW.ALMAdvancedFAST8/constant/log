@@ -1,0 +1,28 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.4.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : 2.4.x-2b147f41daf9
+Exec   : pisoFoamTurbine.ALMAdvanced -parallel
+Date   : Mar 17 2017
+Time   : 01:15:26
+Host   : "n1017"
+PID    : 21579
+[0] 
+[0] 
+[0] --> FOAM FATAL ERROR: 
+[0] Cannot read "/scratch/mchurchf/Statoil/example.ALMAdvanced/constant/system/decomposeParDict"
+[0] 
+FOAM parallel run exiting
+[0] 
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD 
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------

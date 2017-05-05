@@ -54,6 +54,7 @@ Description
 #include "wallDist.H"
 #include "interpolateXY.H"
 #include "interpolateSplineXY.H"
+#include "interpolate2D.H"
 #include "horizontalAxisWindTurbinesADM.H"
 
 
@@ -68,16 +69,17 @@ int main(int argc, char *argv[])
 
     #include "createFields.H"
     #include "createDivSchemeBlendingField.H"
-    #include "createGradP.H"
+  //#include "createGradP.H"
+    #include "createSourceTerms.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
-    //#include "findVerticalCellLevels.H"
-    //#include "findVerticalFaceLevels.H"
-    #include "findWindHeight.H"
-    //#include "openCellStatisticsFiles.H"
-    //#include "openFaceStatisticsFiles.H"
-    //#include "openABLStatisticsFiles.H"
+  //#include "findVerticalCellLevels.H"
+  //#include "findVerticalFaceLevels.H"
+  //#include "findWindHeight.H
+  //#include "openCellStatisticsFiles.H"
+  //#include "openFaceStatisticsFiles.H"
+  //#include "openABLStatisticsFiles.H"
     #include "createAverageFields.H"
     #include "createVorticityQFields.H"
     #include "computeDivergence.H"
@@ -132,7 +134,10 @@ int main(int argc, char *argv[])
             #include "computeDivergence.H"
 
             // --- Update the driving pressure gradient
-            #include "correctGradP.H"
+//          #include "correctGradP.H"
+
+            // --- Update the source terms
+            #include "correctSourceTerms.H"
 
             // --- Update the turbulence fields
             if (pimple.turbCorr())
@@ -162,7 +167,7 @@ int main(int argc, char *argv[])
 //      #include "statisticsABL.H"
 
         runTime.write();
-        #include "writeGradP.H"
+//      #include "writeGradP.H"
 
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"

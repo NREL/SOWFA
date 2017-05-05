@@ -1,0 +1,160 @@
+#!/bin/bash
+#PBS -l walltime=48:00:00
+#PBS -l nodes=1:ppn=16
+#PBS -l feature=16core
+#PBS -A windFlowModeling
+#PBS -q batch
+
+
+
+
+
+# User Input.
+OpenFOAMversion=2.4.x           # OpenFOAM version
+startTime=0                     # Start time
+updateBCType=0                  # Boolean for whether or not the boundary condition types will be updated over 
+                                #    what is in the initial conditions files. Leave it 0 for precursors.
+inflowDir='west'                # For inflow/outflow cases, specify the inflow direction.  Choices are 'west',
+                                #   'east', 'south', 'west', 'southWest', 'northWest', 'southEast', and
+                                #   'northEast'.
+refineMeshLocal=4               # Number of levels of local refinement (requires system/topoSetDict and 
+                                #    system/refineHexMeshDict).
+refineMeshGlobal=0              # Number of levels of global refinement.
+cores=1                         # Enter the number of cores you will preprocess on.
+
+
+
+
+
+
+# Define some functions for mesh refinement.
+# Local refinement performed on one core.
+refineMeshLocal()
+{
+   i=$1
+   while [ $i -ge 1 ]
+   do
+      echo "   -Performing level $i local refinement with topoSet/refineHexMesh"
+      echo "      *selecting cells to refine..."
+      topoSet -dict system/topoSetDict.local.$i > log.topoSet.local.$i 2>&1
+
+      echo "      *refining cells..."
+      refineHexMesh local -overwrite > log.refineHexMesh.local.$i 2>&1
+
+      let i=i-1
+   done
+}
+
+# Global refinement performed in parallel.
+refineMeshGlobal()
+{
+   i=1
+   while [ $i -le $1 ]
+   do
+      echo "   -Performing level $i global refinement with refineMesh"
+      echo "      *refining cells..."
+      mpirun -np $cores refineMesh -parallel -overwrite > log.refineMesh.global.$i 2>&1
+
+      let i=i+1
+   done
+}
+
+
+# If running in parallel, cd to job launch directory
+if [ $cores -gt 1 ]
+   then
+   cd $PBS_O_WORKDIR
+fi
+
+
+# Source the bash profile and then call the appropriate OpenFOAM version function
+# so that all the modules and environment variables get set.
+echo "Sourcing the bash profile, loading modules, and setting the OpenFOAM environment variables..."
+source $HOME/.bash_profile
+OpenFOAM-$OpenFOAMversion
+
+
+# Copy the controlDict.1 (assuming this is the one the actual solver will start
+# out with) to controlDict.  OpenFOAM reads "controlDict", not the numbered ones.
+echo "Getting the control dictionary ready..."
+cp system/controlDict.1 system/controlDict
+
+
+# Copy the "clean" .original initial fields to a working copy.  OpenFOAM does not
+# read the ".original" initial fields--that's why they remain clean.
+echo "Getting the initial condition directory ready..."
+rm -rf $startTime
+cp -rf $startTime.original $startTime
+
+
+# Build the mesh.
+echo "Using blockMesh to create the base mesh..."
+cp constant/polyMesh/blockMeshDict ./
+rm -rf constant/polyMesh/*
+mv ./blockMeshDict constant/polyMesh
+blockMesh > log.blockMesh 2>&1
+
+
+# The initial fields come from the precursor which is periodic on all sides.  The turbine
+# case has inflow and outflow.  Call the changeDictionary utility to make the south and
+# north sides inflow and outflow.
+if [ $updateBCType -eq 1 ]
+   then
+   echo "Using changeDictionary to update boundary conditions..."
+   changeDictionary -dict system/changeDictionaryDict.updateBCs.$inflowDir > log.changeDictionary.updateBCs.$inflowDir.1 2>&1
+fi
+
+
+# Do serial local refinement
+echo "Using refineHexMesh to perform " $refineMeshLocal " of local refinement..."
+refineMeshLocal $refineMeshLocal
+
+
+# If running in paralle from this point forward, then do the following:
+if [ $cores -gt 1 ]
+   then
+   # Decompose the mesh and solution files (serial)
+   echo "Using decomposePar to decompose the problem for parallel processing..."
+   decomposePar -cellDist -force > log.decomposePar 2>&1
+
+   # Check the mesh
+   echo "Running checkMesh to report mesh diagnostics..."
+   mpirun -np $cores checkMesh -parallel > log.checkMesh.1 2>&1
+
+   # Perform global refinement to desired resolution.
+   echo "Using refineMesh to perform " $refineMeshGlobal " of global refinement..."
+   refineMeshGlobal $refineMeshGlobal
+
+   # The mesh got globally refined, but the solution file did not, so
+   # the boundary fields may not have the correct number of entries.
+   # Use the changeDictionary utility to overwrite the spatially varying
+   # boundary data to a uniform single value.
+   if [ $updateBCType -eq 1 ]
+      then
+      echo "Using changeDictionary to ensure that the boundaries have the correct number of faces..."
+      mpirun -np $cores changeDictionary -dict system/changeDictionaryDict.updateBCs.$inflowDir -parallel > log.changeDictionary.updateBCs.$inflowDir.1 2>&1
+   fi
+
+   # Renumber the mesh for better matrix solver performance.
+   echo "Using renumberMesh to renumber the mesh for better matrix conditioning..."
+   mpirun -np $cores renumberMesh -parallel -overwrite > log.renumberMesh 2>&1
+
+   # Do one last check on the mesh.
+   echo "Running checkMesh to report mesh diagnostics..."
+   mpirun -np $cores checkMesh -parallel > log.checkMesh.3 2>&1
+
+
+# Otherwise, run in serial as follows:
+else
+   # Renumber the mesh.
+   echo "Using renumberMesh to renumber the mesh for better matrix conditioning..."
+   renumberMesh -overwrite > log.renumberMesh 2>&1
+
+   # Decompose the mesh and solution files (serial)
+   echo "Using decomposePar to decompose the problem for parallel processing..."
+   decomposePar -cellDist -force > log.decomposePar 2>&1
+
+   # Check the mesh.
+   echo "Running checkMesh to report mesh diagnostics..."
+   checkMesh > log.checkMesh.1 2>&1
+fi

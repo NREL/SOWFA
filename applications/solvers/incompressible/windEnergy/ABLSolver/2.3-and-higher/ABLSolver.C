@@ -55,6 +55,8 @@ Description
 #include "wallDist.H"
 #include "interpolateXY.H"
 #include "interpolateSplineXY.H"
+#include "interpolate2D.H"
+#include "windRoseToCartesian.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -65,16 +67,16 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "createPostProcessingDir.H"
+    #include "findVerticalCellLevels.H"
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createAverageFields.H"
     #include "createSGSTurbulenceFields.H"
-    #include "createGradP.H"
+    #include "createSourceTerms.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
-    #include "findVerticalCellLevels.H"
-    #include "findWindHeight.H"
+  //#include "findWindHeight.H"
     #include "openCellStatisticsFiles.H"
     #include "computeDivergence.H"
     #include "createDivSchemeBlendingField.H"
@@ -124,11 +126,14 @@ int main(int argc, char *argv[])
                 corr++;
             }
 
+            // --- Update the driving pressure gradient
+          //#include "correctGradP.H"
+
+            // --- Update the source terms
+            #include "correctSourceTerms.H"
+
             // --- Compute the velocity flux divergence
             #include "computeDivergence.H"
-
-            // --- Update the driving pressure gradient
-            #include "correctGradP.H"
 
             // --- Update the turbulence fields
 //          if (pimple.turbCorr())
@@ -149,7 +154,7 @@ int main(int argc, char *argv[])
         #include "computeSGSTurbulenceFields.H"
 
         runTime.write();
-        #include "writeGradP.H"
+//      #include "writeGradP.H"
 
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"

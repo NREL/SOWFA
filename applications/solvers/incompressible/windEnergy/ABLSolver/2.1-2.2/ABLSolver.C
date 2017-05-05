@@ -54,6 +54,7 @@ Description
 #include "wallDist.H"
 #include "interpolateXY.H"
 #include "interpolateSplineXY.H"
+#include "interpolate2D.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -123,11 +124,14 @@ int main(int argc, char *argv[])
                 corr++;
             }
 
+            // --- Update the driving pressure gradient
+          //#include "correctGradP.H"
+
+            // --- Update the source terms
+            #include "correctSourceTerms.H"
+
             // --- Compute the velocity flux divergence
             #include "computeDivergence.H"
-
-            // --- Update the driving pressure gradient
-            #include "correctGradP.H"
 
             // --- Update the turbulence fields
 //          if (pimple.turbCorr())
