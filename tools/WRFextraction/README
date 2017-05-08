@@ -1,0 +1,86 @@
+-----------------------------------------------------------------
+README, created 2009 12 29, J. Michalakes, modified 2014 9 17, M. Churchfield
+
+Gunzip and untar the file, which creates a directory WRFTOOF ("WRF to OpenFOAM").
+Cd into WRFTOOF and type make.  Then cd into run and refer to that README
+file.  Then type
+
+  ../wrftoof auxhist15_d05_2005-01-15_02_01_00
+
+This will generate OpenFOAM boundary condition files in the following
+directory structure:
+
+  <bdyname>  (upper, west, east, north, or south)
+    |
+    +--- ssss.00   (s is seconds)
+    |     |
+    |     +--- T    temperature         (K)
+    |     +--- U    3D wind vector      (m/s)
+    |     +--- pd   pressure (sort of)  m^2/s^2
+    +--- ... 
+    .
+    .
+    .
+ 
+The bdyname directory Name refers to which face of the OpenFOAM domain
+the boundary corresponds to.  Each of these will contain one or more
+directories whose name is a timestamp in seconds (and fractions of a
+second, though from TOOF these will always be whole seconds).  Each of
+these time directories contains a file containing the set of boundary
+values for a given field.
+
+The time stamps for the directory names is based on the starting time
+of the simulation and is controllable from the argument list.  To get
+useage information type ./toof without arguments:
+
+  Usage: wrftoof wrfoutfile [startdate [offset]]
+     startdate:  date in form yyyy-mm-dd_hh_mm_ss or yyyy-mm-dd_hh:mm:ss
+     offset:     number of seconds to start directory naming (default 0)
+
+If a startdate string is provided the number of seconds used for the
+OpenFOAM directory names will be the time in the wrfoutput NetCDF file
+minus the time instance specified  by the startdate argument.  (Caveat:
+right now the time calculations in toof are incomplete, and toof won't
+handle a day rollover properly).   Thus,
+
+  ./wrftoof auxhist15_d05_2005-01-15_02_01_00 -startdate 2005-01-15_02_01_00
+
+will cause the resulting time directory name to be 0000.00, since the
+two times are the same.  (Note, the time from the wrfout file, which
+happens to be 2005-01-15_02_01_00, is coming from inside the file,
+the time string in the name of the wrfout file is not significant).
+
+An offset number of seconds can be specified as a third option to the
+toof command (only if a time string is specified as the second option).
+The value of the offset is added to the difference between the start time
+(second argument) and the time in the wrfout file.  Thus,
+
+  ../wrftoof auxhist15_d05_2005-01-15_02_01_00 -startedate 2005-01-15_02_01_00 -offset 2000
+
+will cause the resulting time directory name to be 2000.00 .  
+
+The auxhist15 file in the run directory is one of the 32m resolution
+files that were generated in that WRF run over Horns Rev (this must
+be downloaded separately -- see run/README).  The side_bc.dat files
+Matt provided containing the point information are also there in the
+run directory.
+
+The README file in the run directory also shows timings for two runs
+of the converter.  First is the time you would see if none of the
+bdy_cache_[1-6] files is around -- about 80 seconds.  As toof runs,
+it stores the precomputed WRF coordinates for each OpenFOAM point in
+these files so that next time around, it doesn't have to recompute them
+again and takes less than a second.  Obviously, if we change the domain,
+these have to be deleted and regenerated.  Also, if for some reason toof
+fails on a first invocation when it's generating these bdy_cache files,
+they need to be deleted because they're probably incomplete.
+
+The code itself will compile and run with either gfortran or ifort and
+needs to have the path to the NetCDF library and include files specified
+in the makefile.  In the case of Redrock, where the NetCDF library is
+compiled with ifort, there's also an Intel runtime library needed if you
+chose to compile with gfortran.  There are comments in the Makefile with
+more information on this.
+
+-------------------------------------------------------------
+
