@@ -73,6 +73,7 @@ ck                   0.0673;                      // SGS model constant.
 
 
 // Surface conditions.
+qwall               (0.0 0.0 0.0);                // Temperature flux at wall (modify the z-value).  A negative value is flux into domain (K-m/s).
 Rwall               (0.0 0.0 0.0 0.0 0.0 0.0);    // Initial wall shear stress (m^2/s^2).
 kappa                0.4;                         // von Karman constant.
 z0                   0.15;                        // Surface roughness (m).
@@ -81,7 +82,7 @@ gammaM               4.9;                         // Monin-Obukhov wall shear st
 betaH                9.0;                         // Monin-Obukhov wall temperature flux model constant.
 gammaH               7.8;                         // Monin-Obukhov wall temperature flux model constant.
 alphaH               1.0;                         // Monin-Obukhov wall temperature flux model constant.
-heatingRate         -1.38889;                     // Surface temperature change rate (when not directly setting temperature flux) (K/s).
+heatingRate         -1.38889e-4;                     // Surface temperature change rate (when not directly setting temperature flux) (K/s).
 
 
 
