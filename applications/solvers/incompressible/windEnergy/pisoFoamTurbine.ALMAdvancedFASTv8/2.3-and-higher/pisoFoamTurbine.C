@@ -64,6 +64,9 @@ int main(int argc, char *argv[])
 
         // PISO algorithm
         {
+	    // Update the turbine.
+            turbines.update();
+
             // Momentum predictor
 
             fvVectorMatrix UEqn
@@ -141,9 +144,6 @@ int main(int argc, char *argv[])
         // Compute the turbulence model variables.
         turbulence->correct();
 
-        // Update the turbine.
-        turbines.update();
-
         // Compute the mean fields.
         #include "computeMeanFields.H"
 
@@ -159,6 +159,8 @@ int main(int argc, char *argv[])
             << nl << endl;
     }
 
+    turbines.end();
+    
     Info<< "End\n" << endl;
 
     return 0;
