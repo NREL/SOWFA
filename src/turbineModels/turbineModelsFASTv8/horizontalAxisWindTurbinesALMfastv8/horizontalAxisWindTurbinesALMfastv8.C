@@ -199,10 +199,6 @@ void horizontalAxisWindTurbinesALMfastv8::initialize()
     {
         FAST->init();
 
-        if (FAST->isTimeZero())
-        {
-          //FAST->solution0();
-        }
     }
 
     // Initialize arrays that hold blade, tower, nacelle information.
@@ -268,7 +264,6 @@ void horizontalAxisWindTurbinesALMfastv8::initialize()
         {
             FAST->solution0();
         }
-        FAST->step();
     }
 
     // Get the positions out after solution0 and step are called.
@@ -279,69 +274,6 @@ void horizontalAxisWindTurbinesALMfastv8::initialize()
     rotorApexBeforeSearch = 1.0*rotorApex;
     mainShaftOrientationBeforeSearch = 1.0*mainShaftOrientation;
     
-    // Get back the point forces.
-    getForces();    
-    
-    // Define the sets of search cells when sampling velocity and projecting
-    // the body force.
-    forAll(turbineName,i)
-    {
-        updateRotorSearchCells(i);
-      //if (includeNacelle[i])
-      //{
-            updateNacelleSearchCells(i);
-      //}
-      //if (includeTower[i])
-      //{
-            updateTowerSearchCells(i);
-      //}
-    }
-
-    // If there are search cells for a particular turbine, then this processor
-    // must do calculations for this turbine, so check for that.
-    updateTurbinesControlled();
-
-    // Compute the blade aligned vectors.
-    computeBladeAlignedVectors();
-
-    // Compute the blade point radii away from main shaft axis.
-    computeBladePointRadius();
-
-    // Compute the radius from the main shaft axis of the CFD mesh cells.
-    forAll(turbineName,i)
-    {
-        updateRadius(i);
-    }
-    
-    // Get the wind vector in geometry aligned coordinates.
-    computeBladeAlignedVelocity();
-
-    // Find out which processors control each actuator line point.
-    updateBladePointControlProcNo();
-    updateNacellePointControlProcNo();
-    updateTowerPointControlProcNo();
-
-  //Info << "bladePointForce = " << bladePointForce << endl;
-  //Info << "towerPointForce = " << towerPointForce << endl;
-  //Info << "nacellePointForce = " << nacellePointForce << endl;
-
-
-    // Compute the resultant body force at this initial time step.
-    forAll(turbineName,i)
-    {
-        updateBladeBodyForce(i);
-        
-        if (includeNacelle[i])
-        {
-            updateNacelleBodyForce(i);
-        }
-        
-        if (includeTower[i])
-        {
-            updateTowerBodyForce(i);
-        }
-    }
-
     // Open the turbine data output files and print initial information.
     openOutputFiles();
     printOutputFiles();
@@ -565,7 +497,7 @@ void horizontalAxisWindTurbinesALMfastv8::initializeArrays()
         bladeSamplePoints.append(List<List<vector> >(numBl[i], List<vector>(numBladeSamplePoints[i],vector::zero)));
         bladePointRadius.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
         bladeSamplePointRadius.append(List<List<scalar> >(numBl[i], List<scalar>(numBladeSamplePoints[i],0.0)));
-        bladePointOrientation.append(List<List<vector> >(numBl[i], List<vector>(numBladePoints[i],vector::zero)));
+        bladePointOrientation.append(List<List<tensor> >(numBl[i], List<tensor>(numBladePoints[i],tensor::zero)));
         bladePointChord.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
 
 
@@ -582,7 +514,7 @@ void horizontalAxisWindTurbinesALMfastv8::initializeArrays()
         towerPoints.append(List<vector>(numTowerPoints[i],vector::zero));
         towerSamplePoints.append(List<vector>(numTowerSamplePoints[i],vector::zero));
         towerPointHeight.append(List<scalar>(numTowerPoints[i],0.0));
-        towerPointOrientation.append(List<vector>(numTowerPoints[i],vector::zero));
+        towerPointOrientation.append(List<tensor>(numTowerPoints[i],tensor::zero));
         towerPointChord.append(List<scalar>(numTowerPoints[i],0.0));
 
 
@@ -1394,7 +1326,7 @@ void horizontalAxisWindTurbinesALMfastv8::getPositions()
    double pointLocation[3] = {};
 
    // Local point orientation vector of doubles for communication with FAST.
-   double pointOrientation[3] = {};
+   double pointOrientation[9] = {};
 
    // Local main shaft unit vector vector of doubles for communication with FAST.
    double shaftOrientation[3] = {};
@@ -1434,7 +1366,7 @@ void horizontalAxisWindTurbinesALMfastv8::getPositions()
    List<vector> points_(totalNumPoints,vector::zero);
 
    // Create a local orientation list that is initially zero..
-   List<vector> orientation_(totalNumPoints,vector::zero);
+   List<tensor> orientation_(totalNumPoints,tensor::zero);
 
    int startIndex = 0;
 
@@ -1566,16 +1498,22 @@ void horizontalAxisWindTurbinesALMfastv8::getPositions()
        for (int i = 0; i < localNumPoints; i++)
        {
           FAST->getForceNodeOrientation(pointOrientation,i);
-          orientation_[startIndex + i].x() = pointOrientation[0];
-          orientation_[startIndex + i].y() = pointOrientation[1];
-          orientation_[startIndex + i].z() = pointOrientation[2];
+          orientation_[startIndex + i].xx() = pointOrientation[0];
+          orientation_[startIndex + i].xy() = pointOrientation[1];
+          orientation_[startIndex + i].xz() = pointOrientation[2];
+          orientation_[startIndex + i].yx() = pointOrientation[3];
+          orientation_[startIndex + i].yy() = pointOrientation[4];
+          orientation_[startIndex + i].yz() = pointOrientation[5];
+          orientation_[startIndex + i].zx() = pointOrientation[6];
+          orientation_[startIndex + i].zy() = pointOrientation[7];
+          orientation_[startIndex + i].zz() = pointOrientation[8];
        }
    }
 
    // Parallel sum the list and send back out to all cores.
    Pstream::gather(points_,sumOp<List<vector> >());
    Pstream::scatter(points_);
-   Pstream::gather(orientation_,sumOp<List<vector> >());
+   Pstream::gather(orientation_,sumOp<List<tensor> >());
    Pstream::scatter(orientation_);
 
    // Put the local points vector entries into the nice ordered
@@ -4226,7 +4164,10 @@ volVectorField& horizontalAxisWindTurbinesALMfastv8::force()
     return bodyForce;
 }
 
-
+void horizontalAxisWindTurbinesALMfastv8::end()
+{
+    FAST->end();
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace turbineModels

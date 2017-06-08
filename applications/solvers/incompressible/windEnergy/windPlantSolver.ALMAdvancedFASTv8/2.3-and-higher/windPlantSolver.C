@@ -112,6 +112,9 @@ int main(int argc, char *argv[])
         #include "setDeltaT.H"
         #include "updateDivSchemeBlendingField.H"
 
+	// --- Update the turbine array
+	turbines.update();
+
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
@@ -140,9 +143,6 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
 
-            // --- Update the turbine array
-            turbines.update();
-
             // --- Update the boundary momentum and
             //     temperature flux conditions
             Rwall.correctBoundaryConditions();
@@ -168,6 +168,8 @@ int main(int argc, char *argv[])
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"
              << nl << endl;
     }
+
+    turbines.end();
 
     Info << "End" << endl;
 

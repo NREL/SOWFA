@@ -16,5 +16,5 @@ LIB_LIBS = \
     -lLESdeltas \
     -lLESfilters \
     -L$(FAST_DIR)/lib \
-    -lFAST_glin64_release \
-    -lFAST_cInterface_glin64_release
+    -lFAST_glin64_debug \
+    -lFAST_cInterface_glin64_debug

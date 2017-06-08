@@ -456,7 +456,7 @@ private:
             DynamicList<List<List<scalar> > > bladePointChord;
             
             //- Blade point orientation.
-            DynamicList<List<List<vector> > > bladePointOrientation;
+            DynamicList<List<List<tensor> > > bladePointOrientation;
 
             //- Tower height from ground.
             DynamicList<List<scalar> > towerPointHeight;
@@ -466,7 +466,7 @@ private:
             DynamicList<List<scalar> > towerPointChord;
 
             //- Tower points orientation.
-            DynamicList<List<vector> > towerPointOrientation;
+            DynamicList<List<tensor> > towerPointOrientation;
 
             //- Unit vector pointing along the rotor shaft (axis of blade rotation).
             DynamicList<vector> mainShaftOrientation;
@@ -791,7 +791,9 @@ public:
 
         //- Return force.
         volVectorField& force();
-        
+
+        //- End
+        void end() ;
 };
 
 

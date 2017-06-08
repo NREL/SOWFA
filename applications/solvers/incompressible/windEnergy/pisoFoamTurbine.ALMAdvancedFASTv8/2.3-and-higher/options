@@ -6,7 +6,7 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
-    -I$(WM_PROJECT_USER_DIR)/src/turbineModels/turbineModelsFASTv8/lnInclude \
+    -I/home/gvijayak/CurrentProjects/FAST8-SOWFA/SOWFA/src/turbineModels/turbineModelsFASTv8/lnInclude \
     -I$(FAST_DIR)/include
 
 
@@ -22,5 +22,6 @@ EXE_LIBS = \
     -lfvOptions \
     -lsampling \
     -L$(FAST_DIR)/lib \
-    -lFAST_glin64_release \
-    -lFAST_cInterface_glin64_release
+    -lFAST_glin64_debug \
+    -lFAST_cInterface_glin64_debug \
+    -lmap-1.20.10 
