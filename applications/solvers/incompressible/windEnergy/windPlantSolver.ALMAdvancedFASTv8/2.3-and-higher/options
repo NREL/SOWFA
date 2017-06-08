@@ -1,3 +1,6 @@
+sinclude $(GENERAL_RULES)/mplib$(WM_MPLIB)
+sinclude $(RULES)/mplib$(WM_MPLIB)
+
 EXE_INC = \
     -I$(LIB_SRC)/turbulenceModels/incompressible/turbulenceModel \
     -I$(LIB_SRC)/transportModels \
@@ -6,7 +9,9 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
-    -I/home/gvijayak/CurrentProjects/FAST8-SOWFA/SOWFA/src/turbineModels/turbineModelsFASTv8/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/turbineModels/turbineModelsFASTv8/lnInclude \
+    $(PFLAGS) \
+    $(PINC) \
     -I$(FAST_DIR)/include \
     -I./interpolate2D
 
@@ -24,5 +29,8 @@ EXE_LIBS = \
     -lsampling \
     -L$(FAST_DIR)/lib \
     -lFAST_glin64_debug \
-    -lFAST_cInterface_glin64_debug \
-    -lmap-1.20.10
+    -lFAST_cInterface_glin64_release \
+    -lmap-1.20.10 \
+    -L$(HDF5_DIR)/lib/ \
+    -lhdf5_hl \
+    -lhdf5
