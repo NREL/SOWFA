@@ -544,22 +544,22 @@ void horizontalAxisWindTurbinesALMfastv8::initializeArrays()
         // processor identification.  This does not affect the actual location--it is
         // just there to break ties and make sure > 1 processors don't account for a
         // single actuator point.
-        bladePointsPerturbVector.append(List<List<vector> >(numBl[i], List<vector>(numBladePoints[i],vector::zero)));
+        bladePointsPerturbVector.append(List<List<vector> >(numBl[i], List<vector>(numBladeSamplePoints[i],vector::zero)));
         if (p == 0)
         {
             for (int k =  0; k < numBl[i]; k++)
             {
-                for (int m = 0; m < numBladePoints[i]; m++)
+                for (int m = 0; m < numBladeSamplePoints[i]; m++)
                 {
                     bladePointsPerturbVector[i][k][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
                 }
             }
         }
 
-        towerPointsPerturbVector.append(List<vector>(numTowerPoints[i],vector::zero));
+        towerPointsPerturbVector.append(List<vector>(numTowerSamplePoints[i],vector::zero));
         if (p == 0)
         {
-            for (int m = 0; m < numTowerPoints[i]; m++)
+            for (int m = 0; m < numTowerSamplePoints[i]; m++)
             {
                 towerPointsPerturbVector[i][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
             }
