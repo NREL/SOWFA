@@ -5,6 +5,9 @@ derivedFvPatchFields = $(fvPatchFields)/derived
 $(derivedFvPatchFields)/turbulentABLVelocityControlled/turbulentABLVelocityControlledFvPatchField.C
 $(derivedFvPatchFields)/turbulentABLTemperatureControlled/turbulentABLTemperatureControlledFvPatchField.C
 
+/* Generalized Time-Varying Mapped Inflow/Outflow */
+$(derivedFvPatchFields)/timeVaryingMappedInletOutlet/timeVaryingMappedInletOutletFvPatchFields.C
+
 
 /* Surface Shear Stress Models */
 surfaceStressModels = $(derivedFvPatchFields)/surfaceStressModels
@@ -18,6 +21,11 @@ $(surfaceTemperatureFluxModels)/specifiedSurfaceTemperature/specifiedSurfaceTemp
 /* Surface Velocity Models */
 surfaceVelocityModels = $(derivedFvPatchFields)/surfaceVelocityModels
 $(surfaceVelocityModels)/velocityABLWallFunction/velocityABLWallFunctionFvPatchField.C
+
+
+general = cfdTools/general
+$(general)/adjustPhiWind/adjustPhiWind.C
+
 
 
 LIB = $(FOAM_USER_LIBBIN)/libuserfiniteVolume

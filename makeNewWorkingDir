@@ -14,7 +14,8 @@
 
 
 
-SOWFAdir=/home/$USER/bin/OpenFOAM/SOWFA
+#SOWFAdir=/home/$USER/bin/OpenFOAM/SOWFA
+SOWFAdir=/ifs/dm/cfd/app/OpenFOAM/SOWFA
 
 # Do the recursive copy that symbolically links the files to the source.
 cp -rs  $SOWFAdir $WM_PROJECT_USER_DIR
