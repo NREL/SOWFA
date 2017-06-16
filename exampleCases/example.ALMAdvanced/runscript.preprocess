@@ -35,8 +35,9 @@ cores=1                         # Enter the number of cores you will preprocess 
 # Local refinement performed on one core.
 refineMeshLocal()
 {
-   i=$1
-   while [ $i -ge 1 ]
+   imax=$1
+   i=1
+   while [ "$i" -le "$imax" ]
    do
       echo "   -Performing level $i local refinement with topoSet/refineHexMesh"
       echo "      *selecting cells to refine..."
@@ -45,7 +46,7 @@ refineMeshLocal()
       echo "      *refining cells..."
       refineHexMesh local -overwrite > log.refineHexMesh.local.$i 2>&1
 
-      let i=i-1
+      let i=i+1
    done
 }
 

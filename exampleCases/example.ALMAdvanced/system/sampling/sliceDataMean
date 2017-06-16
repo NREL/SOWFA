@@ -1,4 +1,4 @@
-      sliceDataInstantaneous
+      sliceDataMean
       {
           type                 surfaces;
           functionObjectLibs   ("libsampling.so");
