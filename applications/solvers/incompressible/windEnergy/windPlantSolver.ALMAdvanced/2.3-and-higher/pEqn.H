@@ -14,10 +14,12 @@
       + rAUf*fvc::ddtCorr(U, phi)
     );
 
-    adjustPhi(phiHbyA, U, p_rgh);
+  //adjustPhi(phiHbyA, U, p_rgh);
+    adjustPhiWind(phiHbyA, U, p_rgh);
     //----
     surfaceScalarField phiFixedFlux = fvc::interpolate(U) & mesh.Sf();
-    adjustPhi(phiFixedFlux, U, p_rgh);
+  //adjustPhi(phiFixedFlux, U, p_rgh);
+    adjustPhiWind(phiFixedFlux, U, p_rgh);
     //----
 
     phiHbyA += phig;
