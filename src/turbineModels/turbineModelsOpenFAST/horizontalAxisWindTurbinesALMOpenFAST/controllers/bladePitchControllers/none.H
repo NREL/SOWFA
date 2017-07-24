@@ -1,0 +1,1 @@
+/home/mchurchf/bin/OpenFOAM/SOWFA/src/turbineModels/turbineModelsFASTv8/horizontalAxisWindTurbinesALMfastv8/controllers/bladePitchControllers/none.H
