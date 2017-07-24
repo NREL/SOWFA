@@ -22,11 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    pisoFoamTurbine.ALMAdvancedFASTv8
+    pisoFoamTurbine.ALMAdvancedOpenFAST
 
 Description
     Transient solver for incompressible flow with actuator line turbine model
-    coupled to FASTv8 and additions to compute mean and turbulent statistics.
+    coupled to OpenFAST and additions to compute mean and turbulent statistics.
 
     Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
 
@@ -35,7 +35,7 @@ Description
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
 #include "turbulenceModel.H"
-#include "horizontalAxisWindTurbinesALMfastv8.H"
+#include "horizontalAxisWindTurbinesALMOpenFAST.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -62,11 +62,11 @@ int main(int argc, char *argv[])
         #include "CourantNo.H"
         #include "updateDivSchemeBlendingField.H"
 
+        // Update the turbine.
+        turbines.update();
+
         // PISO algorithm
         {
-	    // Update the turbine.
-            turbines.update();
-
             // Momentum predictor
 
             fvVectorMatrix UEqn
@@ -159,8 +159,6 @@ int main(int argc, char *argv[])
             << nl << endl;
     }
 
-    turbines.end();
-    
     Info<< "End\n" << endl;
 
     return 0;

@@ -22,14 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    windPlantSolver.ALMAdvancedFASTv8
+    buoyantBoussinesqPimpleFoam
 
 Description
-    Transient solver for incompressible, buoyant, turbulent flow of incompressible 
-    flow with actuator line turbine model coupled to FASTv8 and additions to 
-    compute mean and turbulent statistics.
-
-    Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
+    Transient solver for buoyant, turbulent flow of incompressible fluids
 
     Uses the Boussinesq approximation:
     \f[
@@ -53,15 +49,13 @@ Description
 #include "singlePhaseTransportModel.H"
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
-#include "fixedFluxPressureFvPatchScalarField.H"
 #include "IFstream.H"
 #include "OFstream.H"
 #include "wallDist.H"
 #include "interpolateSplineXY.H"
 #include "interpolateXY.H"
 #include "interpolate2D.H"
-#include "horizontalAxisWindTurbinesALMfastv8.H"
-#include "adjustPhiWind.H"
+#include "horizontalAxisWindTurbinesALMAdvanced.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -72,6 +66,7 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "readGravitationalAcceleration.H"
+
     #include "createFields.H"
     #include "createDivSchemeBlendingField.H"
   //#include "createGradP.H"
@@ -81,7 +76,7 @@ int main(int argc, char *argv[])
     #include "setInitialDeltaT.H"
   //#include "findVerticalCellLevels.H"
   //#include "findVerticalFaceLevels.H"
-  //#include "findWindHeight.H"
+  //#include "findWindHeight.H
   //#include "openCellStatisticsFiles.H"
   //#include "openFaceStatisticsFiles.H"
   //#include "openABLStatisticsFiles.H"
@@ -95,13 +90,13 @@ int main(int argc, char *argv[])
 
     Info << nl << "Starting time loop\n" << endl;
 
-    // Update boundary conditions before starting in case anything needs
+    // Update boundary conditions before starting in case anything needs 
     // updating, for example after using mapFields to interpolate initial
     // field.
     U.correctBoundaryConditions();
     phi = linearInterpolate(U) & mesh.Sf();
     T.correctBoundaryConditions();
-  //p_rgh.correctBoundaryConditions();
+    p_rgh.correctBoundaryConditions();
     turbulence->correct();
     Rwall.correctBoundaryConditions();
     qwall.correctBoundaryConditions();
@@ -117,17 +112,19 @@ int main(int argc, char *argv[])
         #include "setDeltaT.H"
         #include "updateDivSchemeBlendingField.H"
 
-	// --- Update the turbine array
-	turbines.update();
-
         // --- Pressure-velocity PIMPLE corrector loop
-        while (pimple.loop())
+        for (pimple.start(); pimple.loop(); pimple++)
         {
+            if (pimple.nOuterCorr() != 1)
+            {
+                p_rgh.storePrevIter();
+            }
+
             #include "UEqn.H"
             #include "TEqn.H"
 
             // --- Pressure corrector loop
-            while (pimple.correct())
+            for (int corr=0; corr<pimple.nCorr(); corr++)
             {
                 #include "pEqn.H"
                 #include "TEqn.H"
@@ -136,7 +133,7 @@ int main(int argc, char *argv[])
             // --- Compute the velocity flux divergence
             #include "computeDivergence.H"
 
-//          // --- Update the driving pressure gradient
+            // --- Update the driving pressure gradient
 //          #include "correctGradP.H"
 
             // --- Update the source terms
@@ -147,6 +144,9 @@ int main(int argc, char *argv[])
             {
                 turbulence->correct();
             }
+
+            // --- Update the turbine array
+            turbines.update();
 
             // --- Update the boundary momentum and
             //     temperature flux conditions
@@ -173,8 +173,6 @@ int main(int argc, char *argv[])
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"
              << nl << endl;
     }
-
-    turbines.end();
 
     Info << "End" << endl;
 

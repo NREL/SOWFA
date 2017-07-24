@@ -22,11 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    windPlantSolver.ALMAdvancedFASTv8
+    windPlantSolver.ALMAdvancedOpenFAST
 
 Description
     Transient solver for incompressible, buoyant, turbulent flow of incompressible 
-    flow with actuator line turbine model coupled to FASTv8 and additions to 
+    flow with actuator line turbine model coupled to OpenFAST and additions to 
     compute mean and turbulent statistics.
 
     Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
@@ -60,8 +60,7 @@ Description
 #include "interpolateSplineXY.H"
 #include "interpolateXY.H"
 #include "interpolate2D.H"
-#include "horizontalAxisWindTurbinesALMfastv8.H"
-#include "adjustPhiWind.H"
+#include "horizontalAxisWindTurbinesALMOpenFAST.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

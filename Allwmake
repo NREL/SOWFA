@@ -69,10 +69,36 @@ cd ../../../
 
 
 # FAST 8 coupled turbine models.
-cd src/turbineModels/turbineModelsFASTv8
-wmake libso
-cd ../../../
+if [ -z ${FAST_DIR+x} ]
+then
+    echo "FAST_DIR is not set. Not compiling FASTv8 interface."
+else
+    if [ -d ${FAST_DIR} ] 
+    then
+	echo "FAST_DIR is set to '${FAST_DIR}'. Attempting to compile FASTv8 interface."
+	cd src/turbineModels/turbineModelsFASTv8
+	wmake libso
+	cd ../../../
+    else
+	echo "FAST_DIR is set to '${FAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of FASTv8 interface."
+    fi	
+fi
 
+# FAST 8 coupled turbine models.
+if [ -z ${OPENFAST_DIR+x} ]
+then
+    echo "OPENFAST_DIR is not set. Not compiling OpenFAST interface."
+else
+    if [ -d ${OPENFAST_DIR} ] 
+    then
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST interface."
+	cd src/turbineModels/turbineModelsOpenFAST
+	wmake libso
+	cd ../../../
+    else
+	echo "FAST_DIR is set to '${FAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST interface."
+    fi	
+fi
 
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
@@ -150,18 +176,51 @@ wmake
 cd ../../../../../
 
 
-# The wind plant solver with the FAST 8 coupled advanced actuator line.
-cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
-wmake
-cd ../../../../../
+if [ -z ${FAST_DIR+x} ]
+then
+    echo "FAST_DIR is not set. Not compiling OpenFAST solver."
+else
+    if [ -d ${FAST_DIR} ] 
+    then
+	echo "FAST_DIR is set to '${FAST_DIR}'. Attempting to compile FAST windPlant solver."
+        # The wind plant solver with the FAST 8 coupled advanced actuator line.
+	cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
+	rm pEqn.H
+	rm windPlantSolver.C
+	rm Make/options
+	ln -s $dir/pEqn.H ./
+	ln -s $dir/windPlantSolver.C ./
+	ln -s ../$dir/options ./Make
+	rm -rf $dirrm1 $dirrm2
+	wmake
+	cd ../../../../../
+    else
+	echo "FAST_DIR is set to '${FAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
+    fi	
+fi
 
+if [ -z ${OPENFAST_DIR+x} ]
+then
+    echo "OPENFAST_DIR is not set. Not compiling OpenFAST solver."
+else
+    if [ -d ${OPENFAST_DIR} ] 
+    then
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST windPlant solver."
+        # The wind plant solver with the FAST 8 coupled advanced actuator line.
+	cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedOpenFAST
+	rm pEqn.H
+	rm windPlantSolver.C
+	rm Make/options
+	ln -s $dir/pEqn.H ./
+	ln -s $dir/windPlantSolver.C ./
+	ln -s ../$dir/options ./Make
+	rm -rf $dirrm1 $dirrm2
+	wmake
+	cd ../../../../../
+    else
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
+    fi	
+fi
 
 # The wind plant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
@@ -198,15 +257,47 @@ wmake
 cd ../../../../../
 
 
-# The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
-rm pisoFoamTurbine.C
-rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
-wmake
-cd ../../../../../
+if [ -z ${FAST_DIR+x} ]
+then
+    echo "FAST_DIR is not set. Not compiling FASTv8 solver."
+else
+    if [ -d ${FAST_DIR} ] 
+    then
+	echo "FAST_DIR is set to '${FAST_DIR}'. Attempting to compile FASTv8 pisoFoam solver."
+        # The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
+	cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
+	rm pisoFoamTurbine.C
+	rm Make/options
+	ln -s $dir/pisoFoamTurbine.C
+	ln -s ../$dir/options ./Make
+	rm -rf $dirrm1 $dirrm2
+	wmake
+	cd ../../../../../
+    else
+	echo "FAST_DIR is set to '${FAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of FASTv8 solver."
+    fi	
+fi
+
+if [ -z ${OPENFAST_DIR+x} ]
+then
+    echo "OPENFAST_DIR is not set. Not compiling OpenFAST solver."
+else
+    if [ -d ${OPENFAST_DIR} ] 
+    then
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST pisoFoam solver."
+        # The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
+	cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedOpenFAST
+	rm pisoFoamTurbine.C
+	rm Make/options
+	ln -s $dir/pisoFoamTurbine.C
+	ln -s ../$dir/options ./Make
+	rm -rf $dirrm1 $dirrm2
+	wmake
+	cd ../../../../../
+    else
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
+    fi	
+fi
 
 
 # The basic non-buoyant solver with the actuator disk.

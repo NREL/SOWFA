@@ -22,14 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    windPlantSolver.ALMAdvancedFASTv8
+    buoyantBoussinesqPimpleFoam
 
 Description
-    Transient solver for incompressible, buoyant, turbulent flow of incompressible 
-    flow with actuator line turbine model coupled to FASTv8 and additions to 
-    compute mean and turbulent statistics.
-
-    Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
+    Transient solver for buoyant, turbulent flow of incompressible fluids
 
     Uses the Boussinesq approximation:
     \f[
@@ -53,15 +49,13 @@ Description
 #include "singlePhaseTransportModel.H"
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
-#include "fixedFluxPressureFvPatchScalarField.H"
 #include "IFstream.H"
 #include "OFstream.H"
 #include "wallDist.H"
 #include "interpolateSplineXY.H"
 #include "interpolateXY.H"
 #include "interpolate2D.H"
-#include "horizontalAxisWindTurbinesALMfastv8.H"
-#include "adjustPhiWind.H"
+#include "horizontalAxisWindTurbinesALMAdvanced.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -101,7 +95,7 @@ int main(int argc, char *argv[])
     U.correctBoundaryConditions();
     phi = linearInterpolate(U) & mesh.Sf();
     T.correctBoundaryConditions();
-  //p_rgh.correctBoundaryConditions();
+    p_rgh.correctBoundaryConditions();
     turbulence->correct();
     Rwall.correctBoundaryConditions();
     qwall.correctBoundaryConditions();
@@ -116,9 +110,6 @@ int main(int argc, char *argv[])
         #include "CourantNo.H"
         #include "setDeltaT.H"
         #include "updateDivSchemeBlendingField.H"
-
-	// --- Update the turbine array
-	turbines.update();
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
@@ -148,6 +139,9 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
 
+            // --- Update the turbine array
+            turbines.update();
+
             // --- Update the boundary momentum and
             //     temperature flux conditions
             Rwall.correctBoundaryConditions();
@@ -173,8 +167,6 @@ int main(int argc, char *argv[])
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"
              << nl << endl;
     }
-
-    turbines.end();
 
     Info << "End" << endl;
 
