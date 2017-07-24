@@ -186,7 +186,7 @@ horizontalAxisWindTurbinesALMOpenFAST::horizontalAxisWindTurbinesALMOpenFAST
 
 void horizontalAxisWindTurbinesALMOpenFAST::end()
 {
-  FAST->end();
+    FAST->end();
 }
 // * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * * //
 
@@ -1557,15 +1557,13 @@ void horizontalAxisWindTurbinesALMOpenFAST::getPositions()
        vector bladePoint1 = bladePoints[i][1][1] - rotorApex[i];
        bladePoint1 /= mag(bladePoint1);
 
-       Info << "bladePoint1 = " << bladePoint1 << endl;
-       Info << "bladePoint1Old = " << bladePoint1Old << endl;
-       
+     //Info << "bladePoint1 = " << bladePoint1 << endl;
+     //Info << "bladePoint1Old = " << bladePoint1Old << endl;
+
        scalar tmpCosDA = Foam::max(-1.0, Foam::min( (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)),1) );
-       Info << "((tmpCosDA - 1) > 0) " << ((tmpCosDA - 1) > 0) << endl ;
-       Info << "(bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old))  " <<  tmpCosDA << endl ;
        scalar deltaAzimuth = Foam::acos(tmpCosDA);
 
-       Info << "deltaAzimuth = " << deltaAzimuth / degRad << endl;
+     //Info << "deltaAzimuth = " << deltaAzimuth / degRad << endl;
 
      //Info << "dt = " << dt << endl;
 

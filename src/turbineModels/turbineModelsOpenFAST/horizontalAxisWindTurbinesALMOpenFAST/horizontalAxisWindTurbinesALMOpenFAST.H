@@ -75,7 +75,7 @@ namespace turbineModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class horizontalAxisWindTurbinesALMOpenFAST declaration
+           Class horizontalAxisWindTurbinesALMOpenFAST declaration
 \*---------------------------------------------------------------------------*/
 
 class horizontalAxisWindTurbinesALMOpenFAST
@@ -769,29 +769,27 @@ private:
 
 
 public:
+    //- Constructor
+    horizontalAxisWindTurbinesALMOpenFAST
+    (
+        const volVectorField& U
+    );
     
-  //- Constructor
-  horizontalAxisWindTurbinesALMOpenFAST
-  (
-   const volVectorField& U
-   );
-  
+      
+    //- Destructor
+    virtual ~horizontalAxisWindTurbinesALMOpenFAST()
+    {};
+      
+      
+    // Public Member Functions
     
-  //- Destructor
-  virtual ~horizontalAxisWindTurbinesALMOpenFAST() {
-
-  };
+    //- Update state of turbine.
+    void update();
     
+    //- Return force.
+    volVectorField& force();
     
-  // Public Member Functions
-
-  //- Update state of turbine.
-  void update();
-
-  //- Return force.
-  volVectorField& force();
-
-  void end();
+    void end();
 };
 
 
