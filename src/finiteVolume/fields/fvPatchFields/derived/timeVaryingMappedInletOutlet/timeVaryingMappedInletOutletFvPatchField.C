@@ -637,7 +637,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::evaluate
     const Pstream::commsTypes
 )
 {
-    Info<< "timeVaryingMappedInletOutlet evaluate() called" << endl;
+    if(debug) Info<< "timeVaryingMappedInletOutlet evaluate() called" << endl;
     inletOutletFvPatchField<Type>::evaluate();
 }
 

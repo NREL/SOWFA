@@ -65,7 +65,6 @@ bool Foam::adjustPhiWind
                 {
                     forAll(phip, i)
                     {
-                        Info<< " " << phip[i];
                         if (phip[i] < 0.0)
                         {
                             massIn -= phip[i];
@@ -76,14 +75,12 @@ bool Foam::adjustPhiWind
                             fixedMassOut += phip[i];
 //                          fixedPatchOutflow[patchi] += phip[i];
                         }
-                        Info<< endl;
                     }
                 }
                 else
                 {
                     forAll(phip, i)
                     {
-                        Info<< " ~ " << phip[i];
                         if (phip[i] < 0.0)
                         {
                             massIn -= phip[i];
@@ -94,7 +91,6 @@ bool Foam::adjustPhiWind
                             adjustableMassOut += phip[i];
 //                          adjustablePatchOutflow[patchi] += phip[i];
                         }
-                        Info<< endl;
                     }
                 }
             }
