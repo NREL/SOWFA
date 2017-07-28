@@ -1681,7 +1681,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::getForces()
        // Call FAST to populate this processor's part of the FAST point list.
        for (int i = 0; i < localNumPoints; i++)
        {
-	 FAST->getForce(pointForce, i, i);
+	 FAST->getForce(pointForce, i, p);
            forces_[startIndex + i].x() = pointForce[0];
            forces_[startIndex + i].y() = pointForce[1];
            forces_[startIndex + i].z() = pointForce[2];
@@ -1791,7 +1791,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::getNumBlades()
    // of FAST controls.
    if (p < numTurbines)
    {
-      numBl[p] = FAST->get_numBlades(0);
+      numBl[p] = FAST->get_numBlades(p);
    }
 
    // Parallel sum and scatter out the list so that all processors know.
@@ -1813,8 +1813,8 @@ void horizontalAxisWindTurbinesALMOpenFAST::getNumBladePoints()
    // instance of FAST controls.
    if (p < numTurbines)
    {
-      numBladeSamplePoints[p] = FAST->get_numVelPtsBlade(0);
-      numBladePoints[p] = FAST->get_numForcePtsBlade(0);
+      numBladeSamplePoints[p] = FAST->get_numVelPtsBlade(p);
+      numBladePoints[p] = FAST->get_numForcePtsBlade(p);
    }
 
    // Parallel sum and scatter out the list so that all processors know.
@@ -1838,8 +1838,8 @@ void horizontalAxisWindTurbinesALMOpenFAST::getNumTowerPoints()
    // instance of FAST controls.
    if (p < numTurbines)
    {
-      numTowerSamplePoints[p] = FAST->get_numVelPtsTwr(0);
-      numTowerPoints[p] = FAST->get_numForcePtsTwr(0);
+      numTowerSamplePoints[p] = FAST->get_numVelPtsTwr(p);
+      numTowerPoints[p] = FAST->get_numForcePtsTwr(p);
    }
 
    // Parallel sum and scatter out the list so that all processors know.

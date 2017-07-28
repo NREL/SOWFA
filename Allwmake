@@ -84,7 +84,7 @@ else
     fi	
 fi
 
-# FAST 8 coupled turbine models.
+# OpenFAST coupled turbine models.
 if [ -z ${OPENFAST_DIR+x} ]
 then
     echo "OPENFAST_DIR is not set. Not compiling OpenFAST interface."
@@ -206,7 +206,7 @@ else
     if [ -d ${OPENFAST_DIR} ] 
     then
 	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST windPlant solver."
-        # The wind plant solver with the FAST 8 coupled advanced actuator line.
+        # The wind plant solver with the OpenFAST coupled advanced actuator line.
 	cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedOpenFAST
 	rm pEqn.H
 	rm windPlantSolver.C
@@ -285,7 +285,7 @@ else
     if [ -d ${OPENFAST_DIR} ] 
     then
 	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST pisoFoam solver."
-        # The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
+        # The basic non-buoyant solver with the OpenFAST coupled advanced actuator line.
 	cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedOpenFAST
 	rm pisoFoamTurbine.C
 	rm Make/options
