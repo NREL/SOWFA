@@ -13,9 +13,6 @@ EXE_INC = \
     $(PFLAGS) \
     $(PINC) \
     -I$(OPENFAST_DIR)/include \
-    -I./interpolate2D \
-    -I$(HDF5_DIR)/include/
-
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \

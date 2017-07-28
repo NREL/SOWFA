@@ -769,7 +769,6 @@ private:
 
 
 public:
-
     //- Constructor
     horizontalAxisWindTurbinesALMOpenFAST
     (

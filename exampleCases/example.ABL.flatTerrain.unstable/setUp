@@ -45,10 +45,10 @@ nuSgs0               0.0;                         // Initial SGS viscosity (m^2/
 k0                   0.1;                         // Initial SGS turbulent kinetic energy (m^2/s^2).
 kappat0              0.0;                         // Initial SGS temperature diffusivity (m^2/s).
 TGradUpper           0.003;                       // Potential temperature gradient above the strong inversion (K/m).
-zInversion           750.0;                       // Height of the middle of the initial strong capping inversion (m).
+zInversion           1500.0;                       // Height of the middle of the initial strong capping inversion (m).
 inversionWidth       100.0;                       // Vertical width of the intial strong capping inversion (m).
 TBottom              300.0;                       // Initial potential temperature at bottom of strong capping inversion (K).
-TTop                 305.0;                       // Initial potential temperature at top of strong capping inversion (K).
+TTop                 308.0;                       // Initial potential temperature at top of strong capping inversion (K).
 
 
 

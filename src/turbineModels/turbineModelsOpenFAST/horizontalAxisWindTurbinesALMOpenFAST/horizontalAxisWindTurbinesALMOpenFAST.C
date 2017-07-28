@@ -544,22 +544,22 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
         // processor identification.  This does not affect the actual location--it is
         // just there to break ties and make sure > 1 processors don't account for a
         // single actuator point.
-        bladePointsPerturbVector.append(List<List<vector> >(numBl[i], List<vector>(numBladePoints[i],vector::zero)));
+        bladePointsPerturbVector.append(List<List<vector> >(numBl[i], List<vector>(numBladeSamplePoints[i],vector::zero)));
         if (p == 0)
         {
             for (int k =  0; k < numBl[i]; k++)
             {
-                for (int m = 0; m < numBladePoints[i]; m++)
+                for (int m = 0; m < numBladeSamplePoints[i]; m++)
                 {
                     bladePointsPerturbVector[i][k][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
                 }
             }
         }
 
-        towerPointsPerturbVector.append(List<vector>(numTowerPoints[i],vector::zero));
+        towerPointsPerturbVector.append(List<vector>(numTowerSamplePoints[i],vector::zero));
         if (p == 0)
         {
-            for (int m = 0; m < numTowerPoints[i]; m++)
+            for (int m = 0; m < numTowerSamplePoints[i]; m++)
             {
                 towerPointsPerturbVector[i][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
             }
@@ -596,8 +596,8 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
         towerPointAlpha.append(List<scalar>(numTowerPoints[i],0.0));
 
         // Define the size of the wind speed magnitude lists and set to zero.
-        bladePointVmag.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
-        towerPointVmag.append(List<scalar>(numTowerPoints[i],0.0));
+        bladePointVmag.append(List<List<scalar> >(numBl[i], List<scalar>(numBladeSamplePoints[i],0.0)));
+        towerPointVmag.append(List<scalar>(numTowerSamplePoints[i],0.0));
         nacellePointVmag.append(List<scalar>(numNacellePoints[i],0.0));
 
         // Define the size of the coefficient of bladePointLift lists and set to zero.
@@ -659,9 +659,9 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
         generatorPower.append(0.0);
 
         // Define the size of the cell-containing-actuator-point-sampling ID list and set to -1.
-        bladeMinDisCellID.append(List<List<label> >(numBl[i], List<label>(numBladePoints[i],-1)));
+        bladeMinDisCellID.append(List<List<label> >(numBl[i], List<label>(numBladeSamplePoints[i],-1)));
         nacelleMinDisCellID.append(-1);
-        towerMinDisCellID.append(List<label>(numTowerPoints[i],-1));
+        towerMinDisCellID.append(List<label>(numTowerSamplePoints[i],-1));
 
         DynamicList<label> influenceCellsI;
         bladeInfluenceCells.append(influenceCellsI);
@@ -1560,7 +1560,8 @@ void horizontalAxisWindTurbinesALMOpenFAST::getPositions()
      //Info << "bladePoint1 = " << bladePoint1 << endl;
      //Info << "bladePoint1Old = " << bladePoint1Old << endl;
 
-       scalar deltaAzimuth = Foam::acos((bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)));
+       scalar tmpCosDA = Foam::max(-1.0, Foam::min( (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)),1) );
+       scalar deltaAzimuth = Foam::acos(tmpCosDA);
 
      //Info << "deltaAzimuth = " << deltaAzimuth / degRad << endl;
 
