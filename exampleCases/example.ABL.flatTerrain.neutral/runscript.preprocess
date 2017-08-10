@@ -36,7 +36,7 @@ refinementLevels=0              # If you want to refine the mesh locally for any
 
 # Define some functions for mesh refinement.
 # Local refinement performed on one core.
-refineMeshSerial()
+refineMeshLocal()
 {
    i=$1
    while [ $i -ge 1 ]
@@ -53,14 +53,14 @@ refineMeshSerial()
 }
 
 # Global refinement performed in parallel.
-refineMeshParallel()
+refineMeshGlobal()
 {
    i=1
    while [ $i -le $1 ]
    do
       echo "   -Performing level $i global refinement with refineMesh"
       echo "      *refining cells..."
-      mpirun -np $cores refineMesh -parallel -overwrite > log.refineMesh.global.$i 2>&1
+      mpirun -np $cores refineMesh -all -parallel -overwrite > log.refineMesh.global.$i 2>&1
 
       let i=i+1
    done
@@ -111,7 +111,7 @@ fi
 refineMeshLocal $refinementLevels
 
 
-# If running in paralle from this point forward, then do the following:
+# If running in parallel from this point forward, then do the following:
 if [ $parallel -eq 1 ]
    then
    # Decompose the mesh and solution files (serial)

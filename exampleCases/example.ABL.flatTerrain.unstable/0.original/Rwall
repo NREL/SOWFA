@@ -30,8 +30,7 @@ boundaryField
         z0              uniform $z0;
         betaM           $betaM;
         gammaM          $gammaM;
-      //averageType     "local";
-        averageType     "planarAverage";
+        averageType     $wallModelAverageType;
         value           uniform $Rwall;
     }
     upper

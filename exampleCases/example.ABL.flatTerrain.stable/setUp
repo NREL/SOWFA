@@ -77,6 +77,7 @@ qwall               (0.0 0.0 0.0);                // Temperature flux at wall (m
 Rwall               (0.0 0.0 0.0 0.0 0.0 0.0);    // Initial wall shear stress (m^2/s^2).
 kappa                0.4;                         // von Karman constant.
 z0                   0.15;                        // Surface roughness (m).
+wallModelAverageType "planarAverage";             // Treat surface stress wall model locally ("local") or with planar averaging ("planarAverage").
 betaM                15.0;                        // Monin-Obukhov wall shear stress model constant.
 gammaM               4.9;                         // Monin-Obukhov wall shear stress model constant.
 betaH                9.0;                         // Monin-Obukhov wall temperature flux model constant.
