@@ -1,3 +1,4 @@
 sampledSet/cylinder/cylinderSet.C
+sampledSet/arrayStructured/arrayStructuredSet.C
 
 LIB = $(FOAM_USER_LIBBIN)/libusersampling
