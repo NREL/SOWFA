@@ -1,0 +1,217 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      changeDictionaryDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+#include "../setUp";
+
+
+
+dictionaryReplacement
+{
+
+    // Specify
+    // - all fvPatchFields with potential non-uniform values
+    // - all fvPatchFields originating from meshing
+    // - all fvPatchFields originating from mesh-redistribution
+
+
+    boundary
+    {
+        north
+        {
+            type            patch;
+        }
+        south
+        {
+            type            patch;
+        }
+    }
+
+    T
+    {
+        boundaryField
+        {
+            north
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                peturb          1e-05;
+                offset          0;
+                value           uniform 300;
+            }
+            south
+            {
+                type            zeroGradient;
+                value           uniform 300;
+            }
+        }
+    }
+    U
+    {
+        boundaryField
+        {
+            north
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                peturb          1e-05;
+                offset          (0 0 0);
+                value           uniform (0 0 0);
+            }
+            south
+            {   
+                type            inletOutlet;
+                inletValue      uniform (0 0 0);
+                value           uniform (0 0 0);
+            }
+        }
+    }
+    k
+    {
+        boundaryField
+        {
+            north
+            {
+                type            timeVaryingMappedFixedValue;
+                setAverage      0;
+                peturb          1e-05;
+                offset          0;
+                value           uniform 0.1;
+            }
+            south
+            {
+                type            zeroGradient;
+                value           uniform 0.1;
+            }
+        }
+    }
+    kappat
+    {
+        boundaryField
+        {
+            north
+            {
+                type            zeroGradient;
+                value           uniform 0.0;
+            }
+            south
+            {
+                type            zeroGradient;
+                value           uniform 0.0;
+            }
+        }
+    }
+    nuSgs
+    {
+        boundaryField
+        {
+            north
+            {
+                type            zeroGradient;
+                value           uniform 0.0;
+            }
+            south
+            {
+                type            zeroGradient;
+                value           uniform 0.0;
+            }
+        }
+    }
+    p_rgh
+    {
+        boundaryField
+        {
+            north
+            {
+                type            fixedFluxPressure;
+                value           uniform 0.0;
+            }
+            south
+            {
+                type            zeroGradient;
+                value           uniform 0.0;
+            }
+            lower
+            {
+                type            fixedFluxPressure;
+                value           uniform 0.0;
+            }
+            upper
+            {
+                type            fixedFluxPressure;
+                value           uniform 0.0;
+            }
+        }
+    }
+    qwall
+    {
+        boundaryField
+        {
+            north
+            {
+                type            fixedValue;
+                value           uniform (0 0 0);
+            }
+            south
+            {
+                type            fixedValue;
+                value           uniform (0 0 0);
+            }
+            lower
+            {
+                type            fixedValue;
+                value           uniform (0 0 0);
+            }
+            upper
+            {
+                type            fixedValue;
+                value           uniform (0 0 0);
+            }
+        }
+    }
+    Rwall
+    {
+        boundaryField
+        {
+            north
+            {
+                type            fixedValue;
+                value           uniform (0 0 0 0 0 0);
+            }
+            south
+            {
+                type            fixedValue;
+                value           uniform (0 0 0 0 0 0);
+            }
+            lower
+            {
+                type            SchumannGrotzbach;
+                kappa           $kappa;
+                z0              uniform $z0;
+                betaM           $betaM;
+                gammaM          $gammaM;
+                averageType     "local";
+                value           uniform (0 0 0 0 0 0);
+            }
+            upper
+            {
+                type            fixedValue;
+                value           uniform (0 0 0 0 0 0);
+            }
+        }
+    }
+}
+// ************************************************************************* //
