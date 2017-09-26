@@ -8,6 +8,8 @@ $(derivedFvPatchFields)/turbulentABLTemperatureControlled/turbulentABLTemperatur
 /* Generalized Time-Varying Mapped Inflow/Outflow */
 $(derivedFvPatchFields)/timeVaryingMappedInletOutlet/timeVaryingMappedInletOutletFvPatchFields.C
 
+/* TimeVaryingMappedFixedValue with organized random perturbations */
+$(derivedFvPatchFields)/timeVaryingMappedFluctuatingFixedValue/timeVaryingMappedFluctuatingFixedValue.C
 
 /* Surface Shear Stress Models */
 surfaceStressModels = $(derivedFvPatchFields)/surfaceStressModels
