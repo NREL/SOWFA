@@ -2303,7 +2303,7 @@ void horizontalAxisWindTurbinesALMfastv8::computeBladeAlignedVelocity()
                 // Now put the velocity in that cell into blade-oriented coordinates and add on the
                 // velocity due to blade rotation.
                 bladeWindVectors[i][j][k].x() = (bladeAlignedVectors[i][j][k][0] & bladeWindVectorsCartesian[i][j][k]);
-                bladeWindVectors[i][j][k].y() = (bladeAlignedVectors[i][j][k][1] & bladeWindVectorsCartesian[i][i][k]) + (rotorSpeed[i] * bladeSamplePointRadius[i][j][k]);
+                bladeWindVectors[i][j][k].y() = (bladeAlignedVectors[i][j][k][1] & bladeWindVectorsCartesian[i][j][k]) + (rotorSpeed[i] * bladeSamplePointRadius[i][j][k]);
                 bladeWindVectors[i][j][k].z() = (bladeAlignedVectors[i][j][k][2] & bladeWindVectorsCartesian[i][j][k]);
             }
         }
