@@ -14,6 +14,7 @@ EXE_INC = \
     $(PFLAGS) \
     $(PINC) \
     -I$(FAST_DIR)/include \
+    -I$(HDF5_DIR)/include \
     -I./interpolate2D
 
 
@@ -25,6 +26,7 @@ EXE_LIBS = \
     -lincompressibleLESModels \
     -luserTurbineModelsFASTv8 \
     -lfiniteVolume \
+    -luserfiniteVolume \
     -lmeshTools \
     -lfvOptions \
     -lsampling \
