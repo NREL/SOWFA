@@ -1560,8 +1560,10 @@ void horizontalAxisWindTurbinesALMfastv8::getPositions()
      //Info << "bladePoint1 = " << bladePoint1 << endl;
      //Info << "bladePoint1Old = " << bladePoint1Old << endl;
 
-       scalar deltaAzimuth = Foam::acos((bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)));
-
+     // If bladePoint1 and bladePoint1Old are equal, the acos function can throw a Floating Point Exception
+       scalar cosPhi = (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old) + Foam::VSMALL);
+     // Enforce bounding between -1 and 1   
+       scalar deltaAzimuth = acos(min(max(cosPhi, -1), 1));   
      //Info << "deltaAzimuth = " << deltaAzimuth / degRad << endl;
 
      //Info << "dt = " << dt << endl;
