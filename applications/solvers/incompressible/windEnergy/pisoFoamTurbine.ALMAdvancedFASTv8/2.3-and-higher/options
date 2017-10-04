@@ -12,7 +12,8 @@ EXE_INC = \
     -I$(WM_PROJECT_USER_DIR)/src/turbineModels/turbineModelsFASTv8/lnInclude \
     $(PFLAGS) \
     $(PINC) \
-    -I$(FAST_DIR)/include
+    -I$(FAST_DIR)/include \
+    -I$(HDF5_DIR)/include 
 
 
 EXE_LIBS = \
