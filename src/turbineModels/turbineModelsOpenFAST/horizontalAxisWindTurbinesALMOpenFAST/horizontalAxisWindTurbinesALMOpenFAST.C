@@ -1982,7 +1982,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::computeBladeAlignedVectors()
                 // set up this way because it will point in the direction of oncoming flow that the blade sees
                 // due to rotation.
                 bladeAlignedVectorsSample[i][j][k][1] = bladeAlignedVectorsSample[i][j][k][2]^mainShaftOrientation[i];
-                bladeAlignedVectorsSample[i][j][k][1] = bladeAlignedVectorsSample[i][j][k][1]/mag(bladeAlignedVectors[i][j][k][1]);
+                bladeAlignedVectorsSample[i][j][k][1] = bladeAlignedVectorsSample[i][j][k][1]/mag(bladeAlignedVectorsSample[i][j][k][1]);
 
                 // This vector points normal to the other two and toward downwind (not exactly downwind if
                 // the blade is coned).  It points in the direction of the oncoming flow due to wind that the
@@ -2303,9 +2303,9 @@ void horizontalAxisWindTurbinesALMOpenFAST::computeBladeAlignedVelocity()
 
                 // Now put the velocity in that cell into blade-oriented coordinates and add on the
                 // velocity due to blade rotation.
-                bladeWindVectors[i][j][k].x() = (bladeAlignedVectors[i][j][k][0] & bladeWindVectorsCartesian[i][j][k]);
-                bladeWindVectors[i][j][k].y() = (bladeAlignedVectors[i][j][k][1] & bladeWindVectorsCartesian[i][j][k]) + (rotorSpeed[i] * bladeSamplePointRadius[i][j][k]);
-                bladeWindVectors[i][j][k].z() = (bladeAlignedVectors[i][j][k][2] & bladeWindVectorsCartesian[i][j][k]);
+                bladeWindVectors[i][j][k].x() = (bladeAlignedVectorsSample[i][j][k][0] & bladeWindVectorsCartesian[i][j][k]);
+                bladeWindVectors[i][j][k].y() = (bladeAlignedVectorsSample[i][j][k][1] & bladeWindVectorsCartesian[i][j][k]) + (rotorSpeed[i] * bladeSamplePointRadius[i][j][k]);
+                bladeWindVectors[i][j][k].z() = (bladeAlignedVectorsSample[i][j][k][2] & bladeWindVectorsCartesian[i][j][k]);
             }
         }
     }
