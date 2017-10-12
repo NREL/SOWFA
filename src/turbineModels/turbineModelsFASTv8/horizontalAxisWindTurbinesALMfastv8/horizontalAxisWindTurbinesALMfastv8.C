@@ -1558,10 +1558,9 @@ void horizontalAxisWindTurbinesALMfastv8::getPositions()
        bladePoint1 /= mag(bladePoint1);
 
      //Info << "bladePoint1 = " << bladePoint1 << endl;
-     //Info << "bladePoint1Old = " << bladePoint1Old << endl;
-
-       scalar deltaAzimuth = Foam::acos((bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)));
-
+     //Info << "bladePoint1Old = " << bladePoint1Old << endl; 
+	   
+      scalar deltaAzimuth = Foam::acos(Foam::max(-1.0, Foam::min( (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)),1.0)));
      //Info << "deltaAzimuth = " << deltaAzimuth / degRad << endl;
 
      //Info << "dt = " << dt << endl;
