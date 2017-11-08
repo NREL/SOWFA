@@ -12,10 +12,11 @@ PROGRAM toof
      ! variables for using netcdf
    INCLUDE 'netcdf.inc'
    INTEGER, PARAMETER :: MAXFILES = 20
-   CHARACTER(LEN=255) :: flnm(MAXFILES),arg,outnameT,outnamePd,outnameU,outnameHFX,vname,comstr,dirpath
+   CHARACTER(LEN=255) :: flnm(MAXFILES),arg,outnameT,outnamePd,outnameU,outnameHFX,vname,comstr,dirpath,latlongpath
    CHARACTER(LEN=19)  :: Times(100),tmpstr,secstr
-   LOGICAL ic, ctrl, have_hfx, use_hfx  ! whether or not to do an IC file too
-   INTEGER it,ncid(MAXFILES),stat,iarg,narg,varid,strt(4),cnt(4),xtype,storeddim,dimids(4),natts
+   LOGICAL :: ic, ctrl, have_hfx, use_hfx  ! whether or not to do an IC file too
+   LOGICAL :: read_latlong ! read XLAT and XLONG from a separate file if its not in the provided solution file
+   INTEGER :: it,ncid(MAXFILES),stat,iarg,narg,varid,strt(4),cnt(4),xtype,storeddim,dimids(4),natts,latlongid
    REAL, EXTERNAL :: finterp
    INTEGER, EXTERNAL :: sec_of_day
    LOGICAL, EXTERNAL :: valid_date
@@ -59,6 +60,7 @@ PROGRAM toof
 
    ic = .FALSE.
    use_hfx = .FALSE.
+   read_latlong = .FALSE.
    it = 1
    sec_offset = 0
    sec_start =  0
@@ -89,6 +91,10 @@ PROGRAM toof
          ic = .TRUE.
        ELSE IF ( TRIM(arg) .EQ. '-qwall' ) THEN
          use_hfx = .TRUE.
+       ELSE IF ( TRIM(arg) .EQ. '-latlong' ) THEN
+         iarg = iarg + 1 
+         CALL getarg(iarg,latlongpath)
+         read_latlong = .TRUE.
        ENDIF
      ELSE
        nfiles = nfiles + 1
@@ -174,8 +180,17 @@ PROGRAM toof
    ALLOCATE(   xlat(ips:ipe-1,jps:jpe-1))
    ALLOCATE(  xlong(ips:ipe-1,jps:jpe-1))
    ctrl = .TRUE.  ! true value going in says this field is required
-   CALL getvar_real(ctrl,ncid,nfiles,'XLAT' ,xlat ,it,2,ips,ipe-1,jps,jpe-1,1,1)
-   CALL getvar_real(ctrl,ncid,nfiles,'XLONG',xlong,it,2,ips,ipe-1,jps,jpe-1,1,1)
+   IF ( read_latlong ) THEN
+     write(*,*) 'Reading latitude/longitude from ',trim(latlongpath)
+     stat = NF_OPEN(latlongpath, NF_NOWRITE, latlongid)
+     CALL ncderrcheck( __LINE__,stat )
+     ! Assume XLAT and XLONG are identical for all input files
+     CALL getvar_real(ctrl,latlongid,1,'XLAT' ,xlat ,it,2,ips,ipe-1,jps,jpe-1,1,1)
+     CALL getvar_real(ctrl,latlongid,1,'XLONG',xlong,it,2,ips,ipe-1,jps,jpe-1,1,1)
+   ELSE
+     CALL getvar_real(ctrl,ncid,nfiles,'XLAT' ,xlat ,it,2,ips,ipe-1,jps,jpe-1,1,1)
+     CALL getvar_real(ctrl,ncid,nfiles,'XLONG',xlong,it,2,ips,ipe-1,jps,jpe-1,1,1)
+   END IF
 
    theta = rotation_angle ( xlat,dx,ids,ide,jds,jde,ips,ipe,jps,jpe,ims,ime,jms,jme )
    ! Computed theta is counterclockwise rotation in radians of the vector from X axis, so negate and
