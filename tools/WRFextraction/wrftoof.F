@@ -14,6 +14,7 @@ PROGRAM toof
    INTEGER, PARAMETER :: MAXFILES = 20
    CHARACTER(LEN=255) :: flnm(MAXFILES),arg,outnameT,outnamePd,outnameU,outnameHFX,vname,comstr,dirpath,latlongpath
    CHARACTER(LEN=19)  :: Times(100),tmpstr,secstr
+   CHARACTER(LEN=NF_MAX_NAME) :: dimname
    LOGICAL :: ic, ctrl, have_hfx, use_hfx  ! whether or not to do an IC file too
    LOGICAL :: read_latlong ! read XLAT and XLONG from a separate file if its not in the provided solution file
    INTEGER :: it,ncid(MAXFILES),stat,iarg,narg,varid,strt(4),cnt(4),xtype,storeddim,dimids(4),natts,latlongid
@@ -123,16 +124,35 @@ PROGRAM toof
      stat=NF_GET_ATT_REAL(ncid(i),NF_GLOBAL,'DX',dx) ; 
      IF( i .EQ. 1 ) dx_check = dx
      CALL ncderrcheck( __LINE__,stat )
-     stat = NF_GET_ATT_INT (ncid(i),NF_GLOBAL,'WEST-EAST_PATCH_END_STAG',ide)    ; ids = 1 ; 
-     IF( i .EQ. 1 ) ide_check = ide 
-     CALL ncderrcheck( __LINE__,stat )
-     stat = NF_GET_ATT_INT (ncid(i),NF_GLOBAL,'SOUTH-NORTH_PATCH_END_STAG',jde)  ; jds = 1 ; 
-     IF( i .EQ. 1 ) jde_check = jde 
-     CALL ncderrcheck( __LINE__,stat )
-     stat = NF_GET_ATT_INT (ncid(i),NF_GLOBAL,'BOTTOM-TOP_PATCH_END_STAG',kde)   ; kds = 1 ; 
-     IF( i .EQ. 1 ) kde_check = kde
-     CALL ncderrcheck( __LINE__,stat )
-     IF ( i .GT. 1 ) THEN
+!     stat = NF_GET_ATT_INT (ncid(i),NF_GLOBAL,'WEST-EAST_PATCH_END_STAG',ide)    ; ids = 1 ; 
+!     IF( i .EQ. 1 ) ide_check = ide 
+!     CALL ncderrcheck( __LINE__,stat )
+!     stat = NF_GET_ATT_INT (ncid(i),NF_GLOBAL,'SOUTH-NORTH_PATCH_END_STAG',jde)  ; jds = 1 ; 
+!     IF( i .EQ. 1 ) jde_check = jde 
+!     CALL ncderrcheck( __LINE__,stat )
+!     stat = NF_GET_ATT_INT (ncid(i),NF_GLOBAL,'BOTTOM-TOP_PATCH_END_STAG',kde)   ; kds = 1 ; 
+!     IF( i .EQ. 1 ) kde_check = kde
+!     CALL ncderrcheck( __LINE__,stat )
+
+     stat = NF_INQ_DIMID(ncid(i),'west_east_stag',dimids(1))
+     CALL ncderrcheck(__LINE__,stat)
+     stat = NF_INQ_DIMID(ncid(i),'south_north_stag',dimids(2))
+     CALL ncderrcheck(__LINE__,stat)
+     stat = NF_INQ_DIMID(ncid(i),'bottom_top_stag',dimids(3))
+     CALL ncderrcheck(__LINE__,stat)
+
+     stat = NF_INQ_DIM(ncid(i),dimids(1),dimname,ide)  ; ids = 1 ;
+     CALL ncderrcheck(__LINE__,stat)
+     stat = NF_INQ_DIM(ncid(i),dimids(2),dimname,jde)  ; jds = 1 ;
+     CALL ncderrcheck(__LINE__,stat)
+     stat = NF_INQ_DIM(ncid(i),dimids(3),dimname,kde)  ; kds = 1 ;
+     CALL ncderrcheck(__LINE__,stat)
+
+     IF ( i .EQ. 1 ) THEN
+       ide_check = ide 
+       jde_check = jde 
+       kde_check = kde
+     ELSE
        stat = 0
        IF ( dx .NE. dx_check ) THEN
          stat = 1 ; write(0,*)'DX ',TRIM(flnm(i)),' does not match ',TRIM(flnm(i))
@@ -151,7 +171,7 @@ PROGRAM toof
    ENDDO
 
    strt = 1
-   cnt(1) = 19
+  !cnt(1) = 19 ! EWQ: what is this for?
 
    stat = NF_INQ_VARID(ncid,'Times',varid) 
    CALL ncderrcheck(__LINE__,stat)
@@ -176,6 +196,7 @@ PROGRAM toof
    ims = ids ; ime = ide
    jms = jds ; jme = jde
    kms = kds ; kme = kde
+   write(*,'("Dimensions: ",6(i8))') ips,ipe,jps,jpe,kps,kpe
 
    ALLOCATE(   xlat(ips:ipe-1,jps:jpe-1))
    ALLOCATE(  xlong(ips:ipe-1,jps:jpe-1))
