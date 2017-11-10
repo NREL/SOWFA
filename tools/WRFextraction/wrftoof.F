@@ -491,7 +491,8 @@ SUBROUTINE help
    WRITE(*,'("       startdate   date string of form yyyy-mm-dd_hh_mm_ss or yyyy-mm-dd_hh:mm:ss")')
    WRITE(*,'("       offset      number of seconds to start OpenFOAM directory naming (default 0)")')
    WRITE(*,'("       -ic         program should generate init conditions too")')
-   WRITE(*,'("       -qwall      program should generate temp flux in lower bc file ",/)')
+   WRITE(*,'("       -qwall      program should generate temp flux in lower bc file")')
+   WRITE(*,'("       -rotation   use specified rotation angle instead of calculating from XLAT",/)')
    STOP
 END SUBROUTINE help
 
