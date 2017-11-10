@@ -17,6 +17,7 @@ PROGRAM toof
    CHARACTER(LEN=NF_MAX_NAME) :: dimname
    LOGICAL :: ic, ctrl, have_hfx, use_hfx  ! whether or not to do an IC file too
    LOGICAL :: read_latlong ! read XLAT and XLONG from a separate file if its not in the provided solution file
+   LOGICAL :: input_rotation_angle
    INTEGER :: it,ncid(MAXFILES),stat,iarg,narg,varid,strt(4),cnt(4),xtype,storeddim,dimids(4),natts,latlongid
    REAL, EXTERNAL :: finterp
    INTEGER, EXTERNAL :: sec_of_day
@@ -62,6 +63,7 @@ PROGRAM toof
    ic = .FALSE.
    use_hfx = .FALSE.
    read_latlong = .FALSE.
+   input_rotation_angle = .FALSE.
    it = 1
    sec_offset = 0
    sec_start =  0
@@ -96,6 +98,12 @@ PROGRAM toof
          iarg = iarg + 1 
          CALL getarg(iarg,latlongpath)
          read_latlong = .TRUE.
+       ELSE IF ( TRIM(arg) .EQ. '-rotation' ) THEN
+         iarg = iarg + 1
+         CALL getarg(iarg,arg)
+         READ(arg,*) theta ! deg
+         theta = theta * 0.017453292519943295 ! convert to rad
+         input_rotation_angle = .TRUE.
        ENDIF
      ELSE
        nfiles = nfiles + 1
@@ -173,13 +181,14 @@ PROGRAM toof
    strt = 1
   !cnt(1) = 19 ! EWQ: what is this for?
 
+   ! Get and parse the 'Times' string, e.g. '2016-11-21_06:00:00'
    stat = NF_INQ_VARID(ncid,'Times',varid) 
    CALL ncderrcheck(__LINE__,stat)
-   stat = NF_INQ_VAR(ncid,varid,vname,xtype,storeddim,dimids,natts)
+   stat = NF_INQ_VAR(ncid,varid,vname,xtype,storeddim,dimids,natts) ! output: vname,xtype,storeddim,dimids,natts
    CALL ncderrcheck(__LINE__,stat)
-   stat = NF_INQ_DIMLEN(ncid,dimids(1),cnt(1))
+   stat = NF_INQ_DIMLEN(ncid,dimids(1),cnt(1)) ! output: cnt(1)
    CALL ncderrcheck(__LINE__,stat)
-   stat = NF_INQ_DIMLEN(ncid,dimids(2),cnt(2))
+   stat = NF_INQ_DIMLEN(ncid,dimids(2),cnt(2)) ! output: cnt(2)
    CALL ncderrcheck(__LINE__,stat)
    stat = NF_GET_VARA_TEXT(ncid,varid,strt,cnt,Times)
    CALL ncderrcheck( __LINE__,stat )
@@ -189,6 +198,7 @@ PROGRAM toof
      IF ( i .EQ. 0 ) EXIT
      Times(it)(i:i) = '_'
    ENDDO
+
 
    ips = ids ; ipe = ide
    jps = jds ; jpe = jde
@@ -213,7 +223,9 @@ PROGRAM toof
      CALL getvar_real(ctrl,ncid,nfiles,'XLONG',xlong,it,2,ips,ipe-1,jps,jpe-1,1,1)
    END IF
 
-   theta = rotation_angle ( xlat,dx,ids,ide,jds,jde,ips,ipe,jps,jpe,ims,ime,jms,jme )
+   if ( .NOT. input_rotation_angle ) then
+     theta = rotation_angle ( xlat,dx,ids,ide,jds,jde,ips,ipe,jps,jpe,ims,ime,jms,jme )
+   END IF
    ! Computed theta is counterclockwise rotation in radians of the vector from X axis, so negate and
    ! convert to degrees for reporting rotation with respect to compass points
    write(*,'("WRF grid is clockwise rotated approx.",f9.5," deg. from true lat/lon. Compensating.")'),-theta*57.2957795
@@ -224,10 +236,10 @@ PROGRAM toof
    ALLOCATE(   pb(ips:ipe-1,jps:jpe-1,kps:kpe-1))
    ALLOCATE(   ph(ips:ipe-1,jps:jpe-1,kps:kpe  ))
    ALLOCATE(  phb(ips:ipe-1,jps:jpe-1,kps:kpe  ))
-   ALLOCATE(   zz(ips:ipe-1,jps:jpe-1,kps:kpe  ))
+   ALLOCATE(   zz(ips:ipe-1,jps:jpe-1,kps:kpe  )) ! height
    ALLOCATE(    w(ips:ipe-1,jps:jpe-1,kps:kpe  ))
    ALLOCATE( pres(ips:ipe-1,jps:jpe-1,kps:kpe-1))
-   ALLOCATE(    z(ips:ipe-1,jps:jpe-1,kps:kpe-1))
+   ALLOCATE(    z(ips:ipe-1,jps:jpe-1,kps:kpe-1)) ! half height
    ALLOCATE(    t(ips:ipe-1,jps:jpe-1,kps:kpe-1))
    ALLOCATE(    u(ips:ipe-1,jps:jpe-1,kps:kpe-1))
    ALLOCATE(    v(ips:ipe-1,jps:jpe-1,kps:kpe-1))
@@ -340,7 +352,7 @@ PROGRAM toof
              DO ii = 0,1
                zzcol(ii,jj,kk)=zz(i+ii,j+jj,kk) - zz(i+ii,j+jj,1)   ! zz is full height at cell centers
                IF ( kk .LE. kpe-1 ) THEN
-                 zcol (ii,jj,kk)= z(i+ii,j+jj,kk) - zz(i+ii,j+jj,1)   ! z  is half hieght at cell centers
+                 zcol (ii,jj,kk)= z(i+ii,j+jj,kk) - zz(i+ii,j+jj,1)   ! z  is half height at cell centers
                ENDIF
              ENDDO
            ENDDO
@@ -357,7 +369,7 @@ PROGRAM toof
                kz(ii,jj) = 0
              ELSE
                DO k = kps+1,kpe
-                 IF (zzcol(ii,jj,k-1).LE.of_lz.AND.of_lz.LT.zzcol(ii,jj,k)) kzz(ii,jj) = k-1              ! full level
+                 IF (zzcol(ii,jj,k-1).LE.of_lz.AND.of_lz.LT.zzcol(ii,jj,k)) kzz(ii,jj) = k-1   ! full level
                  IF (k.LT.kpe) THEN
                    IF (zcol(ii,jj,k-1).LE.of_lz.AND.of_lz.LT.zcol(ii,jj,k)) kz(ii,jj) = k-1    ! half level
                  ENDIF
@@ -365,8 +377,11 @@ PROGRAM toof
              ENDIF
            ENDDO
          ENDDO
+
+         write(*,*) 'zcol (half levels)',zcol
+         write(*,*) 'zzcol (full levels)',zzcol
                                                                          
-         !variables on half-levels                    open foam coords        dims of field                  dims of lat lon arrays
+         !variables on half-levels                    openfoam coords        dims of field                  dims of lat lon arrays
          u_new    = finterp(u   ,zcol ,xlat,xlong,kz ,of_lat,of_lon,of_lz,i,j,ips,ipe-1,jps,jpe-1,kps,kpe-1, ips,ipe-1,jps,jpe-1)
          v_new    = finterp(v   ,zcol ,xlat,xlong,kz ,of_lat,of_lon,of_lz,i,j,ips,ipe-1,jps,jpe-1,kps,kpe-1, ips,ipe-1,jps,jpe-1)
          t_new    = finterp(t   ,zcol ,xlat,xlong,kz ,of_lat,of_lon,of_lz,i,j,ips,ipe-1,jps,jpe-1,kps,kpe-1, ips,ipe-1,jps,jpe-1)
