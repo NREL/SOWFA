@@ -492,7 +492,7 @@ SUBROUTINE help
    WRITE(*,'("       offset      number of seconds to start OpenFOAM directory naming (default 0)")')
    WRITE(*,'("       -ic         program should generate init conditions too")')
    WRITE(*,'("       -qwall      program should generate temp flux in lower bc file")')
-   WRITE(*,'("       -rotation   use specified rotation angle instead of calculating from XLAT",/)')
+   WRITE(*,'("       -rotation   use specified rotation angle [deg] instead of calculating from XLAT",/)')
    STOP
 END SUBROUTINE help
 
