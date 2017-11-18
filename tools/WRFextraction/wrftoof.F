@@ -378,9 +378,6 @@ PROGRAM toof
            ENDDO
          ENDDO
 
-         write(*,*) 'zcol (half levels)',zcol
-         write(*,*) 'zzcol (full levels)',zzcol
-                                                                         
          !variables on half-levels                    openfoam coords        dims of field                  dims of lat lon arrays
          u_new    = finterp(u   ,zcol ,xlat,xlong,kz ,of_lat,of_lon,of_lz,i,j,ips,ipe-1,jps,jpe-1,kps,kpe-1, ips,ipe-1,jps,jpe-1)
          v_new    = finterp(v   ,zcol ,xlat,xlong,kz ,of_lat,of_lon,of_lz,i,j,ips,ipe-1,jps,jpe-1,kps,kpe-1, ips,ipe-1,jps,jpe-1)
