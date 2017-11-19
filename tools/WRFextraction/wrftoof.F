@@ -17,7 +17,7 @@ PROGRAM toof
    CHARACTER(LEN=NF_MAX_NAME) :: dimname
    LOGICAL :: ic, ctrl, have_hfx, use_hfx  ! whether or not to do an IC file too
    LOGICAL :: read_latlong ! read XLAT and XLONG from a separate file if its not in the provided solution file
-   LOGICAL :: input_rotation_angle
+   LOGICAL :: input_rotation_angle, check_inflow
    INTEGER :: it,ncid(MAXFILES),stat,iarg,narg,varid,strt(4),cnt(4),xtype,storeddim,dimids(4),natts,latlongid
    REAL, EXTERNAL :: finterp
    INTEGER, EXTERNAL :: sec_of_day
@@ -64,6 +64,8 @@ PROGRAM toof
    use_hfx = .FALSE.
    read_latlong = .FALSE.
    input_rotation_angle = .FALSE.
+   check_inflow = .FALSE.
+
    it = 1
    sec_offset = 0
    sec_start =  0
@@ -104,6 +106,8 @@ PROGRAM toof
          READ(arg,*) theta ! deg
          theta = theta * 0.017453292519943295 ! convert to rad
          input_rotation_angle = .TRUE.
+       ELSE IF ( TRIM(arg) .EQ. '-checkInflow' ) THEN
+         check_inflow = .TRUE.
        ENDIF
      ELSE
        nfiles = nfiles + 1
@@ -219,6 +223,7 @@ PROGRAM toof
      CALL getvar_real(ctrl,latlongid,1,'XLAT' ,xlat ,it,2,ips,ipe-1,jps,jpe-1,1,1)
      CALL getvar_real(ctrl,latlongid,1,'XLONG',xlong,it,2,ips,ipe-1,jps,jpe-1,1,1)
    ELSE
+     ! Original operation
      CALL getvar_real(ctrl,ncid,nfiles,'XLAT' ,xlat ,it,2,ips,ipe-1,jps,jpe-1,1,1)
      CALL getvar_real(ctrl,ncid,nfiles,'XLONG',xlong,it,2,ips,ipe-1,jps,jpe-1,1,1)
    END IF
@@ -302,6 +307,17 @@ PROGRAM toof
      ENDIF
      IF ( ALLOCATED(bdy(ibdy)%point) ) THEN
        CALL precompute_openfoam_points(ibdy,xlat,xlong,ids,ide,jds,jde,ips,ipe,jps,jpe,ims,ime,jms,jme )
+
+       IF ( check_inflow ) THEN
+         ! Check inflow only
+         IF ( ibdy .NE. INTERIOR ) THEN
+           WRITE(*,*) 'Checking inflow on boundary',ibdy,' ',TRIM(bdynames(ibdy))
+           CALL check_inflow_on_boundary(ibdy, z,u,v, costheta,sintheta, &
+                                         ips,ipe-1,jps,jpe-1,kps,kpe-1, ips,ipe-1,jps,jpe-1)
+         END IF
+         CYCLE
+       ENDIF
+
        sec = sec_of_day(TRIM(Times(it)))
        sec = sec - sec_start + sec_offset
        ! create the time directory if it doesn.t already exist
@@ -485,11 +501,12 @@ SUBROUTINE help
    CHARACTER(LEN=120) :: cmd
    CALL getarg(0, cmd)
    WRITE(*,'(/,"Usage: ", A, " ncdfile [ncdfiles*] [-startdate startdate [-offset offset]] [-ic]")') trim(cmd)
-   WRITE(*,'("       startdate   date string of form yyyy-mm-dd_hh_mm_ss or yyyy-mm-dd_hh:mm:ss")')
-   WRITE(*,'("       offset      number of seconds to start OpenFOAM directory naming (default 0)")')
-   WRITE(*,'("       -ic         program should generate init conditions too")')
-   WRITE(*,'("       -qwall      program should generate temp flux in lower bc file")')
-   WRITE(*,'("       -rotation   use specified rotation angle [deg] instead of calculating from XLAT",/)')
+   WRITE(*,'("       startdate     date string of form yyyy-mm-dd_hh_mm_ss or yyyy-mm-dd_hh:mm:ss")')
+   WRITE(*,'("       offset        number of seconds to start OpenFOAM directory naming (default 0)")')
+   WRITE(*,'("       -ic           program should generate init conditions too")')
+   WRITE(*,'("       -qwall        program should generate temp flux in lower bc file")')
+   WRITE(*,'("       -rotation     use specified rotation angle [deg] instead of calculating from XLAT")')
+   WRITE(*,'("       -checkInflow  instead of generating boundary data, check inflow/outflow only",/)')
    STOP
 END SUBROUTINE help
 

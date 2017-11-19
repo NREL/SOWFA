@@ -152,6 +152,90 @@ MODULE module_openfoam_bc
       rotation_angle = asin( dist / domlen )
    END FUNCTION rotation_angle
 
+
+   SUBROUTINE check_inflow_on_boundary( ibdy, z,u,v, costheta,sintheta, is,ie,js,je,ks,ke, ims,ime,jms,jme )
+      INTEGER, INTENT(IN) :: ibdy
+      REAL, INTENT(IN) :: z(is:ie,js:je,ks:ke),u(is:ie,js:je,ks:ke),v(is:ie,js:je,ks:ke)
+      REAL, INTENT(IN) :: costheta,sintheta
+      INTEGER, INTENT(IN) :: is,ie,js,je,ks,ke,ims,ime,jms,jme
+      ! local
+      INTEGER :: ipoint, i,j,k
+      REAL :: lat_min,lat_max,lon_min,lon_max,delta_lat,delta_lon
+      REAL :: normal(3)
+      LOGICAL :: check_column(is:ie,js:je)
+      INTEGER :: cells_per_level(ks:ke), cells_checked_total
+      REAL :: unorm_mag, unorm_min, unorm_max, inflow_mean
+      REAL, DIMENSION(ks:ke) :: unorm_mean, z_mean
+      CHARACTER(len=20) :: fmtstr
+
+      lat_min = HUGE(lat_min)
+      lon_min = HUGE(lon_min)
+      lat_max = -HUGE(lat_max)
+      lon_max = -HUGE(lon_max)
+      DO ipoint = 2,bdy(ibdy)%npoints
+         lat_min = MIN(lat_min, bdy(ibdy)%point(ipoint)%lat)
+         lon_min = MIN(lon_min, bdy(ibdy)%point(ipoint)%lon)
+         lat_max = MAX(lat_max, bdy(ibdy)%point(ipoint)%lat)
+         lon_max = MAX(lon_max, bdy(ibdy)%point(ipoint)%lon)
+      END DO
+      delta_lat = lat_max-lat_min
+      delta_lon = lon_max-lon_min
+      WRITE(*,*) '  detected delta lat/long from input bc file:',delta_lat,delta_lon
+
+      ! Estimate normal vector from SOWFA grid min/max
+      ! normal vector = [ dx, dy, 0 ] x [ 0, 0, 1 ]
+      normal(1) = delta_lat
+      normal(2) = delta_lon
+      normal(3) = 0.0
+      normal(:) = normal(:) / SQRT( delta_lat*delta_lat + delta_lon*delta_lon )
+      WRITE(*,*) '  detected normal (unit) vector:',normal
+
+      ! Identify cells that will be used for interpolating to OpenFOAM points
+      check_column(:,:) = .FALSE.
+      DO ipoint = 1,bdy(ibdy)%npoints
+         j = bdy(ibdy)%point(ipoint)%j   ! precomputed jcoord of cell center corresponding to lat
+         i = bdy(ibdy)%point(ipoint)%i   ! precomputed icoord of cell center corresponding to lon
+         check_column(i,j) = .TRUE.
+      END DO
+
+      ! Check all identified cells
+      unorm_min = HUGE(unorm_min)
+      unorm_max = -HUGE(unorm_max)
+      inflow_mean = 0.0
+      z_mean(:) = 0.0
+      unorm_mean(:) = 0.0
+      cells_per_level(:) = 0
+      DO k=ks,ke
+         DO j=js,je
+            DO i=is,ie
+               IF ( check_column(i,j) ) THEN
+                  unorm_mag = normal(1)*( u(i,j,k)*costheta - v(i,j,k)*sintheta ) &
+                            + normal(2)*( u(i,j,k)*sintheta + v(i,j,k)*costheta )
+                  unorm_min = MIN(unorm_min, unorm_mag)
+                  unorm_max = MAX(unorm_max, unorm_mag)
+                  z_mean(k) = z_mean(k) + z(i,j,k)
+                  unorm_mean(k) = unorm_mean(k) + unorm_mag
+                  IF ( unorm_mag .GE. 0.0 ) THEN
+                     inflow_mean = inflow_mean + 1.0
+                  END IF
+                  cells_per_level(k) = cells_per_level(k) + 1
+               END IF
+            END DO
+         END DO
+         unorm_mean(k) = unorm_mean(k) / cells_per_level(k)
+      END DO
+      cells_checked_total = SUM( cells_per_level )
+      inflow_mean = inflow_mean / cells_checked_total
+      WRITE(*,'(a,3(f12.5,x))') '  inflow fraction, unorm min, unorm max=',inflow_mean,unorm_min,unorm_max
+      WRITE(fmtstr,'("(a,",i4,"(i8,x))")') ke-ks+1
+      WRITE(*,fmtstr) '  cells checked per level:',cells_per_level
+      WRITE(fmtstr,'("(a,",i4,"(f12.5,x))")') ke-ks+1
+      WRITE(*,fmtstr) '  average cell heights per level:',z_mean
+      WRITE(*,fmtstr) '  unorm mean by height:',unorm_mean
+
+   END SUBROUTINE check_inflow_on_boundary
+
+
 END MODULE module_openfoam_bc
 
 
