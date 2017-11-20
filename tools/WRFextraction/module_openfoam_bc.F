@@ -219,7 +219,9 @@ MODULE module_openfoam_bc
                   unorm_min = MIN(unorm_min, unorm_mag)
                   unorm_max = MAX(unorm_max, unorm_mag)
                   wdir = ATAN2(vcorr,ucorr)
-                  wdir = 90.0 - wdir*57.29577951308232
+                  !wdir = 90.0 - wdir*57.29577951308232 ! wind in +x (from west) is "0 deg"
+                  wdir = 270.0 - wdir*57.29577951308232 ! wind in +x (from west) is 270 deg
+                  IF ( wdir < 0 ) wdir = wdir + 360.0
                   IF ( wdir < 0 ) wdir = wdir + 360.0
                   z_mean(k) = z_mean(k) + z(i,j,k)
                   unorm_mean(k) = unorm_mean(k) + unorm_mag
