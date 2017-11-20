@@ -234,6 +234,7 @@ MODULE module_openfoam_bc
                END IF
             END DO
          END DO
+         z_mean(k) = z_mean(k) / cells_per_level(k)
          unorm_mean(k) = unorm_mean(k) / cells_per_level(k)
          wind_mag(k) = wind_mag(k) / cells_per_level(k)
          wind_dir(k) = wind_dir(k) / cells_per_level(k)
