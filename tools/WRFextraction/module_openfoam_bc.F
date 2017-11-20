@@ -165,7 +165,9 @@ MODULE module_openfoam_bc
       LOGICAL :: check_column(is:ie,js:je)
       INTEGER :: cells_per_level(ks:ke), cells_checked_total
       REAL :: unorm_mag, unorm_min, unorm_max, inflow_mean
+      REAL :: ucorr, vcorr, wdir
       REAL, DIMENSION(ks:ke) :: unorm_mean, z_mean
+      REAL, DIMENSION(ks:ke) :: wind_mag, wind_dir
       CHARACTER(len=20) :: fmtstr
 
       lat_min = HUGE(lat_min)
@@ -204,17 +206,25 @@ MODULE module_openfoam_bc
       inflow_mean = 0.0
       z_mean(:) = 0.0
       unorm_mean(:) = 0.0
+      wind_mag(:) = 0.0
+      wind_dir(:) = 0.0
       cells_per_level(:) = 0
       DO k=ks,ke
          DO j=js,je
             DO i=is,ie
                IF ( check_column(i,j) ) THEN
-                  unorm_mag = normal(1)*( u(i,j,k)*costheta - v(i,j,k)*sintheta ) &
-                            + normal(2)*( u(i,j,k)*sintheta + v(i,j,k)*costheta )
+                  ucorr = u(i,j,k)*costheta - v(i,j,k)*sintheta
+                  vcorr = u(i,j,k)*sintheta + v(i,j,k)*costheta
+                  unorm_mag = normal(1)*ucorr + normal(2)*vcorr
                   unorm_min = MIN(unorm_min, unorm_mag)
                   unorm_max = MAX(unorm_max, unorm_mag)
+                  wdir = ATAN2(vcorr,ucorr)
+                  wdir = 90.0 - wdir*57.29577951308232
+                  IF ( wdir < 0 ) wdir = wdir + 360.0
                   z_mean(k) = z_mean(k) + z(i,j,k)
                   unorm_mean(k) = unorm_mean(k) + unorm_mag
+                  wind_mag(k) = wind_mag(k) + SQRT(ucorr*ucorr + vcorr*vcorr)
+                  wind_dir(k) = wind_dir(k) + wdir
                   IF ( unorm_mag .GE. 0.0 ) THEN
                      inflow_mean = inflow_mean + 1.0
                   END IF
@@ -223,6 +233,8 @@ MODULE module_openfoam_bc
             END DO
          END DO
          unorm_mean(k) = unorm_mean(k) / cells_per_level(k)
+         wind_mag(k) = wind_mag(k) / cells_per_level(k)
+         wind_dir(k) = wind_dir(k) / cells_per_level(k)
       END DO
       cells_checked_total = SUM( cells_per_level )
       inflow_mean = inflow_mean / cells_checked_total
@@ -232,6 +244,8 @@ MODULE module_openfoam_bc
       WRITE(fmtstr,'("(a,",i4,"(f12.5,x))")') ke-ks+1
       WRITE(*,fmtstr) '  average cell heights per level:',z_mean
       WRITE(*,fmtstr) '  unorm mean by height:',unorm_mean
+      WRITE(*,fmtstr) '  wind mag by height:',wind_mag
+      WRITE(*,fmtstr) '  wind dir by height:',wind_dir
 
    END SUBROUTINE check_inflow_on_boundary
 
