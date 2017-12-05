@@ -168,6 +168,7 @@ MODULE module_openfoam_bc
       REAL :: ucorr, vcorr, wdir
       REAL, DIMENSION(ks:ke) :: unorm_mean, z_mean
       REAL, DIMENSION(ks:ke) :: wind_mag, wind_dir
+      REAL :: wind_dir_min, wind_dir_max
       CHARACTER(len=20) :: fmtstr
 
       lat_min = HUGE(lat_min)
@@ -203,6 +204,8 @@ MODULE module_openfoam_bc
       ! Check all identified cells
       unorm_min = HUGE(unorm_min)
       unorm_max = -HUGE(unorm_max)
+      wind_dir_min = HUGE(wind_dir_min)
+      wind_dir_max = -HUGE(wind_dir_max)
       inflow_mean = 0.0
       z_mean(:) = 0.0
       unorm_mean(:) = 0.0
@@ -221,7 +224,8 @@ MODULE module_openfoam_bc
                   wdir = ATAN2(vcorr,ucorr)
                   !wdir = 90.0 - wdir*57.29577951308232 ! wind in +x (from west) is "0 deg"
                   wdir = 270.0 - wdir*57.29577951308232 ! wind in +x (from west) is 270 deg
-                  IF ( wdir < 0 ) wdir = wdir + 360.0
+                  wind_dir_min = MIN(wind_dir_min, wdir)
+                  wind_dir_max = MAX(wind_dir_max, wdir)
                   IF ( wdir < 0 ) wdir = wdir + 360.0
                   z_mean(k) = z_mean(k) + z(i,j,k)
                   unorm_mean(k) = unorm_mean(k) + unorm_mag
@@ -239,6 +243,8 @@ MODULE module_openfoam_bc
          wind_mag(k) = wind_mag(k) / cells_per_level(k)
          wind_dir(k) = wind_dir(k) / cells_per_level(k)
       END DO
+      IF ( wind_dir_min < 0 ) wind_dir_min = wind_dir_min + 360.0
+      IF ( wind_dir_max < 0 ) wind_dir_max = wind_dir_max + 360.0
       cells_checked_total = SUM( cells_per_level )
       inflow_mean = inflow_mean / cells_checked_total
       WRITE(*,'(a,3(f12.5,x))') '  inflow fraction, unorm min, unorm max=',inflow_mean,unorm_min,unorm_max
@@ -249,6 +255,7 @@ MODULE module_openfoam_bc
       WRITE(*,fmtstr) '  unorm mean by height:',unorm_mean
       WRITE(*,fmtstr) '  wind mag by height:',wind_mag
       WRITE(*,fmtstr) '  wind dir by height:',wind_dir
+      WRITE(*,'(a,2(f12.5,x))') '  wind dir min,max=',wind_dir_min,wind_dir_max
 
    END SUBROUTINE check_inflow_on_boundary
 
