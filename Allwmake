@@ -96,7 +96,7 @@ else
 	wmake libso
 	cd ../../../
     else
-	echo "FAST_DIR is set to '${FAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST interface."
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST interface."
     fi	
 fi
 
