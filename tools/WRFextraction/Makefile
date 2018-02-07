@@ -19,7 +19,8 @@ FC      = ifort
 # Set to the path that contains the netecdf lib and include directories on your system
 #
 #NETCDFPATH      =    /projects/nrel/apps/netcdf/4.0.1
-NETCDFPATH      =    /nopt/nrel/apps/netcdf/dist/netcdf
+#NETCDFPATH      =    /nopt/nrel/apps/netcdf/dist/netcdf
+NETCDFPATH		=  	 /usr
 #
 ############
 #
@@ -30,7 +31,8 @@ FCFLAGS = -O3 -g
 LDFLAGS = $(FCFLAGS)
 
 wrftoof : wrftoof.o module_dm.o module_openfoam_bc.o
-	$(LD) -o wrftoof $(LDFLAGS) wrftoof.o module_dm.o module_openfoam_bc.o -L$(NETCDFPATH)/lib -lnetcdf $(LIB)
+	$(LD) -o wrftoof $(LDFLAGS) wrftoof.o module_dm.o module_openfoam_bc.o \
+		-L$(NETCDFPATH)/lib -L$(NETCDFPATH)/lib64 -lnetcdf -lnetcdff $(LIB)
 	@ if [ -n "$(ICCLIBPATH)" ] ; then \
             echo ------------------------------------------------------------------------- ; \
             echo A D V I S O R Y : ;\
