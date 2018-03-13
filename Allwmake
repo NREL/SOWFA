@@ -6,38 +6,6 @@ echo "Building with OpenFOAM-"$WM_PROJECT_VERSION
 version=${WM_PROJECT_VERSION:0:1}
 variant=${WM_PROJECT_VERSION:2:1}
 
-dir20=2.0-and-lower
-dir21=2.1-2.2
-dir23=2.3-and-higher
-
-dir=$dir20
-if [ $version -lt 2 ]
-then
-   dir=$dir20
-   dirrm1=$dir21
-   dirrm2=$dir23
-elif [ $version -gt 2 ]
-then
-   dir=$dir23
-   dirrm1=$dir20
-   dirrm2=$dir21
-elif [ $version -eq 2 ] && [ $variant -le 0 ]
-then
-   dir=$dir20
-   dirrm1=$dir21
-   dirrm2=$dir23
-elif [ $version -eq 2 ] && [ $variant -ge 1 ] && [ $variant -le 2 ]
-then
-   dir=$dir21
-   dirrm1=$dir20
-   dirrm2=$dir23
-elif [ $version -eq 2 ] && [ $variant -ge 3 ]
-then
-   dir=$dir23
-   dirrm1=$dir20
-   dirrm2=$dir21
-fi
-
 
 # Turbulence models.
 cd src/turbulenceModels/incompressible/LES/
@@ -45,17 +13,11 @@ cd src/turbulenceModels/incompressible/LES/
 cd GenEddyViscABL
 rm GenEddyViscABL.H
 rm GenEddyViscABL.C
-ln -s $dir/GenEddyViscABL.H ./
-ln -s $dir/GenEddyViscABL.C ./
-rm -rf $dirrm1 $dirrm2
 cd ../
 
 cd KosovicOneEqNBA
 rm KosovicOneEqNBA.H
 rm KosovicOneEqNBA.C
-ln -s $dir/KosovicOneEqNBA.H ./
-ln -s $dir/KosovicOneEqNBA.C ./
-rm -rf $dirrm1 $dirrm2
 cd ../
 
 wmake libso
@@ -109,10 +71,6 @@ cd applications/solvers/incompressible/windEnergy/ABLSolver
 rm pEqn.H
 rm ABLSolver.C
 rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/ABLSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -122,10 +80,6 @@ cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
 rm pEqn.H
 rm ABLTerrainSolver.C
 rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/ABLTerrainSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -135,10 +89,6 @@ cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALM
 rm pEqn.H
 rm windPlantSolver.C
 rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -148,10 +98,6 @@ cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvanced
 rm pEqn.H
 rm windPlantSolver.C
 rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -161,10 +107,6 @@ cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFAS
 rm pEqn.H
 rm windPlantSolver.C
 rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -174,10 +116,6 @@ cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
 rm pEqn.H
 rm windPlantSolver.C
 rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -186,9 +124,6 @@ cd ../../../../../
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALM
 rm pisoFoamTurbine.C
 rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -197,9 +132,6 @@ cd ../../../../../
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvanced
 rm pisoFoamTurbine.C
 rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -208,9 +140,6 @@ cd ../../../../../
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
 rm pisoFoamTurbine.C
 rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -219,9 +148,6 @@ cd ../../../../../
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
 rm pisoFoamTurbine.C
 rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -229,8 +155,6 @@ cd ../../../../../
 # A simple solver shell meant for testing wind turbine models.
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALM
 rm Make/options
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
@@ -238,7 +162,5 @@ cd ../../../../../
 # A simple solver shell meant for testing wind turbine models.
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced
 rm Make/options
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
