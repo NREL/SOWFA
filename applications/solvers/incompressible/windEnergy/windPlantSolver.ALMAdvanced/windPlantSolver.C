@@ -57,7 +57,6 @@ Description
 #include "interpolateXY.H"
 #include "interpolate2D.H"
 #include "horizontalAxisWindTurbinesALMAdvanced.H"
-#include "adjustPhiWind.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

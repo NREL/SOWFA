@@ -6,7 +6,7 @@ $(derivedFvPatchFields)/turbulentABLVelocityControlled/turbulentABLVelocityContr
 $(derivedFvPatchFields)/turbulentABLTemperatureControlled/turbulentABLTemperatureControlledFvPatchField.C
 
 /* Generalized Time-Varying Mapped Inflow/Outflow */
-$(derivedFvPatchFields)/timeVaryingMappedInletOutlet/timeVaryingMappedInletOutletFvPatchFields.C
+//$(derivedFvPatchFields)/timeVaryingMappedInletOutlet/timeVaryingMappedInletOutletFvPatchFields.C
 
 /* TimeVaryingMappedFixedValue with organized random perturbations */
 $(derivedFvPatchFields)/timeVaryingMappedFluctuatingFixedValue/timeVaryingMappedFluctuatingFixedValueFvPatchFields.C

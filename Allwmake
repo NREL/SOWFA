@@ -1,7 +1,8 @@
 #!/bin/bash
 
+SOWFAdir=$PWD
 # Do some logic to set things up for the proper version.
-echo "Building with OpenFOAM-"$WM_PROJECT_VERSION
+echo "Building with OpenFOAM-"$WM_PROJECT_VERSION "from" $SOWFAdir
 
 version=${WM_PROJECT_VERSION:0:1}
 variant=${WM_PROJECT_VERSION:2:1}
@@ -9,17 +10,6 @@ variant=${WM_PROJECT_VERSION:2:1}
 
 # Turbulence models.
 cd src/turbulenceModels/incompressible/LES/
-
-cd GenEddyViscABL
-rm GenEddyViscABL.H
-rm GenEddyViscABL.C
-cd ../
-
-cd KosovicOneEqNBA
-rm KosovicOneEqNBA.H
-rm KosovicOneEqNBA.C
-cd ../
-
 wmake libso
 cd ../../../../
 
@@ -68,99 +58,71 @@ cd ../../../
 
 # The atmospheric LES solver for precursors.
 cd applications/solvers/incompressible/windEnergy/ABLSolver
-rm pEqn.H
-rm ABLSolver.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The atmospheric LES solver for terrain cases.
 cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
-rm pEqn.H
-rm ABLTerrainSolver.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The wind plant solver with the standard actuator line.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALM
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The wind plant solver with the advanced actuator line.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvanced
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The wind plant solver with the FAST 8 coupled advanced actuator line.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The wind plant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The basic non-buoyant solver with the standard actuator line.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALM
-rm pisoFoamTurbine.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The basic non-buoyant solver with the advanced actuator line.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvanced
-rm pisoFoamTurbine.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
-rm pisoFoamTurbine.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # The basic non-buoyant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
-rm pisoFoamTurbine.C
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # A simple solver shell meant for testing wind turbine models.
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALM
-rm Make/options
 wmake
 cd ../../../../../
 
 
 # A simple solver shell meant for testing wind turbine models.
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced
-rm Make/options
 wmake
 cd ../../../../../
