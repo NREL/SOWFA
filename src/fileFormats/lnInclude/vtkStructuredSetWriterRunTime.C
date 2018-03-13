@@ -1,1 +1,0 @@
-../sampledSetWriters/vtkStructured/vtkStructuredSetWriterRunTime.C
