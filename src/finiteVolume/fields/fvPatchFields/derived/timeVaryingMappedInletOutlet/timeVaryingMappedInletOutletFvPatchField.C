@@ -73,7 +73,7 @@ timeVaryingMappedInletOutletFvPatchField
     const fvPatchFieldMapper& mapper
 )
 :
-    fixedValueFvPatchField<Type>(ptf, p, iF, mapper),
+    mixedFvPatchField<Type>(ptf, p, iF, mapper),
     phiName_(ptf.phiName_),
     fieldTableName_(ptf.fieldTableName_),
     setAverage_(ptf.setAverage_),
@@ -106,7 +106,7 @@ timeVaryingMappedInletOutletFvPatchField
 )
 :
     mixedFvPatchField<Type>(p, iF),
-    phiName_(dict.lookupOrDefault<word>("phi", "phi"))
+    phiName_(dict.lookupOrDefault<word>("phi", "phi")),
     fieldTableName_(iF.name()),
     setAverage_(readBool(dict.lookup("setAverage"))),
     perturb_(dict.lookupOrDefault("perturb", 1e-5)),

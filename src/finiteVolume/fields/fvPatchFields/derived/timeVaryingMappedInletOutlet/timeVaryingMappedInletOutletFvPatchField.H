@@ -106,7 +106,7 @@ template<class Type>
 class timeVaryingMappedInletOutletFvPatchField
 :
   //public fixedValueFvPatchField<Type>
-    public mixedPatchField<Type>
+    public mixedFvPatchField<Type>
 {
 
 protected:
