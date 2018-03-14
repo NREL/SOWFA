@@ -242,7 +242,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::autoMap
     const fvPatchFieldMapper& m
 )
 {
-    fixedValueFvPatchField<Type>::autoMap(m);
+    mixedFvPatchField<Type>::autoMap(m);
     if (startSampledValues_.size())
     {
         startSampledValues_.autoMap(m);
@@ -262,7 +262,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::rmap
     const labelList& addr
 )
 {
-    fixedValueFvPatchField<Type>::rmap(ptf, addr);
+    mixedFvPatchField<Type>::rmap(ptf, addr);
 
     const timeVaryingMappedInletOutletFvPatchField<Type>& tiptf =
         refCast<const timeVaryingMappedInletOutletFvPatchField<Type> >(ptf);
@@ -531,7 +531,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
         }
 
       //this->operator==(startSampledValues_);
-        this->refValue = startSampledValues_;
+        this->refValue() = startSampledValues_;
         wantedAverage = startAverage_;
     }
     else
@@ -551,7 +551,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
         }
 
       //this->operator==((1 - s)*startSampledValues_ + s*endSampledValues_);
-        this->refValue = (1 - s)*startSampledValues_ + s*endSampledValues_;
+        this->refValue() = (1 - s)*startSampledValues_ + s*endSampledValues_;
         wantedAverage = (1 - s)*startAverage_ + s*endAverage_;
     }
 
@@ -583,7 +583,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
                     << " offsetting with:" << offset << endl;
             }
           //this->operator==(fld + offset);
-            this->refValue = fld + offset;
+            this->refValue() = fld + offset;
         }
         else
         {
@@ -595,14 +595,14 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
                     << " scaling with:" << scale << endl;
             }
           //this->operator==(scale*fld);
-            this->refValue = scale*fld;
+            this->refValue() = scale*fld;
         }
     }
 
     // apply offset to mapped values
     const scalar t = this->db().time().timeOutputValue();
   //this->operator==(*this + offset_->value(t));
-    this->refValue = *this + offset_->value(t);
+    this->refValue() = *this + offset_->value(t);
 
     if (debug)
     {

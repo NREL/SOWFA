@@ -26,6 +26,7 @@ License
 #include "timeVaryingMappedInletOutletFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 #include "volFields.H"
+#include "surfaceFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
