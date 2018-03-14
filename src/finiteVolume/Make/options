@@ -9,4 +9,4 @@ EXE_INC = \
 LIB_LIBS = \
     -lOpenFOAM \
     -ltriSurface \
-    -lmeshTools
+    -lmeshTools 

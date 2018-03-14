@@ -648,6 +648,21 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::write(Ostream& os) const
     this->writeEntry("value", os);
 }
 
+// * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
+
+template<class Type>
+void Foam::timeVaryingMappedInletOutletFvPatchField<Type>::operator=
+(
+    const fvPatchField<Type>& ptf
+)
+{
+    fvPatchField<Type>::operator=
+    (
+        this->valueFraction()*this->refValue()
+        + (1 - this->valueFraction())*ptf
+    );
+}
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
