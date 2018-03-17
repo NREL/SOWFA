@@ -129,11 +129,11 @@ private:
         //- Fraction of perturbation (fraction of bounding box) to add
         scalar perturb_;
 
-        //- Interpolation scheme to use
-        word mapMethod_;
-
 	//- Does this boundary fix values so that they can't be adjusted by adjustPhi
 	bool fixesValue_;
+
+        //- Interpolation scheme to use
+        word mapMethod_;
 
         //- 2D interpolation (for 'planarInterpolation' mapMethod)
         autoPtr<pointToPointPlanarInterpolation> mapperPtr_;
