@@ -132,6 +132,9 @@ private:
         //- Interpolation scheme to use
         word mapMethod_;
 
+	//- Does this boundary fix values so that they can't be adjusted by adjustPhi
+	bool fixesValue_;
+
         //- 2D interpolation (for 'planarInterpolation' mapMethod)
         autoPtr<pointToPointPlanarInterpolation> mapperPtr_;
 
@@ -232,10 +235,18 @@ public:
 
         // Access
 
+	    //- Returns true if this patch fixes a value.  This is used for
+	    //  setting a reference value for a Poisson solve (pressure),
+	    //  and for determining if adjustPhi affects the flux here.
+	    virtual bool fixesValue() const
+            {
+	        return fixesValue_;
+	    }
+
             //- Return startSampledValues
             const Field<Type> startSampledValues()
             {
-                 return startSampledValues_;
+                return startSampledValues_;
             }
 
 
