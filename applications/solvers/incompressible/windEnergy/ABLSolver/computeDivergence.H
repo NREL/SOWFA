@@ -1,5 +1,7 @@
-// Calculate divergence of velocity flux and display
+// Calculate divergence of velocity and display
 {
+
+    // Compute divergence cell by cell and report statistics.
     volScalarField divPhi = fvc::div(phi);
     volScalarField divPhiMag  = pow(pow(divPhi,2),0.5);
     scalar minLocalPhiContErr = min(divPhiMag).value();
@@ -11,6 +13,8 @@
          <<                               "Max " << maxLocalPhiContErr << tab
          <<                     "Weighted Mean " << avgLocalPhiContErr << endl;
 
+
+    // Compute global divergence over domain boundaries and report statistics.
     Info << "Boundary Flux Report:" << endl;
 
     scalar globalSumPhiBoundary = 0.0;
@@ -35,12 +39,11 @@
             globalSumPhiBoundary += sumPhiBoundary;
             globalSumAreaBoundary += sumAreaBoundary;
 
-            Info << "    " << boundaryName << " Flux: " << sumPhiBoundary << tab << "Area: " << sumAreaBoundary << endl;
+            Info << "    " << boundaryName << " Flux: " << sumPhiBoundary << tab << "/ Area: " << sumAreaBoundary << endl;
         }
     }
 
   //reduce(globalSumPhiBoundary, sumOp<scalar>());
   //reduce(globalSumAreaBoundary, sumOp<scalar>());
-    Info << "Total Boundary Flux: " << globalSumPhiBoundary << endl;
-    Info << "Total Boundary Area: " << globalSumAreaBoundary << endl;
+    Info << "    Total Boundary Flux: " << globalSumPhiBoundary << tab << "/ Area: " << globalSumAreaBoundary << endl;
 }
