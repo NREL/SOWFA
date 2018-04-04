@@ -516,6 +516,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
         );
 
     this->valueFraction() = 1.0 - pos(phip);
+  //this->valueFraction() = 1.0;
 
 
     checkTable();
