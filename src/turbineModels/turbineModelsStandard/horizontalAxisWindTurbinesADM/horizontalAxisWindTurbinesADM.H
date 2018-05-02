@@ -594,7 +594,16 @@ private:
             // - Power on the generator.
             DynamicList<scalar> powerGenerator;
              
+            //- _SSC_ size of arrays passed to and from super controller
+            // 
+            // Note must be below superInfoBufferSize
+            int nInputsToSSC;
+            int nOutputsFromSC;
 
+            //_SSC_ : Define a list for passing info between controllers and super controller
+            //List<scalar> superInfo(1000,scalar::zero);
+            DynamicList<scalar> superInfoFromSSC;  // Array of data from the SSC
+            DynamicList<scalar> superInfoToSSC;    // Aray of data to the SSC
 
 
         //- Output Data File Information.
@@ -661,7 +670,8 @@ private:
             //- List of output files for nacelle yaw angle.
             OFstream* nacYawFile_;
 
-            
+            //- _SSC_, List contents of superInfo
+            OFstream* superInfoFile_;
 
       
           
@@ -685,6 +695,12 @@ private:
 
 	//- Calculate the nacelle yaw position.
 	void controlNacYaw();
+
+            //- _SSC_: Define the super controller
+        void superController();
+
+        // _SSC_: Call the simple controller implementation
+        void callSCSimple();
 
         //- Calculate the blade pitch.
         void controlBladePitch();
