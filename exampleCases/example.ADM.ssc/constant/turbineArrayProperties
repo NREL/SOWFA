@@ -20,6 +20,12 @@ globalProperties
     outputInterval       1;
 }
 
+// _SSC_
+sscProperties
+{
+    sscEnabled          true; //Enable/disable ssc, if not present defaults to False
+}
+
 turbine0
 {
     turbineType         "NREL5MWRef";
