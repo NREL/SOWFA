@@ -124,7 +124,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         )
     );
     
-    // _SSC_
+    // _SSC_ Import SSC setting from the turbineArrayProperties dictionary file
     // Read in the turbine array properties dictionary.  This is the uppermost level dictionary
     // that describes where the turbines are, what kind they are, their initial state, and 
     // information about how the actuator line method is applied to each turbine.
@@ -150,10 +150,13 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
     numTurbines = turbineName.size();
 
 	// _SSC_ Report whether ssc has been enabled or disabled
-	if(sscEnabled) {
-		printf("The SSC is enabled.\n");
-	} else {
-		printf("The SSC is disabled.\n");
+	if(Pstream::myProcNo() == 0) // Only print to log file for processor0, to avoid $nCores messages
+	{
+		if(sscEnabled) {
+			printf("The SSC is enabled.\n");
+		} else {
+			printf("The SSC is disabled.\n");
+		}
 	}
 	//	
 	
