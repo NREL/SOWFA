@@ -129,26 +129,33 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
     // that describes where the turbines are, what kind they are, their initial state, and 
     // information about how the actuator line method is applied to each turbine.
     {
+		sscEnabled = false; // _SSC_ Set default option to 'false'
         List<word> listTemp = turbineArrayProperties.toc();
         for (int i = 0; i < listTemp.size(); i++)
         {
-            if (listTemp[i] != "globalProperties" && listTemp[i] != "sscProperties") // Edit to ignore 'sscProperties' as a turbine
+            if (listTemp[i] != "globalProperties" && listTemp[i] != "sscProperties") // _SSC_ Edit to ignore 'sscProperties' as a turbine
             {
                 turbineName.append(listTemp[i]);
             }
+
+			// _SSC_ Check for sscProperties subDict. If exists, import the 'sscEnabled' setting (backwards compatibility)
+			if (listTemp[i] == "sscProperties")
+			{
+				sscEnabled = turbineArrayProperties.subDict("sscProperties").lookupOrDefault<bool>("sscEnabled",false);			
+			}
+			//
         }
     }
 
     numTurbines = turbineName.size();
 
-	// _SSC_ stuff goes here
-	sscEnabled = turbineArrayProperties.subDict("sscProperties").lookupOrDefault<bool>("sscEnabled",false);
+	// _SSC_ Report whether ssc has been enabled or disabled
 	if(sscEnabled) {
 		printf("The SSC is enabled.\n");
 	} else {
 		printf("The SSC is disabled.\n");
 	}
-	//
+	//	
 	
     outputControl = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<word>("outputControl","timeStep");
     outputInterval = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("outputInterval",1);
