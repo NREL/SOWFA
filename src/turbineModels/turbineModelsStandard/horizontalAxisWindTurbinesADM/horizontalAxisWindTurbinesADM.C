@@ -339,7 +339,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         {
             // Read nothing.
         }
-        else if (BladePitchControllerType[i] == "PID")
+        else if (BladePitchControllerType[i] == "PID" || BladePitchControllerType[i] == "PIDSC" ) //_SSC_ include PIDSC in init routine
         {
             PitchK.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchK")));
             PitchMin.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchMin")));
