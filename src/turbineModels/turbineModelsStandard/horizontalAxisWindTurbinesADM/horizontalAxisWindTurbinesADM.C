@@ -149,16 +149,28 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
 
     numTurbines = turbineName.size();
 
+    //_SSC_ If SSC enabled, read the number of inputs and outputs, and 
+    // set up the dynamic arrays which will pass the memory between super controller and turbine controllers
+    if (sscEnabled) {
+        nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC")));	
+        nOutputsFromSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSC")));
+
+    }
+
 	// _SSC_ Report whether ssc has been enabled or disabled
 	if(Pstream::myProcNo() == 0) // Only print to log file for processor0, to avoid $nCores messages
 	{
 		if(sscEnabled) {
 			printf("The SSC is enabled.\n");
+            printf("Number of inputs %d\n",nInputsToSSC );
+            printf("Number of outputs %d\n",nOutputsFromSC );
 		} else {
 			printf("The SSC is disabled.\n");
 		}
 	}
 	//	
+
+
 	
     outputControl = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<word>("outputControl","timeStep");
     outputInterval = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("outputInterval",1);

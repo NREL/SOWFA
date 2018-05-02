@@ -24,6 +24,8 @@ globalProperties
 sscProperties
 {
     sscEnabled          true; //Enable/disable ssc, if not present defaults to False
+    nInputsToSSC        2; // Number of inputs EACH turbine passes to the super controller
+    nOutputsFromSC      3; // Number of outputs the super controller sends to EACH turbine
 }
 
 turbine0
