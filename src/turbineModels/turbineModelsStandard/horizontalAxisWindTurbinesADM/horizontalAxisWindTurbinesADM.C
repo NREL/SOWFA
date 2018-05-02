@@ -131,7 +131,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         List<word> listTemp = turbineArrayProperties.toc();
         for (int i = 0; i < listTemp.size(); i++)
         {
-            if (listTemp[i] != "globalProperties")
+            if (listTemp[i] != "globalProperties" && listTemp[i] != "sscProperties") // Edit to ignore 'sscProperties' as a turbine
             {
                 turbineName.append(listTemp[i]);
             }
@@ -140,6 +140,15 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
 
     numTurbines = turbineName.size();
 
+	// SSC stuff goes here
+	sscEnabled = turbineArrayProperties.subDict("sscProperties").lookupOrDefault<bool>("sscEnabled",false);
+	if(sscEnabled) {
+		printf("The SSC is enabled.\n");
+	} else {
+		printf("The SSC is disabled.\n");
+	}
+	//
+	
     outputControl = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<word>("outputControl","timeStep");
     outputInterval = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("outputInterval",1);
     perturb = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("perturb",1E-5);
