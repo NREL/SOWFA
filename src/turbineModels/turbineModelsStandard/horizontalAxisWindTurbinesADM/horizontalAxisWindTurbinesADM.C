@@ -124,6 +124,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         )
     );
     
+    // _SSC_
     // Read in the turbine array properties dictionary.  This is the uppermost level dictionary
     // that describes where the turbines are, what kind they are, their initial state, and 
     // information about how the actuator line method is applied to each turbine.
@@ -140,7 +141,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
 
     numTurbines = turbineName.size();
 
-	// SSC stuff goes here
+	// _SSC_ stuff goes here
 	sscEnabled = turbineArrayProperties.subDict("sscProperties").lookupOrDefault<bool>("sscEnabled",false);
 	if(sscEnabled) {
 		printf("The SSC is enabled.\n");

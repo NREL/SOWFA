@@ -97,7 +97,7 @@ private:
             //- Revolutions per minute to radians per second conversion factor.
             const scalar rpmRadSec;
 
-		//- SSC enabled option.
+		//- _SSC_ enabled option.
 		bool sscEnabled;
 
         //- Current time step size.
