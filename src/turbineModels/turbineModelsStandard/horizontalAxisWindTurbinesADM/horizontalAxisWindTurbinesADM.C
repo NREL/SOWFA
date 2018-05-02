@@ -155,6 +155,16 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC")));	
         nOutputsFromSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSC")));
 
+        //Set up dynamic arrays
+        for (int si = 0; si < numTurbines * nInputsToSSC; si++)
+        {
+            superInfoToSC.append(0.0);
+        }
+        for (int si = 0; si < numTurbines * nOutputsFromSC; si++)
+        {
+            superInfoFromSC.append(0.0);
+        }
+
     }
 
 	// _SSC_ Report whether ssc has been enabled or disabled
