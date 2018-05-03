@@ -174,8 +174,8 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
 	{
 		if(sscEnabled) {
 			printf("The SSC is enabled.\n");
-            printf("Number of inputs %d\n",nInputsToSSC );
-            printf("Number of outputs %d\n",nOutputsFromSC );
+            printf("  The SSC is expecting %d inputs per turbine.\n",nInputsToSSC );
+            printf("  The SSC is expecting %d outputs per turbine.\n",nOutputsFromSC );
 		} else {
 			printf("The SSC is disabled.\n");
 		}
@@ -1078,7 +1078,7 @@ void horizontalAxisWindTurbinesADM::superController()
     // if this is the master, call 
     if (Pstream::master())
     {
-        callSuperController();  // Example super controller function
+        callSuperController();  // Call the superController function
 
         // Send result local
         for(int si = 0; si < nOutputsFromSC *numTurbines; si++)
