@@ -35,6 +35,7 @@ License
 
 #include "horizontalAxisWindTurbinesADM.H"
 #include "interpolateXY.H"
+#include "controllers/superControllers/SCSimple.C" //_SSC_ inclusion
 
 namespace Foam
 {
@@ -154,15 +155,16 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
     if (sscEnabled) {
         nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC")));	
         nOutputsFromSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSC")));
+        sscControllerType = word(turbineArrayProperties.lookup("sscControllerType"));
 
         //Set up dynamic arrays
         for (int si = 0; si < numTurbines * nInputsToSSC; si++)
         {
-            superInfoToSC.append(0.0);
+            superInfoToSSC.append(0.0);
         }
         for (int si = 0; si < numTurbines * nOutputsFromSC; si++)
         {
-            superInfoFromSC.append(0.0);
+            superInfoFromSSC.append(0.0);
         }
 
     }
@@ -1019,7 +1021,7 @@ void horizontalAxisWindTurbinesADM::controlNacYaw()
 
         // _SSC_, set a case for yawSC
         // simple function assumes the first entry per turbine in 
-        // superInfoFromSC is a yaw reference to seek
+        // superInfoFromSSC is a yaw reference to seek
         else if (NacYawControllerType[j] == "yawSC")
         {
         	#include "controllers/yawControllers/yawSC.H"
@@ -1035,6 +1037,81 @@ void horizontalAxisWindTurbinesADM::controlNacYaw()
     }
 }
         
+//_SSC_: define the super controller function
+//  The super controller code facilitates the exchangess 
+void horizontalAxisWindTurbinesADM::superController()
+{
+	Info << "Entering SuperController" << endl;
+
+    //Info << "(sc) superInfoLength = " << superInfoLength << endl;
+
+	//As a first step spool up the "To" data from each of the turbines
+	List<scalar> superInfoLocalIn(nInputsToSSC*numTurbines,0.0);
+    List<scalar> superInfoLocalOut(nOutputsFromSC*numTurbines,0.0);
+	//superInfoLocal = List<scalar> (superInfoLength*numTurbines,0.0);
+
+    //Info << "(sc) superInfoLocal = " << superInfoLocal << endl;
+
+    for(int si = 0; si < nInputsToSSC * numTurbines; si++)
+    {
+    	superInfoLocalIn[si] = superInfoToSSC[si];
+    }
+
+    //Info << "(sc2) superInfoLocal = " << superInfoLocal << endl;
+
+    //Gather and scatter across procs
+	Pstream::gather(superInfoLocalIn,sumOp<List<scalar> >());
+    Pstream::scatter(superInfoLocalIn);
+
+    //Info << "(sc3) superInfoLocal = " << superInfoLocal << endl;
+
+    // Send back out
+    for(int si = 0; si < nInputsToSSC *numTurbines; si++)
+    {
+    	superInfoToSSC[si] = superInfoLocalIn[si];
+    }
+
+    //Info << "(sc4) superInfoLocal = " << superInfoLocal << endl;
+    //Info << "(sc4) superInfoToSSC = " << superInfoToSSC << endl;
+
+    
+    // if this is the master, call 
+    if (Pstream::master())
+    {
+        callSuperController();  // Example super controller function
+
+        // Send result local
+        for(int si = 0; si < nOutputsFromSC *numTurbines; si++)
+        {
+            superInfoLocalOut[si] = superInfoFromSSC[si];
+        }
+        
+    }
+
+    //Gather and scatter across procs
+    Pstream::gather(superInfoLocalOut,sumOp<List<scalar> >());
+    Pstream::scatter(superInfoLocalOut);
+
+    // Now reassign out
+    // Send back out
+    for(int si = 0; si < nOutputsFromSC *numTurbines; si++)
+    {
+        superInfoFromSSC[si] = superInfoLocalOut[si];
+    }
+
+}
+
+//_SSC_: define  the call to the simple controller
+//  The super controller code facilitates the exchangess 
+void horizontalAxisWindTurbinesADM::callSuperController()
+{
+        // _SSC_, specific controller
+        if (sscControllerType == "simpleSSC")
+        {
+        	#include "controllers/superControllers/SCSimple.H"
+        }
+}
+
 
 void horizontalAxisWindTurbinesADM::controlBladePitch()
 {
@@ -1061,6 +1138,12 @@ void horizontalAxisWindTurbinesADM::controlBladePitch()
         else if (BladePitchControllerType[j] == "PID")
         {
             #include "controllers/bladePitchControllers/PID.H"
+        }
+        //_SSC_: allow a pidSC controller where the minimum pitch is chosen by super controller
+        else if (BladePitchControllerType[j] == "PIDSC")
+        {
+        	//Info << "PIDSC Turbine " << i << endl;
+            #include "controllers/bladePitchControllers/PIDSC.H"
         }
 
         // Apply pitch rate limiter.
@@ -1684,6 +1767,10 @@ void horizontalAxisWindTurbinesADM::update()
         computeRotSpeed();
         rotateBlades();
         yawNacelle();
+        //_SSC_
+        if (sscEnabled){
+            superController(); 
+        }
     }
     else if(bladeUpdateType[0] == "newPosition")
     {
@@ -1695,6 +1782,10 @@ void horizontalAxisWindTurbinesADM::update()
         computeRotSpeed();
         rotateBlades();
         yawNacelle();
+        //_SSC_
+        if (sscEnabled){
+            superController(); 
+        }
 
         // Find out which processor controls which actuator point,
         // and with that information sample the wind at the actuator
@@ -1813,6 +1904,10 @@ void horizontalAxisWindTurbinesADM::openOutputFiles()
         nacYawFile_ = new OFstream(rootDir/time/"nacYaw");
         *nacYawFile_ << "#Turbine    Time(s)    dt(s)    nacelle yaw angle (degrees)" << endl;
 
+         // _SSC_: Create a superInfo file.
+        superInfoFile_ = new OFstream(rootDir/time/"superInfo");
+        *superInfoFile_ << "#Turbine    Sector    Time(s)    dt(s)    superInfo(fromThento)" << endl;
+
         // Create an angle of attack file.
         alphaFile_ = new OFstream(rootDir/time/"alpha");
         *alphaFile_ << "#Turbine    Sector    Time(s)    dt(s)    angle-of-attack(degrees)" << endl;
@@ -1878,6 +1973,7 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
             *azimuthFile_ << i << " " << time << " " << dt << " ";
             *pitchFile_ << i << " " << time << " " << dt << " ";
             *nacYawFile_ << i << " " << time << " " << dt << " ";
+            *superInfoFile_ << i << " " << time << " " << dt << " "; //_SSC_
 
             // Write out information for each turbine.
             *torqueRotorFile_ << torqueRotor[i]*fluidDensity[i] << endl;
@@ -1890,6 +1986,17 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
             *azimuthFile_ << azimuth[i]/degRad << endl;
             *pitchFile_ << pitch[i] << endl;
             *nacYawFile_ << standardToCompass(nacYaw[i]/degRad) << endl;
+
+            // _SSC_, print out superInfo for this turbine
+            for(int si = 0; si < nOutputsFromSC; si++)
+            {
+            	*superInfoFile_ << superInfoFromSSC[i * nOutputsFromSC + si] << " ";
+            }
+            for(int si = 0; si < nInputsToSSC; si++)
+            {
+            	*superInfoFile_ << superInfoToSSC[i * nInputsToSSC + si] << " ";
+            }
+            *superInfoFile_ << endl; //_SSC_
 
             // Proceed sector by sector.
             forAll(alphaSecAvg[i], j)
@@ -1945,6 +2052,7 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
         *azimuthFile_ << endl;
         *pitchFile_ << endl;
         *nacYawFile_ << endl;
+        *superInfoFile_ << endl; //_SSC_
 
         *alphaFile_ << endl;
         *VmagFile_ << endl;
