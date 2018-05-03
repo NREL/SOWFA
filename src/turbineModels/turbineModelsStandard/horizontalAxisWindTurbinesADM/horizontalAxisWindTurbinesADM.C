@@ -155,7 +155,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
     if (sscEnabled) {
         nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC")));	
         nOutputsFromSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSC")));
-        sscControllerType = word(turbineArrayProperties.lookup("sscControllerType"));
+        sscControllerType = word(turbineArrayProperties.subDict("sscProperties").lookup("sscControllerType"));
 
         //Set up dynamic arrays
         for (int si = 0; si < numTurbines * nInputsToSSC; si++)
