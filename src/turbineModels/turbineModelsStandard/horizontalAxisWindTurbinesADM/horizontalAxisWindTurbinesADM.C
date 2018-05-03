@@ -990,6 +990,9 @@ void horizontalAxisWindTurbinesADM::controlGenTorque()
 
 void horizontalAxisWindTurbinesADM::controlNacYaw()
 {
+    //_SSC_, need a local yaw error variable
+	float yawError, yawErrorAbs;
+
     // Proceed turbine by turbine.
     forAll(deltaNacYaw, i)
     {
@@ -1012,6 +1015,14 @@ void horizontalAxisWindTurbinesADM::controlNacYaw()
         
         else if (NacYawControllerType[j] == "timeYawTable")
         {
+        }
+
+        // _SSC_, set a case for yawSC
+        // simple function assumes the first entry per turbine in 
+        // superInfoFromSC is a yaw reference to seek
+        else if (NacYawControllerType[j] == "yawSC")
+        {
+        	#include "controllers/yawControllers/yawSC.H"
         }
 
 
