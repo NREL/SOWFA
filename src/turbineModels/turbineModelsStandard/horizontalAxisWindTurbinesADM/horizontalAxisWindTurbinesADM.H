@@ -100,6 +100,7 @@ private:
 		//- _SSC_ enabled option.
 		bool sscEnabled;
 
+
         //- Current time step size.
         scalar dt;
  
@@ -338,6 +339,9 @@ private:
 	    //- Pitch controller type (NOT IMPLEMENTED, just remains at 
 	    //  specified pitch).
 	    DynamicList<word> BladePitchControllerType;
+
+        //_SSC_ Define the controller type
+        word sscControllerType;
 
             //- Engage a rotor speed limiter (do not let rotor speed exceed rated
             //  or become negative.
@@ -700,7 +704,7 @@ private:
         void superController();
 
         // _SSC_: Call the simple controller implementation
-        void callSCSimple();
+        void callSuperController();
 
         //- Calculate the blade pitch.
         void controlBladePitch();
