@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -l walltime=4:00:00
+#PBS -l walltime=1:00:00
 #PBS -l procs=1
 #PBS -A ssc
-#PBS -q short
+#PBS -q debug
 
 
 
