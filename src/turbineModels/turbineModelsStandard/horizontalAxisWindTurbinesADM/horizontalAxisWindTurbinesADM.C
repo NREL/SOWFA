@@ -37,6 +37,7 @@ License
 #include "interpolateXY.H"
 #include "controllers/superControllers/SCSimple.C" //_SSC_ inclusion
 #include "controllers/superControllers/timeTableSSC.C" //_SSC_ inclusion
+#include "controllers/superControllers/zeromqSSC.C" //_SSC_ inclusion
 
 namespace Foam
 {
@@ -1116,6 +1117,11 @@ void horizontalAxisWindTurbinesADM::callSuperController()
         {
         	#include "controllers/superControllers/timeTableSSC.H"
         }		
+
+        if (sscControllerType == "zeromqSSC")
+        {
+        	#include "controllers/superControllers/zeromqSSC.H"
+        }			
 }
 
 
