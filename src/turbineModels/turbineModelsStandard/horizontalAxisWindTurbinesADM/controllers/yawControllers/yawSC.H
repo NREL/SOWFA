@@ -3,7 +3,7 @@
 // if error is less than this increment do nothing
 
 //Compute the yaw error
-yawError = superInfoFromSSC[i * nOutputsFromSC] - nacYaw[i];
+yawError = superInfoFromSSC[i * nOutputsFromSSC] - nacYaw[i];
 
 //Wrap the yaw to be +/- 180
 if (yawError < -1.0 * Foam::constant::mathematical::pi )

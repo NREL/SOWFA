@@ -5,8 +5,9 @@
 // a MATLAB script, a Python script, or any other piece of software using the
 // zeroMQ functionality.
 //
+// Authors: Bart Doekemeijer & Paul Fleming 
 //
-#include <zmq.h> // 0mq interface
+#include <zmq.h> // zeroMQ interface
 #include <vector>
 #include <stdio.h>
 #include <unistd.h>
@@ -22,6 +23,7 @@ void SC_zeromq(float timeStep, std::vector<float> infoToSC, std::vector<float> &
 	std::string strToSSC; // String that gets sent to SSC
 	char charFromSSC [9900];
 	
+	// Establish connection of this is the first call to the SC
 	if (isFirstCall){
 		printf ("0mq client: Connecting to 0mq server...\n");
 		zmq_connect (requester, "tcp://localhost:5552");
@@ -37,7 +39,7 @@ void SC_zeromq(float timeStep, std::vector<float> infoToSC, std::vector<float> &
 	strToSSC = ssToSC.str();
 	std::cout << "infoToSC: " << strToSSC << "\n";
 	
-	// Send and receive from SSC	
+	// Send and receive from SSC through zeroMQ
 	zmq_send (requester, strToSSC.c_str(), 9900, 0);
     zmq_recv (requester, charFromSSC, 9900, 0);
 	
@@ -60,7 +62,7 @@ int main()
 
 	const int numTurbines = 2;
 	const int nInputsToSSC = 2;
-	const int nOutputsFromSC = 2;
+	const int nOutputsFromSSC = 2;
 	
 	for(int i = 0; i < 3; i++){
 		printf("Call %d.\n",i);

@@ -1,8 +1,16 @@
-//_SSC_
+// _SSC_ zeromqSSC.C
+//
+// This superController code serves as a zeroMQ client, which will communicate
+// with a zeroMQ server. The zeroMQ server will be the remote controller, such as
+// a MATLAB script, a Python script, or any other piece of software using the
+// zeroMQ functionality.
+//
+// Authors: Bart Doekemeijer & Paul Fleming 
+//
 static std::vector<float> zeromqInfoToSC;
 static std::vector<float> zeromqInfoFromSC;
 static int isFirstCall = 1;
-int sizeInfoFromSSC = nInputsToSSC*numTurbines;
+int sizeInfoFromSSC = nOutputsFromSSC*numTurbines;
 
 if (isFirstCall == 1){
 	// Initialize std::vectors with appropriate dimensions
@@ -17,18 +25,17 @@ if (isFirstCall == 1){
 }
 	
 
-// Pass the inputs to the std::vector format
+// Pass the SSC inputs to the local std::vector format
 for(int i = 0; i < nInputsToSSC*numTurbines; i++){
 	zeromqInfoToSC[i] = superInfoToSSC[i];
 }
 	
 // Call the SC from external library
 SC_zeromq(runTime_.value(), zeromqInfoToSC, zeromqInfoFromSC, sizeInfoFromSSC );
-//SC_zeromq(timeStep, zeromqInfoToSC, zeromqInfoFromSC, sizeInfoFromSSC );
 
 // Print the applied control settings
 for(int i=0; i < numTurbines; i++){
-	for(int j=0; j<nOutputsFromSC;j++){
+	for(int j=0; j<nOutputsFromSSC;j++){
 		printf("SSC: Turbine[%d], Updating control variables. Setpoint[%d]: %f.\n",i,j,zeromqInfoFromSC[i*numTurbines+j]);
 	}
 }
@@ -37,11 +44,11 @@ for(int i=0; i < numTurbines; i++){
 for(int i = 0; i < numTurbines; i++)
 {
 	// In this example, the first entries are the yaw angles
-	superInfoFromSSC[i*nOutputsFromSC] = zeromqInfoFromSC[i*nOutputsFromSC]; // Extract from the SSC output
-    superInfoFromSSC[i*nOutputsFromSC] = compassToStandard(superInfoFromSSC[i*nOutputsFromSC]); // Rotate
-    superInfoFromSSC[i*nOutputsFromSC] = superInfoFromSSC[i*nOutputsFromSC] * degRad; // Degrees to radians
+	superInfoFromSSC[i*nOutputsFromSSC] = zeromqInfoFromSC[i*nOutputsFromSSC]; // Extract from the SSC output
+    superInfoFromSSC[i*nOutputsFromSSC] = compassToStandard(superInfoFromSSC[i*nOutputsFromSSC]); // Rotate
+    superInfoFromSSC[i*nOutputsFromSSC] = superInfoFromSSC[i*nOutputsFromSSC] * degRad; // Degrees to radians
 	
 	// In this example, the second entries are the min. blade pitch angles
-    superInfoFromSSC[i*nOutputsFromSC+1] = zeromqInfoFromSC[i*nOutputsFromSC+1]; // Extract from the SSC output
-    superInfoFromSSC[i*nOutputsFromSC+1] = superInfoFromSSC[i*nOutputsFromSC+1] * degRad; // Degrees to radians
+    superInfoFromSSC[i*nOutputsFromSSC+1] = zeromqInfoFromSC[i*nOutputsFromSSC+1]; // Extract from the SSC output
+    superInfoFromSSC[i*nOutputsFromSSC+1] = superInfoFromSSC[i*nOutputsFromSSC+1] * degRad; // Degrees to radians
 }

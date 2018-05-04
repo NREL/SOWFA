@@ -11,11 +11,11 @@ SCSimpleADM(inputArray, outputArray, runTime_.value(), numTurbines );
 for(int i = 0; i < numTurbines; i++)
 {
     // First collect the yaw target and correct
-    superInfoFromSSC[i*nOutputsFromSC] = outputArray[i*nOutputsFromSC];
-    superInfoFromSSC[i*nOutputsFromSC] = compassToStandard(superInfoFromSSC[i*nOutputsFromSC]);
-    superInfoFromSSC[i*nOutputsFromSC] = superInfoFromSSC[i*nOutputsFromSC] * degRad;
+    superInfoFromSSC[i*nOutputsFromSSC] = outputArray[i*nOutputsFromSSC];
+    superInfoFromSSC[i*nOutputsFromSSC] = compassToStandard(superInfoFromSSC[i*nOutputsFromSSC]);
+    superInfoFromSSC[i*nOutputsFromSSC] = superInfoFromSSC[i*nOutputsFromSSC] * degRad;
 
     // Next collect the minimum pitch angle
-    superInfoFromSSC[i*nOutputsFromSC+1] = outputArray[i*nOutputsFromSC+1];
-    superInfoFromSSC[i*nOutputsFromSC+1] = superInfoFromSSC[i*nOutputsFromSC+1] * degRad;
+    superInfoFromSSC[i*nOutputsFromSSC+1] = outputArray[i*nOutputsFromSSC+1];
+    superInfoFromSSC[i*nOutputsFromSSC+1] = superInfoFromSSC[i*nOutputsFromSSC+1] * degRad;
 }
