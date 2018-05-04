@@ -1,4 +1,11 @@
-// _SSC_ timeTableSSC_CCP
+// _SSC_ zeromqSSC.C
+//
+// This superController code serves as a zeroMQ client, which will communicate
+// with a zeroMQ server. The zeroMQ server will be the remote controller, such as
+// a MATLAB script, a Python script, or any other piece of software using the
+// zeroMQ functionality.
+//
+//
 #include <zmq.h> // 0mq interface
 #include <vector>
 #include <stdio.h>
@@ -13,7 +20,7 @@ void SC_zeromq(float timeStep, std::vector<float> infoToSC, std::vector<float> &
 	static void *context = zmq_ctx_new ();
 	static void *requester = zmq_socket (context, ZMQ_REQ);
 	std::string strToSSC; // String that gets sent to SSC
-	char charFromSSC [1000];
+	char charFromSSC [9900];
 	
 	if (isFirstCall){
 		printf ("0mq client: Connecting to 0mq server...\n");
@@ -31,8 +38,8 @@ void SC_zeromq(float timeStep, std::vector<float> infoToSC, std::vector<float> &
 	std::cout << "infoToSC: " << strToSSC << "\n";
 	
 	// Send and receive from SSC	
-	zmq_send (requester, strToSSC.c_str(), 1000, 0);
-    zmq_recv (requester, charFromSSC, 1000, 0);
+	zmq_send (requester, strToSSC.c_str(), 9900, 0);
+    zmq_recv (requester, charFromSSC, 9900, 0);
 	
 	// Format received char/string to std::vector
 	std::cout << "Received string: [" << charFromSSC << "].\n";
