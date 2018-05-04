@@ -23,6 +23,10 @@
     {
         if ( !mesh.boundary()[patchi].coupled() )
         {
+
+            const fvPatchVectorField& Up = U.boundaryField()[patchi];
+            bool a = isA<inletOutletFvPatchVectorField>(Up);
+
             word boundaryName = mesh.boundary()[patchi].name();
             scalar sumPhiBoundary = 0.0;
             scalar sumAreaBoundary = 0.0;
@@ -39,7 +43,7 @@
             globalSumPhiBoundary += sumPhiBoundary;
             globalSumAreaBoundary += sumAreaBoundary;
 
-            Info << "    " << boundaryName << " Flux: " << sumPhiBoundary << tab << "/ Area: " << sumAreaBoundary << endl;
+            Info << "    " << boundaryName << " Flux: " << sumPhiBoundary << tab << "/ Area: " << sumAreaBoundary << tab << "isA<inletOutletFvPatchVectorField> = " << a << endl;
         }
     }
 

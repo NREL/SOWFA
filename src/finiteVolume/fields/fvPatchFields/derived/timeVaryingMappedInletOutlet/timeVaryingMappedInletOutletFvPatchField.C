@@ -516,8 +516,9 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
         );
 
     this->valueFraction() = 1.0 - pos(phip);
-  //this->valueFraction() = 1.0;
 
+   //
+    Field<Type> a(this->patch().size());
 
     checkTable();
 
@@ -549,7 +550,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
 
         if (debug)
         {
-            Pout<< "updateCoeffs : Sampled, interpolated values"
+            Info<< "updateCoeffs : Sampled, interpolated values"
                 << " between start time:"
                 << sampleTimes_[startSampleTime_].name()
                 << " and end time:" << sampleTimes_[endSampleTime_].name()
@@ -557,7 +558,30 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
         }
 
       //this->operator==((1 - s)*startSampledValues_ + s*endSampledValues_);
+/*
+        Field<Type>& fld = *this;
+        forAll(phip,i)
+        {
+            if(this->valueFraction()[i] == 1)
+            {
+                fld[i] == (1 - s)*startSampledValues_[i] + s*endSampledValues_[i];
+            }
+        }
+*/
         this->refValue() = (1 - s)*startSampledValues_ + s*endSampledValues_;
+
+        a = this->refValue();
+/*
+    Info << this->patch().name() << endl;
+    Info << "size = " << this->patch().size() << endl;
+    Info << phiName_ << " = " << endl;
+        forAll(phip,i)
+        {
+            vector xyz = this->patch().Cf()[i];
+            Info << xyz.x() << tab << xyz.y() << tab << xyz.z() << ":  " << phip[i] << tab << this->valueFraction()[i] << tab << this->refValue()[i] << tab << this->refGrad()[i] << endl;
+        }
+*/
+
         wantedAverage = (1 - s)*startAverage_ + s*endAverage_;
     }
 
@@ -608,7 +632,10 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
     // apply offset to mapped values
     const scalar t = this->db().time().timeOutputValue();
   //this->operator==(*this + offset_->value(t));
-    this->refValue() = *this + offset_->value(t);
+  //Info << "Offset" << endl;
+  //Info << offset_->value(t) << endl;
+  //this->refValue() = *this + offset_->value(t);
+    this->refValue() += offset_->value(t);
 
     if (debug)
     {
@@ -617,7 +644,28 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
             << " avg:" << gAverage(*this) << endl;
     }
 
+    
+//
+/*
+    Info << this->patch().name() << endl;
+    Info << "size = " << this->patch().size() << endl;
+    Info << phiName_ << " = " << endl;
+  forAll(phip,i)
+   {
+      vector xyz = this->patch().Cf()[i];
+       Info << xyz.x() << tab << xyz.y() << tab << xyz.z() << ":  " << phip[i] << tab << this->valueFraction()[i] << tab << a[i] << tab << this->refValue()[i] << tab << this->refGrad()[i] << endl;
+   }
+  //Info << "-----------" << endl;
+  //Info << 1.0 - pos(phip) << endl;
+  //Pout << "-----------" << endl;
+  //this->valueFraction() = 1.0;
+  //Pout << this << endl;
+  //Pout << "-----------" << endl;
+//
+*/
+
     mixedFvPatchField<Type>::updateCoeffs();
+
 }
 
 
@@ -625,6 +673,12 @@ template<class Type>
 void timeVaryingMappedInletOutletFvPatchField<Type>::write(Ostream& os) const
 {
     fvPatchField<Type>::write(os);
+
+    if (phiName_ != "phi")
+    {
+        os.writeKeyword("phi") << phiName_ << token::END_STATEMENT << nl;
+    }
+
     os.writeKeyword("setAverage") << setAverage_ << token::END_STATEMENT << nl;
     if (perturb_ != 1e-5)
     {
@@ -653,6 +707,9 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::write(Ostream& os) const
 
     offset_->writeData(os);
 
+    this->refValue().writeEntry("inletValue", os);
+    this->refGrad().writeEntry("outletGradient", os);
+    this->valueFraction().writeEntry("valueFraction", os);
     this->writeEntry("value", os);
 }
 
