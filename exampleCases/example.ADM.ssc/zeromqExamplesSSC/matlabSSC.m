@@ -36,16 +36,19 @@ while 1
         pause(0.05); % wait 50 ms
     else
         json_data = native2unicode(message.data)'; % Received message
-		disp([datestr(rem(now,1)) '__ message received: [' json_data '].']);
         
-		messageRecv = message;
-		
+		% cut down json_data to remove all non-used bytes
+		sortedFloats = textscan( json_data, '%f', 'Delimiter',' ' );
+		inputsToSSC  = sortedFloats{1}'; % row vector with data
+		disp([datestr(rem(now,1)) '__ message received: [' num2str(inputsToSSC) '].']);		
+        
+        
 		% Do your control input stuff here
 		% ...
-		pause(1); % Do work: find control action
-		str_send = '263.35 2.0';
         % ...
 		% ...
+        str_send = '263.35 2.0'; % This should be your next control inputs
+        
 		
         % Send a message (control action) back to SOWFA
         noMessagesReceived = noMessagesReceived + 1;
