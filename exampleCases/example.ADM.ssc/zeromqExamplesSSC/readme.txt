@@ -23,7 +23,7 @@ and the server. So, in your case, you will have to account for this in your supe
 
 
 __ Usage:
-1. Enable 'zeromqSSC' in the turbineArrayProperties, and set 'sscFunction' to 'zeromqSSC'.
+1. Enable the SSC in the turbineArrayProperties, and set 'sscFunction' to 'zeromqSSC'.
 2. Set the individual turbine yaw and blade pitch controller to "yawSC" and "PIDSC".
 3. Start up your zeroMQ server (i.e., your wind farm controller code using zeroMQ).
 4. Start up your SOWFA simulation.
