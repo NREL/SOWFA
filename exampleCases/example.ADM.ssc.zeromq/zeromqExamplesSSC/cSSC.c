@@ -16,7 +16,7 @@ int main (void)
     //  Socket to talk to clients
     void *context = zmq_ctx_new ();
     void *responder = zmq_socket (context, ZMQ_REP);
-    int rc = zmq_bind (responder, "tcp://*:5552");
+    int rc = zmq_bind (responder, "tcp://*:5553");
     
     assert (rc == 0);
     printf("Set up connection. Attempting to receive signals.\n");
