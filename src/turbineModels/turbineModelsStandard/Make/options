@@ -6,7 +6,7 @@ EXE_INC = \
     -I$(LIB_SRC)/turbulenceModels/LES/LESdeltas/lnInclude \
     -I$(LIB_SRC)/turbulenceModels/LES/LESfilters/lnInclude \
     -I$(LIB_SRC)/transportModels \
-	-I /nopt/nrel/apps/zeromq/gcc/4.2.2/include
+    -I$(ZEROMQ_INCLUDE)
 
 LIB_LIBS = \
     -ltriSurface \
@@ -15,5 +15,5 @@ LIB_LIBS = \
     -lincompressibleTurbulenceModel \
     -lLESdeltas \
     -lLESfilters \
-	-L /nopt/nrel/apps/zeromq/gcc/4.2.2/lib \
-	-lzmq
+    -L $(ZEROMQ_LIB) \
+    -lzmq
