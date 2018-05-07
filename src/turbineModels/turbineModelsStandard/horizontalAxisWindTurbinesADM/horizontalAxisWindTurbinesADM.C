@@ -37,6 +37,7 @@ License
 #include "interpolateXY.H"
 #include "controllers/superControllers/SCSimple.C" //_SSC_ inclusion
 #include "controllers/superControllers/timeTableSSC.C" //_SSC_ inclusion
+#include "controllers/superControllers/zeromqSSC.C" //_SSC_ inclusion
 
 namespace Foam
 {
@@ -155,7 +156,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
     // set up the dynamic arrays which will pass the memory between super controller and turbine controllers
     if (sscEnabled) {
         nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC")));	
-        nOutputsFromSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSC")));
+        nOutputsFromSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSSC")));
         sscControllerType = word(turbineArrayProperties.subDict("sscProperties").lookup("sscControllerType"));
 
         //Set up dynamic arrays
@@ -163,7 +164,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         {
             superInfoToSSC.append(0.0);
         }
-        for (int si = 0; si < numTurbines * nOutputsFromSC; si++)
+        for (int si = 0; si < numTurbines * nOutputsFromSSC; si++)
         {
             superInfoFromSSC.append(0.0);
         }
@@ -176,7 +177,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
 		if(sscEnabled) {
 			printf("The SSC is enabled.\n");
             printf("  The SSC is expecting %d inputs per turbine.\n",nInputsToSSC );
-            printf("  The SSC is expecting %d outputs per turbine.\n",nOutputsFromSC );
+            printf("  The SSC is expecting %d outputs per turbine.\n",nOutputsFromSSC );
 		} else {
 			printf("The SSC is disabled.\n");
 		}
@@ -1048,7 +1049,7 @@ void horizontalAxisWindTurbinesADM::superController()
 
 	//As a first step spool up the "To" data from each of the turbines
 	List<scalar> superInfoLocalIn(nInputsToSSC*numTurbines,0.0);
-    List<scalar> superInfoLocalOut(nOutputsFromSC*numTurbines,0.0);
+    List<scalar> superInfoLocalOut(nOutputsFromSSC*numTurbines,0.0);
 	//superInfoLocal = List<scalar> (superInfoLength*numTurbines,0.0);
 
     //Info << "(sc) superInfoLocal = " << superInfoLocal << endl;
@@ -1082,7 +1083,7 @@ void horizontalAxisWindTurbinesADM::superController()
         callSuperController();  // Call the superController function
 
         // Send result local
-        for(int si = 0; si < nOutputsFromSC *numTurbines; si++)
+        for(int si = 0; si < nOutputsFromSSC *numTurbines; si++)
         {
             superInfoLocalOut[si] = superInfoFromSSC[si];
         }
@@ -1095,7 +1096,7 @@ void horizontalAxisWindTurbinesADM::superController()
 
     // Now reassign out
     // Send back out
-    for(int si = 0; si < nOutputsFromSC *numTurbines; si++)
+    for(int si = 0; si < nOutputsFromSSC *numTurbines; si++)
     {
         superInfoFromSSC[si] = superInfoLocalOut[si];
     }
@@ -1116,6 +1117,11 @@ void horizontalAxisWindTurbinesADM::callSuperController()
         {
         	#include "controllers/superControllers/timeTableSSC.H"
         }		
+
+        if (sscControllerType == "zeromqSSC")
+        {
+        	#include "controllers/superControllers/zeromqSSC.H"
+        }			
 }
 
 
@@ -1994,9 +2000,9 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
             *nacYawFile_ << standardToCompass(nacYaw[i]/degRad) << endl;
 
             // _SSC_, print out superInfo for this turbine
-            for(int si = 0; si < nOutputsFromSC; si++)
+            for(int si = 0; si < nOutputsFromSSC; si++)
             {
-            	*superInfoFile_ << superInfoFromSSC[i * nOutputsFromSC + si] << " ";
+            	*superInfoFile_ << superInfoFromSSC[i * nOutputsFromSSC + si] << " ";
             }
             for(int si = 0; si < nInputsToSSC; si++)
             {

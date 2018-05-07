@@ -602,7 +602,7 @@ private:
             // 
             // Note must be below superInfoBufferSize
             int nInputsToSSC;
-            int nOutputsFromSC;
+            int nOutputsFromSSC;
 
             //_SSC_ : Define a list for passing info between controllers and super controller
             //List<scalar> superInfo(1000,scalar::zero);

@@ -3,8 +3,7 @@
 // if error is less than this increment do nothing
 
 //Compute the yaw error
-yawError = superInfoFromSSC[i * nOutputsFromSC] - nacYaw[i];
-
+yawError = superInfoFromSSC[i * nOutputsFromSSC] - nacYaw[i];
 
 //Wrap the yaw to be +/- 180
 if (yawError < -1.0 * Foam::constant::mathematical::pi )
@@ -27,3 +26,10 @@ else if  (yawError < 0)
 else
 	deltaNacYaw[i] = Foam::constant::mathematical::pi / 180.0 * runTime_.deltaT().value();  // Yaw positive
 
+// Write measurements for the superController
+for(int i = 0; i < numTurbines; i++){
+	// In our example case, we have nInputsToSSC = 3
+	superInfoToSSC[i*nInputsToSSC+0] = powerGenerator[i]; // Generator power
+	superInfoToSSC[i*nInputsToSSC+1] = torqueRotor[i];    // Turbine rotor torque
+	superInfoToSSC[i*nInputsToSSC+2] = thrust[i];         // Turbine thrust force
+}

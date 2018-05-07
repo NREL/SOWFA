@@ -154,26 +154,26 @@ int main()
 	// Define integers and arrays
 	float simTime;
 	int nTurbs = 5;
-	int nOutputsFromSC = 2;
-	int nControlVars = nOutputsFromSC;
+	int nOutputsFromSSC = 2;
+	int nControlVars = nOutputsFromSSC;
 	std::vector<float> tmpFloatVector(nControlVars, 0); 	 // Vector with number of input timestaps for each turbine
-	std::vector< std::vector<float> > nextControlAction(nTurbs,std::vector<float>(nOutputsFromSC)); // Matrix with current control actions for each turbine
+	std::vector< std::vector<float> > nextControlAction(nTurbs,std::vector<float>(nOutputsFromSSC)); // Matrix with current control actions for each turbine
 	
 	printf("TIME = 5.0 SECONDS.\n");
 	simTime = 5.0;
-	SC_timeTable(nTurbs,nOutputsFromSC,nextControlAction,simTime);
+	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 
 	printf("TIME = 11 SECONDS.\n");
 	simTime = 11.0;
-	SC_timeTable(nTurbs,nOutputsFromSC,nextControlAction,simTime);
+	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 
 	printf("TIME = 15 SECONDS.\n");
 	simTime = 15.0;	
-	SC_timeTable(nTurbs,nOutputsFromSC,nextControlAction,simTime);
+	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 
 	printf("TIME = 21 SECONDS.\n");
 	simTime = 21.0;	
-	SC_timeTable(nTurbs,nOutputsFromSC,nextControlAction,simTime);
+	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 	
     return 0;
 }*/
