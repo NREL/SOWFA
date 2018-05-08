@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "timeVaryingMappedInletOutletFvPatchField.H"
+#include "timeVaryingMappedFixedValueFvPatchField.H"
 #include "Time.H"
 #include "AverageIOField.H"
 
@@ -33,21 +33,19 @@ namespace Foam
 {
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-// #1
+
 template<class Type>
-timeVaryingMappedInletOutletFvPatchField<Type>::
-timeVaryingMappedInletOutletFvPatchField
+timeVaryingMappedFixedValueFvPatchField<Type>::
+timeVaryingMappedFixedValueFvPatchField
 (
     const fvPatch& p,
     const DimensionedField<Type, volMesh>& iF
 )
 :
-    mixedFvPatchField<Type>(p, iF),
-    phiName_("phi"),
+    fixedValueFvPatchField<Type>(p, iF),
     fieldTableName_(iF.name()),
     setAverage_(false),
     perturb_(0),
-    fixesValue_(true),
     mapperPtr_(NULL),
     sampleTimes_(0),
     startSampleTime_(-1),
@@ -57,29 +55,23 @@ timeVaryingMappedInletOutletFvPatchField
     endSampledValues_(0),
     endAverage_(pTraits<Type>::zero),
     offset_()
-{
-    this->refValue() = pTraits<Type>::zero;
-    this->refGrad() = pTraits<Type>::zero;
-    this->valueFraction() = 0.0;
-}
+{}
 
-// #2
+
 template<class Type>
-timeVaryingMappedInletOutletFvPatchField<Type>::
-timeVaryingMappedInletOutletFvPatchField
+timeVaryingMappedFixedValueFvPatchField<Type>::
+timeVaryingMappedFixedValueFvPatchField
 (
-    const timeVaryingMappedInletOutletFvPatchField<Type>& ptf,
+    const timeVaryingMappedFixedValueFvPatchField<Type>& ptf,
     const fvPatch& p,
     const DimensionedField<Type, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    mixedFvPatchField<Type>(ptf, p, iF, mapper),
-    phiName_(ptf.phiName_),
+    fixedValueFvPatchField<Type>(ptf, p, iF, mapper),
     fieldTableName_(ptf.fieldTableName_),
     setAverage_(ptf.setAverage_),
     perturb_(ptf.perturb_),
-    fixesValue_(ptf.fixesValue_),
     mapMethod_(ptf.mapMethod_),
     mapperPtr_(NULL),
     sampleTimes_(0),
@@ -97,22 +89,20 @@ timeVaryingMappedInletOutletFvPatchField
     )
 {}
 
-// #3
+
 template<class Type>
-timeVaryingMappedInletOutletFvPatchField<Type>::
-timeVaryingMappedInletOutletFvPatchField
+timeVaryingMappedFixedValueFvPatchField<Type>::
+timeVaryingMappedFixedValueFvPatchField
 (
     const fvPatch& p,
     const DimensionedField<Type, volMesh>& iF,
     const dictionary& dict
 )
 :
-    mixedFvPatchField<Type>(p, iF),
-    phiName_(dict.lookupOrDefault<word>("phi", "phi")),
+    fixedValueFvPatchField<Type>(p, iF),
     fieldTableName_(iF.name()),
     setAverage_(readBool(dict.lookup("setAverage"))),
     perturb_(dict.lookupOrDefault("perturb", 1e-5)),
-    fixesValue_(readBool(dict.lookup("fixesValue"))),
     mapMethod_
     (
         dict.lookupOrDefault<word>
@@ -139,8 +129,8 @@ timeVaryingMappedInletOutletFvPatchField
     {
         FatalIOErrorIn
         (
-            "timeVaryingMappedInletOutletFvPatchField<Type>::\n"
-            "timeVaryingMappedInletOutletFvPatchField\n"
+            "timeVaryingMappedFixedValueFvPatchField<Type>::\n"
+            "timeVaryingMappedFixedValueFvPatchField\n"
             "(\n"
             "    const fvPatch&\n"
             "    const DimensionedField<Type, volMesh>&\n"
@@ -156,10 +146,7 @@ timeVaryingMappedInletOutletFvPatchField
 
     if (dict.found("value"))
     {
-        fvPatchField<Type>::operator=
-        (
-            Field<Type>("value", dict, p.size())
-        );
+        fvPatchField<Type>::operator==(Field<Type>("value", dict, p.size()));
     }
     else
     {
@@ -169,26 +156,20 @@ timeVaryingMappedInletOutletFvPatchField
         //       a new update.
         this->evaluate(Pstream::blocking);
     }
-
-    this->refValue() = *this;
-    this->refGrad() = pTraits<Type>::zero;
-    this->valueFraction() = 0.0;
 }
 
-// #5
+
 template<class Type>
-timeVaryingMappedInletOutletFvPatchField<Type>::
-timeVaryingMappedInletOutletFvPatchField
+timeVaryingMappedFixedValueFvPatchField<Type>::
+timeVaryingMappedFixedValueFvPatchField
 (
-    const timeVaryingMappedInletOutletFvPatchField<Type>& ptf
+    const timeVaryingMappedFixedValueFvPatchField<Type>& ptf
 )
 :
-    mixedFvPatchField<Type>(ptf),
-    phiName_(ptf.phiName_),
+    fixedValueFvPatchField<Type>(ptf),
     fieldTableName_(ptf.fieldTableName_),
     setAverage_(ptf.setAverage_),
     perturb_(ptf.perturb_),
-    fixesValue_(ptf.fixesValue_),
     mapMethod_(ptf.mapMethod_),
     mapperPtr_(NULL),
     sampleTimes_(ptf.sampleTimes_),
@@ -206,21 +187,19 @@ timeVaryingMappedInletOutletFvPatchField
     )
 {}
 
-// #6
+
 template<class Type>
-timeVaryingMappedInletOutletFvPatchField<Type>::
-timeVaryingMappedInletOutletFvPatchField
+timeVaryingMappedFixedValueFvPatchField<Type>::
+timeVaryingMappedFixedValueFvPatchField
 (
-    const timeVaryingMappedInletOutletFvPatchField<Type>& ptf,
+    const timeVaryingMappedFixedValueFvPatchField<Type>& ptf,
     const DimensionedField<Type, volMesh>& iF
 )
 :
-    mixedFvPatchField<Type>(ptf, iF),
-    phiName_(ptf.phiName_),
+    fixedValueFvPatchField<Type>(ptf, iF),
     fieldTableName_(ptf.fieldTableName_),
     setAverage_(ptf.setAverage_),
     perturb_(ptf.perturb_),
-    fixesValue_(ptf.fixesValue_),
     mapMethod_(ptf.mapMethod_),
     mapperPtr_(NULL),
     sampleTimes_(ptf.sampleTimes_),
@@ -242,12 +221,12 @@ timeVaryingMappedInletOutletFvPatchField
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Type>
-void timeVaryingMappedInletOutletFvPatchField<Type>::autoMap
+void timeVaryingMappedFixedValueFvPatchField<Type>::autoMap
 (
     const fvPatchFieldMapper& m
 )
 {
-    mixedFvPatchField<Type>::autoMap(m);
+    fixedValueFvPatchField<Type>::autoMap(m);
     if (startSampledValues_.size())
     {
         startSampledValues_.autoMap(m);
@@ -261,16 +240,16 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::autoMap
 
 
 template<class Type>
-void timeVaryingMappedInletOutletFvPatchField<Type>::rmap
+void timeVaryingMappedFixedValueFvPatchField<Type>::rmap
 (
     const fvPatchField<Type>& ptf,
     const labelList& addr
 )
 {
-    mixedFvPatchField<Type>::rmap(ptf, addr);
+    fixedValueFvPatchField<Type>::rmap(ptf, addr);
 
-    const timeVaryingMappedInletOutletFvPatchField<Type>& tiptf =
-        refCast<const timeVaryingMappedInletOutletFvPatchField<Type> >(ptf);
+    const timeVaryingMappedFixedValueFvPatchField<Type>& tiptf =
+        refCast<const timeVaryingMappedFixedValueFvPatchField<Type> >(ptf);
 
     startSampledValues_.rmap(tiptf.startSampledValues_, addr);
     endSampledValues_.rmap(tiptf.endSampledValues_, addr);
@@ -283,7 +262,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::rmap
 
 
 template<class Type>
-void timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()
+void timeVaryingMappedFixedValueFvPatchField<Type>::checkTable()
 {
     // Initialise
     if (mapperPtr_.empty())
@@ -306,7 +285,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()
 
         if (debug)
         {
-            Info<< "timeVaryingMappedInletOutletFvPatchField :"
+            Info<< "timeVaryingMappedFixedValueFvPatchField :"
                 << " Read " << samplePoints.size() << " sample points from "
                 << samplePointsFile << endl;
         }
@@ -337,7 +316,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()
 
         if (debug)
         {
-            Info<< "timeVaryingMappedInletOutletFvPatchField : In directory "
+            Info<< "timeVaryingMappedFixedValueFvPatchField : In directory "
                 << samplePointsDir << " found times "
                 << pointToPointPlanarInterpolation::timeNames(sampleTimes_)
                 << endl;
@@ -362,7 +341,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()
     {
         FatalErrorIn
         (
-            "timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()"
+            "timeVaryingMappedFixedValueFvPatchField<Type>::checkTable()"
         )   << "Cannot find starting sampling values for current time "
             << this->db().time().value() << nl
             << "Have sampling values for times "
@@ -428,7 +407,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()
             {
                 FatalErrorIn
                 (
-                    "timeVaryingMappedInletOutletFvPatchField<Type>::"
+                    "timeVaryingMappedFixedValueFvPatchField<Type>::"
                     "checkTable()"
                 )   << "Number of values (" << vals.size()
                     << ") differs from the number of points ("
@@ -486,7 +465,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()
             {
                 FatalErrorIn
                 (
-                    "timeVaryingMappedInletOutletFvPatchField<Type>::"
+                    "timeVaryingMappedFixedValueFvPatchField<Type>::"
                     "checkTable()"
                 )   << "Number of values (" << vals.size()
                     << ") differs from the number of points ("
@@ -502,26 +481,15 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::checkTable()
 
 
 template<class Type>
-void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
+void timeVaryingMappedFixedValueFvPatchField<Type>::updateCoeffs()
 {
     if (this->updated())
     {
         return;
     }
 
-    const Field<scalar>& phip =
-        this->patch().template lookupPatchField<surfaceScalarField, scalar>
-        (
-            phiName_
-        );
-
-    this->valueFraction() = 1.0 - pos(phip);
-
-   //
-    Field<Type> a(this->patch().size());
 
     checkTable();
-
 
     // Interpolate between the sampled data
 
@@ -537,8 +505,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
                 << sampleTimes_[startSampleTime_].name() << nl;
         }
 
-      //this->operator==(startSampledValues_);
-        this->refValue() = startSampledValues_;
+        this->operator==(startSampledValues_);
         wantedAverage = startAverage_;
     }
     else
@@ -550,38 +517,14 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
 
         if (debug)
         {
-            Info<< "updateCoeffs : Sampled, interpolated values"
+            Pout<< "updateCoeffs : Sampled, interpolated values"
                 << " between start time:"
                 << sampleTimes_[startSampleTime_].name()
                 << " and end time:" << sampleTimes_[endSampleTime_].name()
                 << " with weight:" << s << endl;
         }
 
-      //this->operator==((1 - s)*startSampledValues_ + s*endSampledValues_);
-/*
-        Field<Type>& fld = *this;
-        forAll(phip,i)
-        {
-            if(this->valueFraction()[i] == 1)
-            {
-                fld[i] == (1 - s)*startSampledValues_[i] + s*endSampledValues_[i];
-            }
-        }
-*/
-        this->refValue() = (1 - s)*startSampledValues_ + s*endSampledValues_;
-
-        a = this->refValue();
-/*
-    Info << this->patch().name() << endl;
-    Info << "size = " << this->patch().size() << endl;
-    Info << phiName_ << " = " << endl;
-        forAll(phip,i)
-        {
-            vector xyz = this->patch().Cf()[i];
-            Info << xyz.x() << tab << xyz.y() << tab << xyz.z() << ":  " << phip[i] << tab << this->valueFraction()[i] << tab << this->refValue()[i] << tab << this->refGrad()[i] << endl;
-        }
-*/
-
+        this->operator==((1 - s)*startSampledValues_ + s*endSampledValues_);
         wantedAverage = (1 - s)*startAverage_ + s*endAverage_;
     }
 
@@ -612,8 +555,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
                 Pout<< "updateCoeffs :"
                     << " offsetting with:" << offset << endl;
             }
-          //this->operator==(fld + offset);
-            this->refValue() = fld + offset;
+            this->operator==(fld + offset);
         }
         else
         {
@@ -624,18 +566,13 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
                 Pout<< "updateCoeffs :"
                     << " scaling with:" << scale << endl;
             }
-          //this->operator==(scale*fld);
-            this->refValue() = scale*fld;
+            this->operator==(scale*fld);
         }
     }
 
     // apply offset to mapped values
     const scalar t = this->db().time().timeOutputValue();
-  //this->operator==(*this + offset_->value(t));
-  //Info << "Offset" << endl;
-  //Info << offset_->value(t) << endl;
-  //this->refValue() = *this + offset_->value(t);
-    this->refValue() += offset_->value(t);
+    this->operator==(*this + offset_->value(t));
 
     if (debug)
     {
@@ -644,48 +581,19 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::updateCoeffs()
             << " avg:" << gAverage(*this) << endl;
     }
 
-    
-//
-/*
-    Info << this->patch().name() << endl;
-    Info << "size = " << this->patch().size() << endl;
-    Info << phiName_ << " = " << endl;
-  forAll(phip,i)
-   {
-      vector xyz = this->patch().Cf()[i];
-       Info << xyz.x() << tab << xyz.y() << tab << xyz.z() << ":  " << phip[i] << tab << this->valueFraction()[i] << tab << a[i] << tab << this->refValue()[i] << tab << this->refGrad()[i] << endl;
-   }
-  //Info << "-----------" << endl;
-  //Info << 1.0 - pos(phip) << endl;
-  //Pout << "-----------" << endl;
-  //this->valueFraction() = 1.0;
-  //Pout << this << endl;
-  //Pout << "-----------" << endl;
-//
-*/
-
-    mixedFvPatchField<Type>::updateCoeffs();
-
+    fixedValueFvPatchField<Type>::updateCoeffs();
 }
 
 
 template<class Type>
-void timeVaryingMappedInletOutletFvPatchField<Type>::write(Ostream& os) const
+void timeVaryingMappedFixedValueFvPatchField<Type>::write(Ostream& os) const
 {
     fvPatchField<Type>::write(os);
-
-    if (phiName_ != "phi")
-    {
-        os.writeKeyword("phi") << phiName_ << token::END_STATEMENT << nl;
-    }
-
     os.writeKeyword("setAverage") << setAverage_ << token::END_STATEMENT << nl;
     if (perturb_ != 1e-5)
     {
         os.writeKeyword("perturb") << perturb_ << token::END_STATEMENT << nl;
     }
-
-    os.writeKeyword("fixesValue") << fixesValue_ << token::END_STATEMENT << nl;
 
     if (fieldTableName_ != this->dimensionedInternalField().name())
     {
@@ -707,25 +615,7 @@ void timeVaryingMappedInletOutletFvPatchField<Type>::write(Ostream& os) const
 
     offset_->writeData(os);
 
-    this->refValue().writeEntry("inletValue", os);
-    this->refGrad().writeEntry("outletGradient", os);
-    this->valueFraction().writeEntry("valueFraction", os);
     this->writeEntry("value", os);
-}
-
-// * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
-
-template<class Type>
-void Foam::timeVaryingMappedInletOutletFvPatchField<Type>::operator=
-(
-    const fvPatchField<Type>& ptf
-)
-{
-    fvPatchField<Type>::operator=
-    (
-        this->valueFraction()*this->refValue()
-        + (1 - this->valueFraction())*ptf
-    );
 }
 
 

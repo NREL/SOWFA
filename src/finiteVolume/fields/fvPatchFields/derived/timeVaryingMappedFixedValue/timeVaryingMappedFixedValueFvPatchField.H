@@ -22,23 +22,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::timeVaryingMappedInletOutletFvPatchField
+    Foam::timeVaryingMappedFixedValueFvPatchField
 
 Group
     grpInletBoundaryConditions grpCoupledBoundaryConditions
 
 Description
-    This boundary condition is like inletOutlet in which if the flow is
-    outflow, it is set to zero gradient; if the flow is inflow, the
-    value is set.  Rather than set it to a single value as with inletOutlet,
-    the value is set as timeVaryingMappedFixedValue would set the value
-    using a saved time history of spatially varying data.  This is of 
-    use in atmospheric simulations in which some boundaries may have
-    inflow and outflow faces, and the inflow comes from pregenerated,
-    saved turbulent flow.
-
-    As with timeVaryingMappedFixedValue, on inflow faces, this boundary
-    condition interpolates the values from a set of supplied
+    This boundary conditions interpolates the values from a set of supplied
     points in space and time.  Supplied data should be specified in
     constant/boundaryData/\<patchname\> where:
     - points : pointField with locations
@@ -51,7 +41,7 @@ Description
     The optional mapMethod nearest will avoid all projection and
     triangulation and just use the value at the nearest vertex.
 
-    Inflow values are interpolated linearly between times.
+    Values are interpolated linearly between times.
 
     \heading Patch usage
 
@@ -67,7 +57,7 @@ Description
     \verbatim
     myPatch
     {
-        type            timeVaryingMappedInletOutlet;
+        type            timeVaryingMappedFixedValue;
         setAverage      false;
         //perturb       0.0;
         //fieldTableName samples;
@@ -79,15 +69,14 @@ SeeAlso
     Foam::fixedValueFvPatchField
 
 SourceFiles
-    timeVaryingMappedInletOutletFvPatchField.C
+    timeVaryingMappedFixedValueFvPatchField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef timeVaryingMappedInletOutletFvPatchField_H
-#define timeVaryingMappedInletOutletFvPatchField_H
+#ifndef timeVaryingMappedFixedValueFvPatchField_H
+#define timeVaryingMappedFixedValueFvPatchField_H
 
-//#include "fixedValueFvPatchFields.H"
-#include "mixedFvPatchFields.H"
+#include "fixedValueFvPatchFields.H"
 #include "FixedList.H"
 #include "instantList.H"
 #include "pointToPointPlanarInterpolation.H"
@@ -99,25 +88,14 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-          Class timeVaryingMappedInletOutletFvPatchField Declaration
+          Class timeVaryingMappedFixedValueFvPatchField Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
-class timeVaryingMappedInletOutletFvPatchField
+class timeVaryingMappedFixedValueFvPatchField
 :
-  //public fixedValueFvPatchField<Type>
-    public mixedFvPatchField<Type>
+    public fixedValueFvPatchField<Type>
 {
-
-protected:
-
-    // Protected data
-
-        //- Name of flux field
-        word phiName_;
-
-
-private:
     // Private data
 
         //- Name of the field data table, defaults to the name of the field
@@ -128,9 +106,6 @@ private:
 
         //- Fraction of perturbation (fraction of bounding box) to add
         scalar perturb_;
-
-	//- Does this boundary fix values so that they can't be adjusted by adjustPhi
-	bool fixesValue_;
 
         //- Interpolation scheme to use
         word mapMethod_;
@@ -166,40 +141,40 @@ private:
 public:
 
     //- Runtime type information
-    TypeName("timeVaryingMappedInletOutlet");
+    TypeName("timeVaryingMappedFixedValue");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        timeVaryingMappedInletOutletFvPatchField
+        timeVaryingMappedFixedValueFvPatchField
         (
             const fvPatch&,
             const DimensionedField<Type, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        timeVaryingMappedInletOutletFvPatchField
+        timeVaryingMappedFixedValueFvPatchField
         (
             const fvPatch&,
             const DimensionedField<Type, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given timeVaryingMappedInletOutletFvPatchField
+        //- Construct by mapping given timeVaryingMappedFixedValueFvPatchField
         //  onto a new patch
-        timeVaryingMappedInletOutletFvPatchField
+        timeVaryingMappedFixedValueFvPatchField
         (
-            const timeVaryingMappedInletOutletFvPatchField<Type>&,
+            const timeVaryingMappedFixedValueFvPatchField<Type>&,
             const fvPatch&,
             const DimensionedField<Type, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        timeVaryingMappedInletOutletFvPatchField
+        timeVaryingMappedFixedValueFvPatchField
         (
-            const timeVaryingMappedInletOutletFvPatchField<Type>&
+            const timeVaryingMappedFixedValueFvPatchField<Type>&
         );
 
         //- Construct and return a clone
@@ -207,14 +182,14 @@ public:
         {
             return tmp<fvPatchField<Type> >
             (
-                new timeVaryingMappedInletOutletFvPatchField<Type>(*this)
+                new timeVaryingMappedFixedValueFvPatchField<Type>(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        timeVaryingMappedInletOutletFvPatchField
+        timeVaryingMappedFixedValueFvPatchField
         (
-            const timeVaryingMappedInletOutletFvPatchField<Type>&,
+            const timeVaryingMappedFixedValueFvPatchField<Type>&,
             const DimensionedField<Type, volMesh>&
         );
 
@@ -226,7 +201,7 @@ public:
         {
             return tmp<fvPatchField<Type> >
             (
-                new timeVaryingMappedInletOutletFvPatchField<Type>(*this, iF)
+                new timeVaryingMappedFixedValueFvPatchField<Type>(*this, iF)
             );
         }
 
@@ -235,18 +210,10 @@ public:
 
         // Access
 
-	    //- Returns true if this patch fixes a value.  This is used for
-	    //  setting a reference value for a Poisson solve (pressure),
-	    //  and for determining if adjustPhi affects the flux here.
-	    virtual bool fixesValue() const
-            {
-	        return fixesValue_;
-	    }
-
             //- Return startSampledValues
             const Field<Type> startSampledValues()
             {
-                return startSampledValues_;
+                 return startSampledValues_;
             }
 
 
@@ -280,10 +247,6 @@ public:
 
         //- Write
         virtual void write(Ostream&) const;
-
-
-    // Member operators
-    virtual void operator=(const fvPatchField<Type>& pvf);
 };
 
 
@@ -294,7 +257,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "timeVaryingMappedInletOutletFvPatchField.C"
+#   include "timeVaryingMappedFixedValueFvPatchField.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
