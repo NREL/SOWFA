@@ -165,6 +165,9 @@ private:
         //- Is this case using the supercontroller?
         bool superControllerOn;
 
+        //- Should this case have OpenFAST write out debug information for velocity/force along actuator node points?
+        bool FASTwriteDebugInfo;
+
         //- The name of the supercontroller library.
         word superControllerLib;
  

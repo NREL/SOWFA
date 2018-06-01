@@ -321,6 +321,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::readInput()
     superControllerLib = word(turbineArrayProperties.subDict("globalProperties").lookup("superControllerLib"));
     numSuperControllerInputs = int(readScalar(turbineArrayProperties.subDict("globalProperties").lookup("numSuperControllerInputs")));
     numSuperControllerOutputs = int(readScalar(turbineArrayProperties.subDict("globalProperties").lookup("numSuperControllerOutputs")));
+    FASTwriteDebugInfo = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<bool>("FASTwriteDebugInfo",false);
     timeSimulationStart = readScalar(turbineArrayProperties.subDict("globalProperties").lookup("timeSimulationStart"));
     timeSimulationEnd = readScalar(turbineArrayProperties.subDict("globalProperties").lookup("timeSimulationEnd"));
     checkPointInterval = readScalar(turbineArrayProperties.subDict("globalProperties").lookup("checkPointInterval"));
@@ -410,8 +411,8 @@ void horizontalAxisWindTurbinesALMOpenFAST::sendInput()
   
   fi.comm = MPI_COMM_WORLD;
   fi.nTurbinesGlob = numTurbines;
-  fi.dryRun = dryRun ;
-  fi.debug = true;
+  fi.dryRun = dryRun;
+  fi.debug = FASTwriteDebugInfo;
   fi.tStart = tStart - timeSimulationStart;
   // True restart capability is not an option
   if (fi.tStart > 0) {
