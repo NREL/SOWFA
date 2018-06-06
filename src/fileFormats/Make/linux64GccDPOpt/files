@@ -1,0 +1,8 @@
+# 1 "files"
+# 1 "<command-line>"
+# 1 "files"
+setWriters = sampledSetWriters
+
+$(setWriters)/vtkStructured/vtkStructuredSetWriterRunTime.C
+
+LIB = $(FOAM_USER_LIBBIN)/libuserfileFormats

@@ -106,6 +106,12 @@ wmake libso
 cd ../../
 
 
+# Custom file formats (like structured VTK).
+cd src/fileFormats
+wmake libso
+cd ../../
+
+
 # Custom boundary conditions.
 cd src/finiteVolume
 wmake libso
