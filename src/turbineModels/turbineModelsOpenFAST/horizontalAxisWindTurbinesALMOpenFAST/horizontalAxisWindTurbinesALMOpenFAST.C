@@ -1683,9 +1683,9 @@ void horizontalAxisWindTurbinesALMOpenFAST::getForces()
        for (int i = 0; i < localNumPoints; i++)
        {
 	 FAST->getForce(pointForce, i, p);
-           forces_[startIndex + i].x() = pointForce[0];
-           forces_[startIndex + i].y() = pointForce[1];
-           forces_[startIndex + i].z() = pointForce[2];
+           forces_[startIndex + i].x() = pointForce[0]/fluidDensity[p];
+           forces_[startIndex + i].y() = pointForce[1]/fluidDensity[p];
+           forces_[startIndex + i].z() = pointForce[2]/fluidDensity[p];
        }
      //Pout << forces_ << endl;
    }
