@@ -68,22 +68,6 @@ wmake libso
 cd ../../../
 
 
-# FAST 8 coupled turbine models.
-if [ -z ${FAST_DIR+x} ]
-then
-    echo "FAST_DIR is not set. Not compiling FASTv8 interface."
-else
-    if [ -d ${FAST_DIR} ] 
-    then
-	echo "FAST_DIR is set to '${FAST_DIR}'. Attempting to compile FASTv8 interface."
-	cd src/turbineModels/turbineModelsFASTv8
-	wmake libso
-	cd ../../../
-    else
-	echo "FAST_DIR is set to '${FAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of FASTv8 interface."
-    fi	
-fi
-
 # OpenFAST coupled turbine models.
 if [ -z ${OPENFAST_DIR+x} ]
 then
@@ -181,29 +165,6 @@ rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
-
-if [ -z ${FAST_DIR+x} ]
-then
-    echo "FAST_DIR is not set. Not compiling OpenFAST solver."
-else
-    if [ -d ${FAST_DIR} ] 
-    then
-	echo "FAST_DIR is set to '${FAST_DIR}'. Attempting to compile FAST windPlant solver."
-        # The wind plant solver with the FAST 8 coupled advanced actuator line.
-	cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
-	rm pEqn.H
-	rm windPlantSolver.C
-	rm Make/options
-	ln -s $dir/pEqn.H ./
-	ln -s $dir/windPlantSolver.C ./
-	ln -s ../$dir/options ./Make
-	rm -rf $dirrm1 $dirrm2
-	wmake
-	cd ../../../../../
-    else
-	echo "FAST_DIR is set to '${FAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
-    fi	
-fi
 
 if [ -z ${OPENFAST_DIR+x} ]
 then

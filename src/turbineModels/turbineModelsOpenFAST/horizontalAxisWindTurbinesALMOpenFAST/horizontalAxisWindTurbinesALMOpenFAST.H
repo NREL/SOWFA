@@ -786,13 +786,14 @@ public:
       
     // Public Member Functions
     
-    //- Update state of turbine.
-    void update();
+       //- Update state of turbine.
+       void update();
     
-    //- Return force.
-    volVectorField& force();
+       //- Return force.
+       volVectorField& force();
     
-    void end();
+       //- End.
+       void end();
 };
 
 

@@ -593,8 +593,8 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
         deltaAzimuth.append(0.0);
 
         // Define the size of the angle of attack lists and set to zero.
-        bladePointAlpha.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
-        towerPointAlpha.append(List<scalar>(numTowerPoints[i],0.0));
+        bladePointAlpha.append(List<List<scalar> >(numBl[i], List<scalar>(numBladeSamplePoints[i],0.0)));
+        towerPointAlpha.append(List<scalar>(numTowerSamplePoints[i],0.0));
 
         // Define the size of the wind speed magnitude lists and set to zero.
         bladePointVmag.append(List<List<scalar> >(numBl[i], List<scalar>(numBladeSamplePoints[i],0.0)));
@@ -1561,8 +1561,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::getPositions()
      //Info << "bladePoint1 = " << bladePoint1 << endl;
      //Info << "bladePoint1Old = " << bladePoint1Old << endl;
 
-       scalar tmpCosDA = Foam::max(-1.0, Foam::min( (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)),1) );
-       scalar deltaAzimuth = Foam::acos(tmpCosDA);
+       scalar deltaAzimuth = Foam::acos(Foam::max(-1.0, Foam::min( (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)),1.0)));
 
      //Info << "deltaAzimuth = " << deltaAzimuth / degRad << endl;
 
@@ -3408,7 +3407,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::update()
         // Update the turbine state.
         if (p < numTurbines)
         {
-	  Pout <<  "nFASTSubSteps[" << p << "] = " << nFASTSubSteps[p] << endl ;
+	  //Pout <<  "nFASTSubSteps[" << p << "] = " << nFASTSubSteps[p] << endl ;
             for (int n = 0; n < nFASTSubSteps[p]; n++)
             {
                 FAST->step();
