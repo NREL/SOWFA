@@ -168,6 +168,7 @@ void Foam::vtkStructuredSetWriter<Type>::write
 
 
     // Header of the file.
+    os.precision(3);
     os     << "# vtk DataFile Version 3.0" << nl
            << points.name() << nl
            << "ASCII" << nl

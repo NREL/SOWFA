@@ -592,13 +592,13 @@ void horizontalAxisWindTurbinesALMfastv8::initializeArrays()
         deltaAzimuth.append(0.0);
 
         // Define the size of the angle of attack lists and set to zero.
-        bladePointAlpha.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
+        bladePointAlpha.append(List<List<scalar> >(numBl[i], List<scalar>(numBladeSamplePoints[i],0.0)));
         towerPointAlpha.append(List<scalar>(numTowerPoints[i],0.0));
 
         // Define the size of the wind speed magnitude lists and set to zero.
-        bladePointVmag.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
-        towerPointVmag.append(List<scalar>(numTowerPoints[i],0.0));
-        nacellePointVmag.append(List<scalar>(numNacellePoints[i],0.0));
+        bladePointVmag.append(List<List<scalar> >(numBl[i], List<scalar>(numBladeSamplePoints[i],0.0)));
+        towerPointVmag.append(List<scalar>(numTowerSamplePoints[i],0.0));
+        nacellePointVmag.append(List<scalar>(numNacelleSamplePoints[i],0.0));
 
         // Define the size of the coefficient of bladePointLift lists and set to zero.
         bladePointCl.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
@@ -659,9 +659,9 @@ void horizontalAxisWindTurbinesALMfastv8::initializeArrays()
         generatorPower.append(0.0);
 
         // Define the size of the cell-containing-actuator-point-sampling ID list and set to -1.
-        bladeMinDisCellID.append(List<List<label> >(numBl[i], List<label>(numBladePoints[i],-1)));
+        bladeMinDisCellID.append(List<List<label> >(numBl[i], List<label>(numBladeSamplePoints[i],-1)));
         nacelleMinDisCellID.append(-1);
-        towerMinDisCellID.append(List<label>(numTowerPoints[i],-1));
+        towerMinDisCellID.append(List<label>(numTowerSamplePoints[i],-1));
 
         DynamicList<label> influenceCellsI;
         bladeInfluenceCells.append(influenceCellsI);
@@ -1328,13 +1328,13 @@ void horizontalAxisWindTurbinesALMfastv8::updateRadius(int turbineNumber)
 void horizontalAxisWindTurbinesALMfastv8::getPositions()
 {
    // Local point location vector of doubles for communication with FAST.
-   std::vector<double> pointLocation(3);
+   std::vector<double> pointLocation(3,0.0);
 
    // Local point orientation vector of doubles for communication with FAST.
-   std::vector<double> pointOrientation(9);
+   std::vector<double> pointOrientation(9,0.0);
    
    // Local main shaft unit vector vector of doubles for communication with FAST.
-   std::vector<double> shaftOrientation(3);
+   std::vector<double> shaftOrientation(3,0.0);
  
    // Get the total number of velocity sampling points for this processor's turbine.
    int localNumSamplePoints = 0;
@@ -1387,7 +1387,7 @@ void horizontalAxisWindTurbinesALMfastv8::getPositions()
       mainShaftOrientation[i] = vector::zero;
       if (p == i) 
       {
-	FAST->getHubShftDir(shaftOrientation, p);
+	FAST->getHubShftDir(shaftOrientation, i);
          mainShaftOrientation[i].x() = shaftOrientation[0];
          mainShaftOrientation[i].y() = shaftOrientation[1];
          mainShaftOrientation[i].z() = shaftOrientation[2];
@@ -1558,9 +1558,11 @@ void horizontalAxisWindTurbinesALMfastv8::getPositions()
        bladePoint1 /= mag(bladePoint1);
 
      //Info << "bladePoint1 = " << bladePoint1 << endl;
-     //Info << "bladePoint1Old = " << bladePoint1Old << endl; 
-	   
-      scalar deltaAzimuth = Foam::acos(Foam::max(-1.0, Foam::min( (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)),1.0)));
+
+     //Info << "bladePoint1Old = " << bladePoint1Old << endl;
+
+       scalar deltaAzimuth = Foam::acos(Foam::max(-1.0, Foam::min( (bladePoint1 & bladePoint1Old) / (mag(bladePoint1) * mag(bladePoint1Old)),1.0)));
+
      //Info << "deltaAzimuth = " << deltaAzimuth / degRad << endl;
 
      //Info << "dt = " << dt << endl;
@@ -1603,7 +1605,7 @@ void horizontalAxisWindTurbinesALMfastv8::sendVelocities()
         pointVelocity[1] = nacelleWindVector[i].y();
         pointVelocity[2] = nacelleWindVector[i].z();
  
-        FAST->setVelocity(pointVelocity, m, p);
+        FAST->setVelocity(pointVelocity, m, i);
 
         m++;
 
@@ -1616,7 +1618,7 @@ void horizontalAxisWindTurbinesALMfastv8::sendVelocities()
                  pointVelocity[1] = bladeWindVectorsCartesian[i][j][k].y();
                  pointVelocity[2] = bladeWindVectorsCartesian[i][j][k].z();
 
-                 FAST->setVelocity(pointVelocity, m, p);
+                 FAST->setVelocity(pointVelocity, m, i);
 
                  m++;
             }
@@ -1629,7 +1631,7 @@ void horizontalAxisWindTurbinesALMfastv8::sendVelocities()
             pointVelocity[1] = towerWindVectors[i][j].y();
             pointVelocity[2] = towerWindVectors[i][j].z();
 
-            FAST->setVelocity(pointVelocity, m, p);
+            FAST->setVelocity(pointVelocity, m, i);
 
             m++;
         }

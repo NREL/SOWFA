@@ -22,11 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    pisoFoamTurbine
+    pisoFoamTurbine.ALMAdvancedFASTv8
 
 Description
     Transient solver for incompressible flow with actuator line turbine model
-    and additions to compute mean and turbulent statistics.
+    coupled to FASTv8 and additions to compute mean and turbulent statistics.
 
     Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
 

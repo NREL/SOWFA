@@ -2,7 +2,7 @@
 #PBS -l walltime=48:00:00
 #PBS -l nodes=1:ppn=16
 #PBS -l feature=16core
-#PBS -A windFlowModeling
+#PBS -A windsim
 #PBS -q batch
 
 
@@ -10,7 +10,7 @@
 
 
 # User Input.
-OpenFOAMversion=2.4.x           # OpenFOAM version
+OpenFOAMversion=2.4.x-central   # OpenFOAM version
 
 startTime=20000                 # Start time
 precursorDir=/projects/wndpltdesign/inflow/8mps_d

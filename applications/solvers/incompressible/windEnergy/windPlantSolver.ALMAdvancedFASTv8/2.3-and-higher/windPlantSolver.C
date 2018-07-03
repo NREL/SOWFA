@@ -22,10 +22,14 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    buoyantBoussinesqPimpleFoam
+    windPlantSolver.ALMAdvancedFASTv8
 
 Description
-    Transient solver for buoyant, turbulent flow of incompressible fluids
+    Transient solver for incompressible, buoyant, turbulent flow of incompressible 
+    flow with actuator line turbine model coupled to FASTv8 and additions to 
+    compute mean and turbulent statistics.
+
+    Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
 
     Uses the Boussinesq approximation:
     \f[
