@@ -130,13 +130,20 @@ SOWFA:
    2   The SOWFA repository includes a .bash_profile example file with a
        function to load the environment variables for your version of OpenFOAM
        and SOWFA.  Please adapt this and use it as necessary and get the 
-       environment variables properly loaded.
+       environment variables properly loaded.  One point is that the variable
+       WM_PROJECT_USER_DIR will be where SOWFA gets compiled.  For example,
+       WM_PROJECT_USER_DIR might get set to SOWFA-2.4.x.  Then you will have
+       your original SOWFA clean repository and a compilation repository
+       specific to the version of OpenFOAM you are using. (This may be helpful
+       when we make SOWFA compatible with 5.0.x or v1712 within the near
+       future).  Or, you can just set WM_PROJECT_USER_DIR to SOWFA so that
+       compilation happens in the SOWFA repository that you downloaded from
+       github.
    3.  Run ./Allwclean
    4.  Run ./Allwmake
    5.  Optionally run ./Allwclean again to clean up any extraneous files.
    6.  Make sure that no error messages appeared and that all libraries and
        applications are listed as "up to date."  
-
 
 
 
