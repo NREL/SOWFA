@@ -8,6 +8,7 @@ if [ $version -le 2 ] || [ [ $version -eq 2 ] && [ $variant -le 4 ] ]
 then
    echo "Building with OpenFOAM-"$WM_PROJECT_VERSION
 elif [ $version -gt 2 ] || [ [ $version -eq 2 ] && [ $variant -gt 4 ] ]
+then
    echo "WARNING: Building with a version of OpenFOAM greater than 2.4.x, which is unsupported.  This will not compile!!!"
 fi
 
