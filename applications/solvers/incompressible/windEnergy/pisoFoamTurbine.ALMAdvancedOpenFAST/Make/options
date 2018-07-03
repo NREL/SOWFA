@@ -1,1 +1,58 @@
-../2.3-and-higher/options
+sinclude $(GENERAL_RULES)/mplib$(WM_MPLIB)
+sinclude $(RULES)/mplib$(WM_MPLIB)
+
+EXE_INC = \
+    -I$(LIB_SRC)/turbulenceModels/incompressible/turbulenceModel \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/fvOptions/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/turbineModels/turbineModelsOpenFAST/lnInclude \
+    $(PFLAGS) \
+    $(PINC) \
+    -I$(OPENFAST_DIR)/include \
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lincompressibleTransportModels \
+    -lincompressibleTurbulenceModel \
+    -lincompressibleRASModels \
+    -lincompressibleLESModels \
+    -luserTurbineModelsOpenFAST \
+    -lfiniteVolume \
+    -lmeshTools \
+    -lfvOptions \
+    -lsampling \
+    -lgfortran \
+    -L$(OPENFAST_DIR)/lib \
+    -laerodyn14lib \
+    -laerodynlib \
+    -lbeamdynlib \
+    -lelastodynlib \
+    -lextptfm_mckflib \
+    -lfeamlib \
+    -lfoamfastlib \
+    -lhydrodynlib \
+    -licedynlib \
+    -licefloelib \
+    -lifwlib \
+    -lmaplib \
+    -lmapcpplib \
+    -lmoordynlib \
+    -lnwtclibs \
+    -lopenfastcpplib \
+    -lopenfastlib \
+    -lopenfast_postlib \
+    -lopenfast_prelib \
+    -lopenfoamtypeslib \
+    -lorcaflexlib \
+    -lscfastlib \
+    -lsctypeslib \
+    -lservodynlib \
+    -lsubdynlib \
+    $(BLASLIB) \
+    -L$(HDF5_DIR)/lib/ \
+    -lhdf5_hl \
+    -lhdf5
