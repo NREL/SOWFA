@@ -36,7 +36,7 @@ SC_zeromq(runTime_.value(), zeromqInfoToSC, zeromqInfoFromSC, sizeInfoFromSSC );
 // Print the applied control settings
 for(int i=0; i < numTurbines; i++){
 	for(int j=0; j<nOutputsFromSSC;j++){
-		printf("SSC: Turbine[%d], Updating control variables. Setpoint[%d]: %f.\n",i,j,zeromqInfoFromSC[i*numTurbines+j]);
+		printf("SSC: Turbine[%d], Updating control variables. Setpoint[%d]: %f.\n",i,j,zeromqInfoFromSC[i*nOutputsFromSSC+j]);
 	}
 }
 
