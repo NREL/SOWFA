@@ -22,10 +22,14 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    buoyantBoussinesqPimpleFoam
+    windPlantSolver.ALMAdvancedOpenFAST
 
 Description
-    Transient solver for buoyant, turbulent flow of incompressible fluids
+    Transient solver for incompressible, buoyant, turbulent flow of incompressible 
+    flow with actuator line turbine model coupled to OpenFAST and additions to 
+    compute mean and turbulent statistics.
+
+    Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
 
     Uses the Boussinesq approximation:
     \f[
@@ -53,9 +57,10 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "wallDist.H"
-#include "interpolateXY.H"
 #include "interpolateSplineXY.H"
-
+#include "interpolateXY.H"
+#include "interpolate2D.H"
+#include "horizontalAxisWindTurbinesALMOpenFAST.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -68,16 +73,17 @@ int main(int argc, char *argv[])
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createDivSchemeBlendingField.H"
-    #include "createGradP.H"
+  //#include "createGradP.H"
+    #include "createSourceTerms.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
-    //#include "findVerticalCellLevels.H"
-    //#include "findVerticalFaceLevels.H"
-    #include "findWindHeight.H"
-    //#include "openCellStatisticsFiles.H"
-    //#include "openFaceStatisticsFiles.H"
-    //#include "openABLStatisticsFiles.H"
+  //#include "findVerticalCellLevels.H"
+  //#include "findVerticalFaceLevels.H"
+  //#include "findWindHeight.H"
+  //#include "openCellStatisticsFiles.H"
+  //#include "openFaceStatisticsFiles.H"
+  //#include "openABLStatisticsFiles.H"
     #include "createAverageFields.H"
     #include "createVorticityQFields.H"
     #include "computeDivergence.H"
@@ -110,6 +116,9 @@ int main(int argc, char *argv[])
         #include "setDeltaT.H"
         #include "updateDivSchemeBlendingField.H"
 
+	// --- Update the turbine array
+	turbines.update();
+
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
@@ -126,8 +135,11 @@ int main(int argc, char *argv[])
             // --- Compute the velocity flux divergence
             #include "computeDivergence.H"
 
-            // --- Update the driving pressure gradient
-            #include "correctGradP.H"
+//          // --- Update the driving pressure gradient
+//          #include "correctGradP.H"
+
+            // --- Update the source terms
+            #include "correctSourceTerms.H"
 
             // --- Update the turbulence fields
             if (pimple.turbCorr())
@@ -154,12 +166,14 @@ int main(int argc, char *argv[])
 //      #include "statisticsABL.H"
 
         runTime.write();
-        #include "writeGradP.H"
+//      #include "writeGradP.H"
 
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"
              << nl << endl;
     }
+
+    turbines.end();
 
     Info << "End" << endl;
 

@@ -22,11 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    pisoFoamTurbine
+    pisoFoamTurbine.ALMAdvancedOpenFAST
 
 Description
     Transient solver for incompressible flow with actuator line turbine model
-    and additions to compute mean and turbulent statistics.
+    coupled to OpenFAST and additions to compute mean and turbulent statistics.
 
     Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
 
@@ -35,7 +35,7 @@ Description
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
 #include "turbulenceModel.H"
-#include "horizontalAxisWindTurbinesALM.H"
+#include "horizontalAxisWindTurbinesALMOpenFAST.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -61,6 +61,9 @@ int main(int argc, char *argv[])
         #include "readPISOControls.H"
         #include "CourantNo.H"
         #include "updateDivSchemeBlendingField.H"
+
+        // Update the turbine.
+        turbines.update();
 
         // PISO algorithm
         {
@@ -140,9 +143,6 @@ int main(int argc, char *argv[])
 
         // Compute the turbulence model variables.
         turbulence->correct();
-
-        // Update the turbine.
-        turbines.update();
 
         // Compute the mean fields.
         #include "computeMeanFields.H"

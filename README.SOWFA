@@ -10,6 +10,11 @@ NWTC Design Codes DATA USE DISCLAIMER AGREEMENT that can be found at
 
 
 
+Required OpenFOAM Version:  2.3.x or 2.4.x
+Optional OpenFAST Version:  dev
+
+
+
 
 Solvers and Codes Included:
 A.  Solvers
@@ -96,40 +101,49 @@ C.  Libraries
     6.  fileFormats - Adds a structured VTK file format that cuts down
         on file size by greatly eliminating the write out of x,y,z points.
     7.  sampling - Adds a sampling set that defines an annulus.  Useful
-        for sampling annuli in rotor plane to see blade-local flow.
+        for sampling annuli in rotor plane to see blade-local flow.  Also
+        adds a sampling set that does a structured array in a more
+        straightforward way than the standard OpenFOAM structured array.
 
 
 
 
 Installation/Compiling:
-The included codes work only with the OpenFOAM CFD Toolbox.  OpenFOAM has
-not been distributed with the SOWFA package.  Please visit www.openfoam.com
-to download and install OpenFOAM.  This release of SOWFA is known to work
-with up to OpenFOAM-2.4.x.  Making SOWFA work with versions 3.0 and higher
-may come in the near future.
+OpenFOAM:
+   The included codes work only with the OpenFOAM CFD Toolbox.  The SOWFA
+   repository does not include OpenFOAM.  Please visit 
+   github.com/OpenFOAM/OpenFOAM-2.4.x and github.com/OpenFOAM/ThirdParty-2.4.x
+   to download and install OpenFOAM.  This release of SOWFA is meant to work
+   with up to OpenFOAM-2.4.x.  Making SOWFA work with versions 3.0 and higher
+   may come in the near future.  
 
+OpenFAST: 
+   If you want to use the optional OpenFAST coupling (OpenFAST is NREL wind 
+   turbine aero/structural/system dynamics tool), you will also need to 
+   download and install this from github.com/OpenFAST/openfast making sure
+   to use the dev branch.
 
-Once OpenFOAM is installed and SOWFA downloaded, please follow these steps:
-1.  Put the SOWFA directory where you want it.  This directory will remain
-    your "clean" SOWFA directory.
-2.  From within the SOWFA directory, open the "makeNewWorkingDir" script.
-    This script creates your "working" SOWFA directory in which files are 
-    compiled.  By default, when you run "makeNewWorkingDir", it creates
-    a copy of the clean SOWFA directory in your OpenFOAM user directory.
-    All files withing the working SOWFA directory are soft linked back
-    to the clean directory.  In this way, if you have multiple versions
-    of OpenFOAM that you commonly use, you will have multiple SOWFA
-    working directories that all link back to the clean one.  If you run
-    git pull in the clean directory to get updates, these updates are 
-    seen in all of your working directories.  Modify the "makeNewWorkingDir"
-    if required.
-3.  Run ./makeNewWorkingDir.
-4.  Change directory to the working SOWFA directory created by "makeNewWorkingDir".
-5.  Run ./Allwclean.
-6.  Run ./Allwmake.
-7.  Make sure that no error messages appeared and that all libraries
-    and applications are listed as "up to date."
-
+SOWFA:
+   Once OpenFOAM and OpenFAST (optional) are installed and SOWFA downloaded, 
+   please follow these steps:
+   1.  Put the SOWFA directory where you want it using git clone.
+   2   The SOWFA repository includes a .bash_profile example file with a
+       function to load the environment variables for your version of OpenFOAM
+       and SOWFA.  Please adapt this and use it as necessary and get the 
+       environment variables properly loaded.  One point is that the variable
+       WM_PROJECT_USER_DIR will be where SOWFA gets compiled.  For example,
+       WM_PROJECT_USER_DIR might get set to SOWFA-2.4.x.  Then you will have
+       your original SOWFA clean repository and a compilation repository
+       specific to the version of OpenFOAM you are using. (This may be helpful
+       when we make SOWFA compatible with 5.0.x or v1712 within the near
+       future).  Or, you can just set WM_PROJECT_USER_DIR to SOWFA so that
+       compilation happens in the SOWFA repository that you downloaded from
+       github.
+   3.  Run ./Allwclean
+   4.  Run ./Allwmake
+   5.  Optionally run ./Allwclean again to clean up any extraneous files.
+   6.  Make sure that no error messages appeared and that all libraries and
+       applications are listed as "up to date."  
 
 
 
@@ -181,4 +195,3 @@ These are basic tutorials meant to familiarize the user with the
 general file structure of a case and the various input files.  They
 can be run on a small amount of processors with coarse meshes, but if 
 that is done, they will generate poor results. 
-

@@ -1,1 +1,0 @@
-include $(setWriters)/vtkStructured/vtkStructuredSetWriterRunTime.dep
