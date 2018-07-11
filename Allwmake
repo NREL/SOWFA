@@ -21,6 +21,12 @@ cd ../../../../
 
 
 # Actuator turbine models.
+if [ -z ${COMPILEZEROMQ+x} ] # ZeroMQ SSC for the ADM code
+then
+    echo "COMPILEZEROMQ is not set. Not compiling ZeroMQ SSC in ADM."
+else
+	echo "COMPILEZEROMQ is set to '${COMPILEZEROMQ}'. Compiling with ZeroMQ SSC if COMPILEZEROMQ==1 or without otherwise."
+fi
 cd src/turbineModels/turbineModelsStandard
 wmake libso
 cd ../../../
@@ -112,7 +118,7 @@ else
     fi	
 fi
 
-# The wind plant solver with the actuator disk.
+
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
 wmake
 cd ../../../../../
@@ -145,6 +151,7 @@ else
 	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
     fi	
 fi
+
 
 
 # The basic non-buoyant solver with the actuator disk.
