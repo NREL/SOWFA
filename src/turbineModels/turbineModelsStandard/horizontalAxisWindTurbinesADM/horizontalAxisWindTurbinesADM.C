@@ -1137,7 +1137,12 @@ void horizontalAxisWindTurbinesADM::callSuperController()
             {
                 #include "controllers/superControllers/zeromqSSC.H"
             }	
-        #endif
+        #else
+            if (sscControllerType == "zeromqSSC")
+            {
+                printf("\n \n ERROR: Please recompile SOWFA with the correct zeroMQ libraries to use the zeromqSSC controller functionality. \n\n");
+            }	
+	    #endif
 }
 
 
