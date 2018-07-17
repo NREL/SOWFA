@@ -1,2 +1,0 @@
-SOURCE = \
-$(setWriters)/vtkStructured/vtkStructuredSetWriterRunTime.C

@@ -2,7 +2,7 @@
 #PBS -l walltime=48:00:00
 #PBS -l nodes=8:ppn=24
 #PBS -l feature=24core
-#PBS -A windFlowModeling
+#PBS -A windsim
 #PBS -q batch
 
 cd $PBS_O_WORKDIR
@@ -11,11 +11,11 @@ cd $PBS_O_WORKDIR
 
 
 # User Input.
-OpenFOAMversion=2.4.x           # OpenFOAM version
+OpenFOAMversion=2.4.x-central   # OpenFOAM version
 startTime=0                     # Start time
 cores=180                       # Enter the number of cores you will preprocess on.
 runNumber=1                     # Enter the run number (useful for keeping track of restarts).
-solver=windPlantSolver.ADM.     # Enter the name of the flow solver.
+solver=windPlantSolver.ADM      # Enter the name of the flow solver.
 
 
 

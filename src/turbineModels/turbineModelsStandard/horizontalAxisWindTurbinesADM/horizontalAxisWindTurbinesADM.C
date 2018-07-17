@@ -33,11 +33,25 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// General inclusions
 #include "horizontalAxisWindTurbinesADM.H"
 #include "interpolateXY.H"
-#include "controllers/superControllers/SCSimple.C" //_SSC_ inclusion
+
+// SSC inclusions without dependencies
+#include "controllers/superControllers/SCSimple.C"     //_SSC_ inclusion
 #include "controllers/superControllers/timeTableSSC.C" //_SSC_ inclusion
-#include "controllers/superControllers/zeromqSSC.C" //_SSC_ inclusion
+
+// SSC inclusions with dependencies
+#define DO_EXPAND(VAL)  VAL ## 1
+#define EXPAND(VAL)     DO_EXPAND(VAL)
+#if !defined(COMPILEZEROMQ) || (EXPAND(COMPILEZEROMQ) == 1) // (Re)define if COMPILEZEROMQ undefined or empty string
+    #undef COMPILEZEROMQ
+    #define COMPILEZEROMQ 0 // Set default option to 0, meaning 'do not compile ZeroMQ interface'
+#endif
+
+#if COMPILEZEROMQ == 1 // External definition for gcc compiler: '-D COMPILEZEROMQ=1'
+    #include "controllers/superControllers/zeromqSSC.C" //_SSC_ inclusion
+#endif
 
 namespace Foam
 {
@@ -1118,10 +1132,17 @@ void horizontalAxisWindTurbinesADM::callSuperController()
         	#include "controllers/superControllers/timeTableSSC.H"
         }		
 
-        if (sscControllerType == "zeromqSSC")
-        {
-        	#include "controllers/superControllers/zeromqSSC.H"
-        }			
+        #if COMPILEZEROMQ == 1
+            if (sscControllerType == "zeromqSSC")
+            {
+                #include "controllers/superControllers/zeromqSSC.H"
+            }	
+        #else
+            if (sscControllerType == "zeromqSSC")
+            {
+                printf("\n \n ERROR: Please recompile SOWFA with the correct zeroMQ libraries to use the zeromqSSC controller functionality. \n\n");
+            }	
+	    #endif
 }
 
 

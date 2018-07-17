@@ -1,78 +1,52 @@
 #!/bin/bash
 
-# Do some logic to set things up for the proper version.
-echo "Building with OpenFOAM-"$WM_PROJECT_VERSION
-
+# Look at the version number of OpenFOAM to see if it is supported with this version of SOWFA.
 version=${WM_PROJECT_VERSION:0:1}
 variant=${WM_PROJECT_VERSION:2:1}
 
-dir20=2.0-and-lower
-dir21=2.1-2.2
-dir23=2.3-and-higher
-
-dir=$dir20
-if [ $version -lt 2 ]
+if [ $version -le 2 ] || ([ $version -eq 2 ] && [ $variant -le 4 ])
 then
-   dir=$dir20
-   dirrm1=$dir21
-   dirrm2=$dir23
-elif [ $version -gt 2 ]
+   echo "Building with OpenFOAM-"$WM_PROJECT_VERSION
+elif [ $version -gt 2 ] || ([ $version -eq 2 ] && [ $variant -gt 4 ])
 then
-   dir=$dir23
-   dirrm1=$dir20
-   dirrm2=$dir21
-elif [ $version -eq 2 ] && [ $variant -le 0 ]
-then
-   dir=$dir20
-   dirrm1=$dir21
-   dirrm2=$dir23
-elif [ $version -eq 2 ] && [ $variant -ge 1 ] && [ $variant -le 2 ]
-then
-   dir=$dir21
-   dirrm1=$dir20
-   dirrm2=$dir23
-elif [ $version -eq 2 ] && [ $variant -ge 3 ]
-then
-   dir=$dir23
-   dirrm1=$dir20
-   dirrm2=$dir21
+   echo "WARNING: Building with a version of OpenFOAM greater than 2.4.x, which is unsupported.  This will not compile!!!"
 fi
+
 
 
 # Turbulence models.
 cd src/turbulenceModels/incompressible/LES/
-
-cd GenEddyViscABL
-rm GenEddyViscABL.H
-rm GenEddyViscABL.C
-ln -s $dir/GenEddyViscABL.H ./
-ln -s $dir/GenEddyViscABL.C ./
-rm -rf $dirrm1 $dirrm2
-cd ../
-
-cd KosovicOneEqNBA
-rm KosovicOneEqNBA.H
-rm KosovicOneEqNBA.C
-ln -s $dir/KosovicOneEqNBA.H ./
-ln -s $dir/KosovicOneEqNBA.C ./
-rm -rf $dirrm1 $dirrm2
-cd ../
-
 wmake libso
 cd ../../../../
 
 
 # Actuator turbine models.
+if [ -z ${COMPILEZEROMQ+x} ] # ZeroMQ SSC for the ADM code
+then
+    echo "COMPILEZEROMQ is not set. Not compiling ZeroMQ SSC in ADM."
+else
+	echo "COMPILEZEROMQ is set to '${COMPILEZEROMQ}'. Compiling with ZeroMQ SSC if COMPILEZEROMQ==1 or without otherwise."
+fi
 cd src/turbineModels/turbineModelsStandard
 wmake libso
 cd ../../../
 
 
-# FAST 8 coupled turbine models.
-cd src/turbineModels/turbineModelsFASTv8
-wmake libso
-cd ../../../
-
+# OpenFAST coupled turbine models.
+if [ -z ${OPENFAST_DIR+x} ]
+then
+    echo "OPENFAST_DIR is not set. Not compiling OpenFAST interface."
+else
+    if [ -d ${OPENFAST_DIR} ] 
+    then
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST interface."
+	cd src/turbineModels/turbineModelsOpenFAST
+	wmake libso
+	cd ../../../
+    else
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST interface."
+    fi	
+fi
 
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
@@ -80,7 +54,7 @@ wmake libso
 cd ../../
 
 
-# Custom file formats
+# Custom file formats (like structured VTK).
 cd src/fileFormats
 wmake libso
 cd ../../
@@ -106,139 +80,93 @@ cd ../../../
 
 # The atmospheric LES solver for precursors.
 cd applications/solvers/incompressible/windEnergy/ABLSolver
-rm pEqn.H
-rm ABLSolver.C
-rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/ABLSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
 # The atmospheric LES solver for terrain cases.
 cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
-rm pEqn.H
-rm ABLTerrainSolver.C
-rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/ABLTerrainSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
 # The wind plant solver with the standard actuator line.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALM
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
 # The wind plant solver with the advanced actuator line.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvanced
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
-# The wind plant solver with the FAST 8 coupled advanced actuator line.
-cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
-wmake
-cd ../../../../../
+if [ -z ${OPENFAST_DIR+x} ]
+then
+    echo "OPENFAST_DIR is not set. Not compiling OpenFAST solver."
+else
+    if [ -d ${OPENFAST_DIR} ] 
+    then
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST windPlant solver."
+        # The wind plant solver with the OpenFAST coupled advanced actuator line.
+	cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedOpenFAST
+	wmake
+	cd ../../../../../
+    else
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
+    fi	
+fi
 
 
-# The wind plant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
-rm pEqn.H
-rm windPlantSolver.C
-rm Make/options
-ln -s $dir/pEqn.H ./
-ln -s $dir/windPlantSolver.C ./
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
 # The basic non-buoyant solver with the standard actuator line.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALM
-rm pisoFoamTurbine.C
-rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
 # The basic non-buoyant solver with the advanced actuator line.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvanced
-rm pisoFoamTurbine.C
-rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
-# The basic non-buoyant solver with the FAST 8 coupled advanced actuator line.
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
-rm pisoFoamTurbine.C
-rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
-wmake
-cd ../../../../../
+if [ -z ${OPENFAST_DIR+x} ]
+then
+    echo "OPENFAST_DIR is not set. Not compiling OpenFAST solver."
+else
+    if [ -d ${OPENFAST_DIR} ] 
+    then
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST pisoFoam solver."
+        # The basic non-buoyant solver with the OpenFAST coupled advanced actuator line.
+	cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedOpenFAST
+	wmake
+	cd ../../../../../
+    else
+	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
+    fi	
+fi
+
 
 
 # The basic non-buoyant solver with the actuator disk.
 cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
-rm pisoFoamTurbine.C
-rm Make/options
-ln -s $dir/pisoFoamTurbine.C
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
 # A simple solver shell meant for testing wind turbine models.
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALM
-rm Make/options
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
 
 
 # A simple solver shell meant for testing wind turbine models.
 cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced
-rm Make/options
-ln -s ../$dir/options ./Make
-rm -rf $dirrm1 $dirrm2
 wmake
 cd ../../../../../
