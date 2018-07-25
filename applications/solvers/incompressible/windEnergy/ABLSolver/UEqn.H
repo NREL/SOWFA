@@ -1,6 +1,7 @@
     // Solve the momentum equation
 
     #include "computeCoriolisForce.H"
+    #include "computeSpongeForce.H"
 
     fvVectorMatrix UEqn
     (
@@ -9,6 +10,7 @@
       + turbulence->divDevReff(U)               // momentum flux
       + fvc::div(Rwall)
       - fCoriolis                               // Coriolis force
+      - fSponge                                 // Sponge layer damping
       - SourceU                                 // mesoscale source terms
     );
 
