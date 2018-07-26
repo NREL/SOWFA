@@ -94,6 +94,56 @@
         dimensionedScalar("TRMS",dimensionSet(0, 0, 0, 1, 0, 0, 0),0.0)
     );
 
+
+    // Create & read in the time-averaged velocity*velocity tensor field: for uuPrime2 calculations
+    Info<< "Creating the time-averaged velocity squared field, UUAvg..." << endl;
+    volSymmTensorField UUAvg
+    (
+        IOobject
+        (
+            "UUavg",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedSymmTensor("UUavg",dimensionSet(0, 2, -2, 0, 0, 0, 0),symmTensor::zero)
+    );
+
+    // Create and read in initial time-averaged temperature*velocity field: for uTPrime2 calculations
+    Info << "Creating time-averaged velocity*temperature field, UTAvg..." << endl;
+    volVectorField UTAvg
+    (
+        IOobject
+        (
+            "UTAvg",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedVector("UTAvg",dimensionSet(0, 1, -1, 1, 0, 0, 0),vector::zero)
+    );
+
+    // Create and read in the time-averaged temperature*temperature field: for TTPrime2 calculations
+    Info << "Creating time-averaged temperature*temperature field, TTAvg..." << endl;
+    volScalarField TTAvg
+    (
+        IOobject
+        (
+            "TTAvg",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("TTAvg",dimensionSet(0, 0, 0, 2, 0, 0, 0),0.0)
+    );
+
+
     // Create the time-averaged Reynolds stress tensor field.
     Info<< "Creating the time-averaged Reynolds stress field, uuPrime2..." << endl;
     volSymmTensorField uuPrime2
@@ -251,7 +301,7 @@
         ),
         turbulence->k()
     );
- 
+
     Info<< "Creating the mean SGS turbulent kinetic energy dissipation field, kSGSMean..." << endl;
     volScalarField epsilonSGSmean
     (
@@ -270,5 +320,6 @@
 
     // Declare total averaging times for average fields and correlation fields.
     scalar avgTimeSum = max(runTime.value() - avgStartTime, 0.0);
-    scalar corrTimeSum = max(runTime.value() - corrStartTime, 0.0);
-    Info << "avgTimeSum = " << avgTimeSum << tab << "corrTimeSum = " << corrTimeSum << endl;
+    scalar corrTimeSum = max(runTime.value() - corrStartTime, 0.0); // corrStartTime and corrTimeSum no longer used
+    //Info << "avgTimeSum = " << avgTimeSum << tab << "corrTimeSum = " << corrTimeSum << endl;
+    Info << "avgTimeSum = " << avgTimeSum << endl;
