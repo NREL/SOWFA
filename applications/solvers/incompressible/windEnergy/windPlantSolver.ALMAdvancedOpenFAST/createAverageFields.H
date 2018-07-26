@@ -101,14 +101,14 @@
     (
         IOobject
         (
-            "UUavg",
+            "UUAvg",
             runTime.timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensionedSymmTensor("UUavg",dimensionSet(0, 2, -2, 0, 0, 0, 0),symmTensor::zero)
+        dimensionedSymmTensor("UUAvg",dimensionSet(0, 2, -2, 0, 0, 0, 0),symmTensor::zero)
     );
 
     // Create and read in initial time-averaged temperature*velocity field: for uTPrime2 calculations
