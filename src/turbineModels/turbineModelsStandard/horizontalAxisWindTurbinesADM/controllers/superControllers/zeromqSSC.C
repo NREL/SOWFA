@@ -37,19 +37,18 @@ void SC_zeromq(float timeStep, std::vector<float> infoToSC, std::vector<float> &
 	  ssToSC << " " << infoToSC[i];
 	}
 	strToSSC = ssToSC.str();
-	std::cout << "infoToSC: " << strToSSC << "\n";
+	std::cout << "infoToSC: [" << strToSSC << "] \n";
 	
 	// Send and receive from SSC through zeroMQ
 	zmq_send (requester, strToSSC.c_str(), 9900, 0);
     zmq_recv (requester, charFromSSC, 9900, 0);
 	
 	// Format received char/string to std::vector
-	std::cout << "Received string: [" << charFromSSC << "].\n";
-    std::cout << "Reformatting string into std::vector...\n";
+	std::cout << "infoFromSC: [" << charFromSSC << "] \n";
 	std::stringstream ss(charFromSSC);
 	for(int i=0;i<sizeInfoFromSSC;i++){
 	  ss >> infoFromSC[i];
-	  printf("infoFromSC[%d] = %f \n",i,infoFromSC[i]);
+	  //printf("infoFromSC[%d] = %f \n",i,infoFromSC[i]);
 	}
 }
 
