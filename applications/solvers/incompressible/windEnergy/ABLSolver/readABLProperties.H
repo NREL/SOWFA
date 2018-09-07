@@ -198,6 +198,32 @@
 
 
 
+
+    // PROPERTIES CONCERNING THE WAY IN WHICH PERTURBATION PRESSURE IS DEFINED
+
+       // Options for defining the perturbation pressure:
+       // - noSplit:   do not split out hydrostatic part; pressure is then perturbation pressure.
+       // - rho0Split: split out the hydrostatic part; define hydrostatic as rho_0 * g * z.
+       // - rhokSplit: split out the hydrostatic part; define hydrostatic as rho_k * g * z.
+       word perturbationPressureType(ABLProperties.lookupOrDefault<word>("perturbationPressureType","rhokSplit"));
+       word perturbationOutput;
+       if (perturbationPressureType == "noSplit")
+       {
+           perturbationOutput = "nothing";
+       }
+       else if (perturbationPressureType == "rho0Split")
+       {
+           perturbationOutput = "rho_0 * g * z";
+       }
+       else if (perturbationPressureType == "rhokSplit")
+       {
+           perturbationOutput = "rho_k * g * z";
+       }
+       Info << "Defining background hydrostatic pressure to be " << perturbationOutput << endl;
+
+
+
+
     // PROPERTIES CONCERNING GATHERING STATISTICS
 
        // Gather/write statistics?
