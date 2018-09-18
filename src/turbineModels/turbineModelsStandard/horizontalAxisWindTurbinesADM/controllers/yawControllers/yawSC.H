@@ -2,8 +2,14 @@
 //For each turbine, yaw 1 deg/s in direction of error, 
 // if error is less than this increment do nothing
 
+// SSC: Convert superInfoFromSSC yaw angles (absolute, inertial frame) from degrees to radians
+float setpointYaw, yawError, yawErrorAbs;
+setpointYaw = superInfoFromSSC[i*nOutputsFromSSC];
+setpointYaw = compassToStandard(setpointYaw); // Rotate
+setpointYaw = setpointYaw * degRad; // Degrees to radians
+	
 //Compute the yaw error
-yawError = superInfoFromSSC[i * nOutputsFromSSC] - nacYaw[i];
+yawError = setpointYaw - nacYaw[i];
 
 //Wrap the yaw to be +/- 180
 if (yawError < -1.0 * Foam::constant::mathematical::pi )

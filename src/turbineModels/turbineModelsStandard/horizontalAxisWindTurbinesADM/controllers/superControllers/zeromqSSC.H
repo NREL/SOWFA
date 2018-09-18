@@ -24,7 +24,6 @@ if (isFirstCall == 1){
 	isFirstCall = -1; // disable for future calls
 }
 	
-
 // Pass the SSC inputs to the local std::vector format
 for(int i = 0; i < nInputsToSSC*numTurbines; i++){
 	zeromqInfoToSC[i] = superInfoToSSC[i];
@@ -33,22 +32,10 @@ for(int i = 0; i < nInputsToSSC*numTurbines; i++){
 // Call the SC from external library
 SC_zeromq(runTime_.value(), zeromqInfoToSC, zeromqInfoFromSC, sizeInfoFromSSC );
 
-// Print the applied control settings
+// Copy entries to global variable and print the to-be-applied control settings
 for(int i=0; i < numTurbines; i++){
 	for(int j=0; j<nOutputsFromSSC;j++){
-		printf("SSC: Turbine[%d], Updating control variables. Setpoint[%d]: %f.\n",i,j,zeromqInfoFromSC[i*nOutputsFromSSC+j]);
+		superInfoFromSSC[i*nOutputsFromSSC+j] = zeromqInfoFromSC[i*nOutputsFromSSC+j]; // Extract from the SSC output
+		printf("SSC: Turbine[%d], Received control variables. Setpoint[%d]: %f.\n",i,j,zeromqInfoFromSC[i*nOutputsFromSSC+j]);
 	}
-}
-
-// Format the SSC outputs to the appropriate dimensions and units
-for(int i = 0; i < numTurbines; i++)
-{
-	// In this example, the first entries are the yaw angles
-	superInfoFromSSC[i*nOutputsFromSSC] = zeromqInfoFromSC[i*nOutputsFromSSC]; // Extract from the SSC output
-    superInfoFromSSC[i*nOutputsFromSSC] = compassToStandard(superInfoFromSSC[i*nOutputsFromSSC]); // Rotate
-    superInfoFromSSC[i*nOutputsFromSSC] = superInfoFromSSC[i*nOutputsFromSSC] * degRad; // Degrees to radians
-	
-	// In this example, the second entries are the min. blade pitch angles
-    superInfoFromSSC[i*nOutputsFromSSC+1] = zeromqInfoFromSC[i*nOutputsFromSSC+1]; // Extract from the SSC output
-    superInfoFromSSC[i*nOutputsFromSSC+1] = superInfoFromSSC[i*nOutputsFromSSC+1] * degRad; // Degrees to radians
 }

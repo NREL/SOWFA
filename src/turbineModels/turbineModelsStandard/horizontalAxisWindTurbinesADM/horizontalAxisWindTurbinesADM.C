@@ -979,17 +979,17 @@ void horizontalAxisWindTurbinesADM::controlGenTorque()
 
 
         // Apply a controller to update the rotor speed.
-	if (GenTorqueControllerType[j] == "none")
+		if (GenTorqueControllerType[j] == "none")
         {
             #include "controllers/genTorqueControllers/none.H"
         }
-
-	else if (GenTorqueControllerType[j] == "fiveRegion")
+	
+		else if (GenTorqueControllerType[j] == "fiveRegion")
         {
             #include "controllers/genTorqueControllers/fiveRegion.H"
-	}
+		}
 
-        else if (GenTorqueControllerType[j] == "speedTorqueTable")
+		else if (GenTorqueControllerType[j] == "speedTorqueTable")
         {
             #include "controllers/genTorqueControllers/speedTorqueTable.H"
         }
@@ -1008,22 +1008,17 @@ void horizontalAxisWindTurbinesADM::controlGenTorque()
 
 void horizontalAxisWindTurbinesADM::controlNacYaw()
 {
-    //_SSC_, need a local yaw error variable
-	float yawError, yawErrorAbs;
-
     // Proceed turbine by turbine.
     forAll(deltaNacYaw, i)
     {
         // Get the turbine type index.
         int j = turbineTypeID[i];
 
-
-        
         // Apply a controller to update the nacelle yaw position.
         if (NacYawControllerType[j] == "none")
         {
             // Do nothing.
-	    deltaNacYaw[i] = 0.0;
+            deltaNacYaw[i] = 0.0;
         }
 
         else if (NacYawControllerType[j] == "simple")
@@ -1059,37 +1054,24 @@ void horizontalAxisWindTurbinesADM::superController()
 {
 	Info << "Entering SuperController" << endl;
 
-    //Info << "(sc) superInfoLength = " << superInfoLength << endl;
-
 	//As a first step spool up the "To" data from each of the turbines
 	List<scalar> superInfoLocalIn(nInputsToSSC*numTurbines,0.0);
     List<scalar> superInfoLocalOut(nOutputsFromSSC*numTurbines,0.0);
-	//superInfoLocal = List<scalar> (superInfoLength*numTurbines,0.0);
-
-    //Info << "(sc) superInfoLocal = " << superInfoLocal << endl;
 
     for(int si = 0; si < nInputsToSSC * numTurbines; si++)
     {
     	superInfoLocalIn[si] = superInfoToSSC[si];
     }
 
-    //Info << "(sc2) superInfoLocal = " << superInfoLocal << endl;
-
     //Gather and scatter across procs
 	Pstream::gather(superInfoLocalIn,sumOp<List<scalar> >());
     Pstream::scatter(superInfoLocalIn);
-
-    //Info << "(sc3) superInfoLocal = " << superInfoLocal << endl;
 
     // Send back out
     for(int si = 0; si < nInputsToSSC *numTurbines; si++)
     {
     	superInfoToSSC[si] = superInfoLocalIn[si];
     }
-
-    //Info << "(sc4) superInfoLocal = " << superInfoLocal << endl;
-    //Info << "(sc4) superInfoToSSC = " << superInfoToSSC << endl;
-
     
     // if this is the master, call 
     if (Pstream::master())
@@ -1108,8 +1090,7 @@ void horizontalAxisWindTurbinesADM::superController()
     Pstream::gather(superInfoLocalOut,sumOp<List<scalar> >());
     Pstream::scatter(superInfoLocalOut);
 
-    // Now reassign out
-    // Send back out
+    // Now reassign out/send back out
     for(int si = 0; si < nOutputsFromSSC *numTurbines; si++)
     {
         superInfoFromSSC[si] = superInfoLocalOut[si];
@@ -1172,10 +1153,10 @@ void horizontalAxisWindTurbinesADM::controlBladePitch()
         {
             #include "controllers/bladePitchControllers/PID.H"
         }
+		
         //_SSC_: allow a pidSC controller where the minimum pitch is chosen by super controller
         else if (BladePitchControllerType[j] == "PIDSC")
         {
-        	//Info << "PIDSC Turbine " << i << endl;
             #include "controllers/bladePitchControllers/PIDSC.H"
         }
 

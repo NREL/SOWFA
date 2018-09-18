@@ -18,8 +18,12 @@
                 // Numerically take the deriviative of speed error w.r.t time.
                 scalar derivSpeedError = (speedError[i] - speedErrorLast) / dt;
 
+				// SSC: Convert superInfoFromSSC blade pitch angles from degrees to radians
+				float lbPitch = superInfoFromSSC[i*nOutputsFromSSC+1]; // Lower bound on the pitch angle
+				lbPitch = lbPitch * degRad; // Degrees to radians
+	
                 // Saturate the integrated speed error based on pitch saturation.
-                intSpeedError[i] = min(max(intSpeedError[i], superInfoFromSSC[i*nOutputsFromSSC+1]/(GK*PitchControlKI[j])), PitchMax[j]/(GK*PitchControlKI[j]));
+                intSpeedError[i] = min(max(intSpeedError[i], lbPitch/(GK*PitchControlKI[j])), PitchMax[j]/(GK*PitchControlKI[j]));
 
                 // Compute the pitch components from the proportional, integral,
                 // and derivative parts and sum them.
