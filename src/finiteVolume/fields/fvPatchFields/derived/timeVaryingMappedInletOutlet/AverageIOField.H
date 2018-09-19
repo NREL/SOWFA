@@ -21,26 +21,98 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::AverageIOField
+
+Description
+    A primitive field + average with IO.
+
+SourceFiles
+    AverageIOField.C
+
 \*---------------------------------------------------------------------------*/
 
-#ifndef timeVaryingMappedInletOutletFvPatchFields_H
-#define timeVaryingMappedInletOutletFvPatchFields_H
+#ifndef AverageIOField_H
+#define AverageIOField_H
 
-#include "timeVaryingMappedInletOutletFvPatchField.H"
-#include "fieldTypes.H"
+#include "regIOobject.H"
+#include "Field.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+/*---------------------------------------------------------------------------*\
+                        Class AverageIOField Declaration
+\*---------------------------------------------------------------------------*/
 
-makePatchTypeFieldTypedefs(timeVaryingMappedInletOutlet);
+template<class Type>
+class AverageIOField
+:
+    public regIOobject,
+    public Field<Type>
+{
+    // Private data
+
+        //- The average of the field
+        Type average_;
+
+
+public:
+
+    TypeName("AverageField");
+
+
+    // Constructors
+
+        //- Construct from IOobject
+        AverageIOField
+        (
+            const IOobject&
+        );
+
+        //- Construct from IOobject and size (does not set values)
+        AverageIOField
+        (
+            const IOobject&,
+            const label size
+        );
+
+        //- Construct from components
+        AverageIOField
+        (
+            const IOobject&,
+            const Type& average,
+            const Field<Type>&
+        );
+
+
+    // Member functions
+
+        const Type& average() const
+        {
+            return average_;
+        }
+
+        Type& average()
+        {
+            return average_;
+        }
+
+        bool writeData(Ostream& os) const;
+};
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#ifdef NoRepository
+#   include "AverageIOField.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
