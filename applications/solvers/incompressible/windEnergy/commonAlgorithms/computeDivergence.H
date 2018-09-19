@@ -9,13 +9,14 @@
     scalar maxLocalPhiContErr = max(divPhiMag).value();
     reduce(maxLocalPhiContErr, maxOp<scalar>());
     scalar avgLocalPhiContErr = divPhiMag.weightedAverage(mesh.V()).value();
-    Info << "Local Flux Continuity Error:  Min " << minLocalPhiContErr << tab
-         <<                               "Max " << maxLocalPhiContErr << tab
-         <<                     "Weighted Mean " << avgLocalPhiContErr << endl;
+    Info << "Continuity Report:" << endl;
+    Info << "   -Local Cell Continuity Error:  Min " << minLocalPhiContErr << tab
+         <<                                   "Max " << maxLocalPhiContErr << tab
+         <<                         "Weighted Mean " << avgLocalPhiContErr << endl;
 
 
     // Compute global divergence over domain boundaries and report statistics.
-    Info << "Boundary Flux Report:" << endl;
+    Info << "   -Boundary Flux:" << endl;
 
     scalar globalSumPhiBoundary = 0.0;
     scalar globalSumAreaBoundary = 0.0;
@@ -23,9 +24,6 @@
     {
         if ( !mesh.boundary()[patchi].coupled() )
         {
-
-            const fvPatchVectorField& Up = U.boundaryField()[patchi];
-
             word boundaryName = mesh.boundary()[patchi].name();
             scalar sumPhiBoundary = 0.0;
             scalar sumAreaBoundary = 0.0;
@@ -42,12 +40,9 @@
             globalSumPhiBoundary += sumPhiBoundary;
             globalSumAreaBoundary += sumAreaBoundary;
 
-            Info << "    " << boundaryName << " Flux: " << sumPhiBoundary << tab << "/ Area: " << sumAreaBoundary << endl;
+            Info << "       " << boundaryName << " Flux: " << sumPhiBoundary << tab << "/ Area: " << sumAreaBoundary << endl;
         }
     }
 
-    reduce(globalSumPhiBoundary, sumOp<scalar>());
-    reduce(globalSumAreaBoundary, sumOp<scalar>());
-    Info << "Total Boundary Flux: " << globalSumPhiBoundary << endl;
-    Info << "Total Boundary Area: " << globalSumAreaBoundary << endl;
+    Info << "        Total Boundary Flux: " << globalSumPhiBoundary << tab << "/ Area: " << globalSumAreaBoundary << endl;
 }
