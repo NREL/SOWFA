@@ -10,9 +10,10 @@
     reduce(maxLocalPhiContErr, maxOp<scalar>());
     scalar avgLocalPhiContErr = divPhiMag.weightedAverage(mesh.V()).value();
     Info << "Continuity Report:" << endl;
-    Info << "   -Local Cell Continuity Error:  Min " << minLocalPhiContErr << tab
-         <<                                   "Max " << maxLocalPhiContErr << tab
-         <<                         "Weighted Mean " << avgLocalPhiContErr << endl;
+    Info << "   -Local Cell Continuity Error:" << endl;
+    Info << "       minimum: " << minLocalPhiContErr << endl;
+    Info << "       maximum: " << maxLocalPhiContErr << endl;
+    Info << "       weighted mean: " << avgLocalPhiContErr << endl;
 
 
     // Compute global divergence over domain boundaries and report statistics.
@@ -40,9 +41,9 @@
             globalSumPhiBoundary += sumPhiBoundary;
             globalSumAreaBoundary += sumAreaBoundary;
 
-            Info << "       " << boundaryName << " Flux: " << sumPhiBoundary << tab << "/ Area: " << sumAreaBoundary << endl;
+            Info << "       " << boundaryName << " - flux: " << sumPhiBoundary << tab << "/ area: " << sumAreaBoundary << endl;
         }
     }
 
-    Info << "        Total Boundary Flux: " << globalSumPhiBoundary << tab << "/ Area: " << globalSumAreaBoundary << endl;
+    Info << "       total - flux: " << globalSumPhiBoundary << tab << "/ area: " << globalSumAreaBoundary << endl;
 }

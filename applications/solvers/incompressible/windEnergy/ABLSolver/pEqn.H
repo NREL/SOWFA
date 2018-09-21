@@ -49,7 +49,10 @@
             fvm::laplacian(rAUf, p_rgh) == fvc::div(phiHbyA)
         );
 
-        p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+        if (activatePressureRefCell)
+        {
+            p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+        }
 
         p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
 
