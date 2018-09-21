@@ -34,6 +34,7 @@ MODULE module_openfoam_bc
      !exec
 
      ierr = 0
+     write(*,*) 'Processing body ',whichbdy,' : ',fname
      IF ( wrf_dm_on_monitor()) THEN
        OPEN ( 75, file=TRIM(fname), form="formatted", status="old", err=2222 )
        ! count up the number of lines in the file
@@ -89,6 +90,7 @@ MODULE module_openfoam_bc
       LOGICAL incache
 
       IF ( ALLOCATED(bdy(ibdy)%point) ) THEN
+        write(*,*) 'Precomputing points for body ',ibdy
         incache=.TRUE.
         WRITE(bdy_cache_name,'("bdy_cache_",I1)')ibdy
         OPEN(75,file=TRIM(bdy_cache_name),form="formatted",status="old",ERR=9911)
@@ -163,19 +165,20 @@ MODULE module_openfoam_bc
       REAL :: lat_min,lat_max,lon_min,lon_max,delta_lat,delta_lon
       REAL :: normal(3)
       LOGICAL :: check_column(is:ie,js:je)
+      INTEGER :: check_imin,check_imax,check_jmin,check_jmax
       INTEGER :: cells_per_level(ks:ke), cells_checked_total
       REAL :: unorm_mag, unorm_min, unorm_max, inflow_mean
-      REAL :: ucorr, vcorr, wdir
+      REAL :: ucorr, vcorr, wmag, wdir
       REAL, DIMENSION(ks:ke) :: unorm_mean, z_mean
       REAL, DIMENSION(ks:ke) :: wind_mag, wind_dir
-      REAL :: wind_dir_min, wind_dir_max
+      REAL, DIMENSION(ks:ke) :: wind_dir_min, wind_dir_max
       CHARACTER(len=20) :: fmtstr
 
       lat_min = HUGE(lat_min)
       lon_min = HUGE(lon_min)
       lat_max = -HUGE(lat_max)
       lon_max = -HUGE(lon_max)
-      DO ipoint = 2,bdy(ibdy)%npoints
+      DO ipoint = 1,bdy(ibdy)%npoints
          lat_min = MIN(lat_min, bdy(ibdy)%point(ipoint)%lat)
          lon_min = MIN(lon_min, bdy(ibdy)%point(ipoint)%lon)
          lat_max = MAX(lat_max, bdy(ibdy)%point(ipoint)%lat)
@@ -195,17 +198,25 @@ MODULE module_openfoam_bc
 
       ! Identify cells that will be used for interpolating to OpenFOAM points
       check_column(:,:) = .FALSE.
+      check_imin = HUGE(check_imin)
+      check_jmin = HUGE(check_jmin)
+      check_imax = -HUGE(check_imax)
+      check_jmax = -HUGE(check_jmax)
       DO ipoint = 1,bdy(ibdy)%npoints
          j = bdy(ibdy)%point(ipoint)%j   ! precomputed jcoord of cell center corresponding to lat
          i = bdy(ibdy)%point(ipoint)%i   ! precomputed icoord of cell center corresponding to lon
          check_column(i,j) = .TRUE.
+         check_imin = MIN(check_imin, i)
+         check_jmin = MIN(check_jmin, j)
+         check_imax = MAX(check_imax, i)
+         check_jmax = MAX(check_jmax, j)
       END DO
 
       ! Check all identified cells
       unorm_min = HUGE(unorm_min)
       unorm_max = -HUGE(unorm_max)
-      wind_dir_min = HUGE(wind_dir_min)
-      wind_dir_max = -HUGE(wind_dir_max)
+      wind_dir_min(:) = HUGE(wind_dir)
+      wind_dir_max(:) = -HUGE(wind_dir)
       inflow_mean = 0.0
       z_mean(:) = 0.0
       unorm_mean(:) = 0.0
@@ -223,10 +234,11 @@ MODULE module_openfoam_bc
                   unorm_max = MAX(unorm_max, unorm_mag)
                   wdir = ATAN2(vcorr,ucorr)
                   !wdir = 90.0 - wdir*57.29577951308232 ! wind in +x (from west) is "0 deg"
+                  !IF ( wdir < 0.0 ) wdir = wdir + 360.0
                   wdir = 270.0 - wdir*57.29577951308232 ! wind in +x (from west) is 270 deg
-                  wind_dir_min = MIN(wind_dir_min, wdir)
-                  wind_dir_max = MAX(wind_dir_max, wdir)
-                  IF ( wdir < 0 ) wdir = wdir + 360.0
+                  wind_dir_min(k) = MIN(wind_dir_min(k), wdir)
+                  wind_dir_max(k) = MAX(wind_dir_max(k), wdir)
+                  IF ( wdir >= 360.0 ) wdir = wdir - 360.0
                   z_mean(k) = z_mean(k) + z(i,j,k)
                   unorm_mean(k) = unorm_mean(k) + unorm_mag
                   wind_mag(k) = wind_mag(k) + SQRT(ucorr*ucorr + vcorr*vcorr)
@@ -243,8 +255,8 @@ MODULE module_openfoam_bc
          wind_mag(k) = wind_mag(k) / cells_per_level(k)
          wind_dir(k) = wind_dir(k) / cells_per_level(k)
       END DO
-      IF ( wind_dir_min < 0 ) wind_dir_min = wind_dir_min + 360.0
-      IF ( wind_dir_max < 0 ) wind_dir_max = wind_dir_max + 360.0
+      !IF ( wind_dir_min < 0 ) wind_dir_min = wind_dir_min + 360.0
+      !IF ( wind_dir_max < 0 ) wind_dir_max = wind_dir_max + 360.0
       cells_checked_total = SUM( cells_per_level )
       inflow_mean = inflow_mean / cells_checked_total
       WRITE(*,'(a,3(f12.5,x))') '  inflow fraction, unorm min, unorm max=',inflow_mean,unorm_min,unorm_max
@@ -255,7 +267,10 @@ MODULE module_openfoam_bc
       WRITE(*,fmtstr) '  unorm mean by height:',unorm_mean
       WRITE(*,fmtstr) '  wind mag by height:',wind_mag
       WRITE(*,fmtstr) '  wind dir by height:',wind_dir
-      WRITE(*,'(a,2(f12.5,x))') '  wind dir min,max=',wind_dir_min,wind_dir_max
+      WRITE(*,'(a,2(f12.5,x))') '  wind dir min,max=',MINVAL(wind_dir_min),MAXVAL(wind_dir_max)
+      WRITE(*,fmtstr) '  min wind dir by height:',wind_dir_min
+      WRITE(*,fmtstr) '  max wind dir by height:',wind_dir_max
+      WRITE(*,*) '  checked range of cells in WRF i:',check_imin,check_imax,' j:',check_jmin,check_jmax
 
    END SUBROUTINE check_inflow_on_boundary
 

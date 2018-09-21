@@ -2,11 +2,11 @@
 #PBS -l walltime=48:00:00
 #PBS -l nodes=25:ppn=24
 #PBS -l feature=24core
-#PBS -A windwfo
+#PBS -A windsim
 #PBS -q batch
 
 source $HOME/.bash_profile
-OpenFOAM-2.4.x
+OpenFOAM-2.4.x-central
 module list
 
 cd $PBS_O_WORKDIR

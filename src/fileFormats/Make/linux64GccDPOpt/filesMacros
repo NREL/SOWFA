@@ -1,2 +1,0 @@
-setWriters = sampledSetWriters
-LIB = $(FOAM_USER_LIBBIN)/libuserfileFormats

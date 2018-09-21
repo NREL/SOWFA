@@ -198,6 +198,55 @@
 
 
 
+
+    // PROPERTIES CONCERNING THE WAY IN WHICH PERTURBATION PRESSURE IS DEFINED
+
+       // Options for defining the perturbation pressure:
+       // - noSplit:   do not split out hydrostatic part; pressure is then perturbation pressure.
+       // - rho0Split: split out the hydrostatic part; define hydrostatic as rho_0 * g * z.
+       // - rhokSplit: split out the hydrostatic part; define hydrostatic as rho_k * g * z.
+       word perturbationPressureType(ABLProperties.lookupOrDefault<word>("perturbationPressureType","rhokSplit"));
+       word perturbationOutput;
+       if (perturbationPressureType == "noSplit")
+       {
+           perturbationOutput = "nothing";
+       }
+       else if (perturbationPressureType == "rho0Split")
+       {
+           perturbationOutput = "rho_0 * g * z";
+       }
+       else if (perturbationPressureType == "rhokSplit")
+       {
+           perturbationOutput = "rho_k * g * z";
+       }
+       Info << "Defining background hydrostatic pressure to be " << perturbationOutput << endl;
+
+
+       // This switch dictates whether or not the pressure reference cell is set explicitly
+       // in the p_rgh solve.  If true, pressure is constrained at the pressure reference
+       // cell by manipulating the matrix row for that cell to remove the null space.  This
+       // assures that the pressure level is constrained, but it also means the continuity
+       // equation is no longer solved at that cell, so the divergence error can be significant
+       // enough there to cause localized oscillations.  Iterative solvers can still converge
+       // even with a null space, but more iterations may be needed, so this switch can be 
+       // set to false.
+       bool activatePressureRefCell(ABLProperties.lookupOrDefault<bool>("activatePressureRefCell", true));
+       if (activatePressureRefCell)
+       {
+            Info << "Pressure reference cell matrix row modification enabled" << endl;
+       }
+       else
+       {
+            Info << "Pressure reference cell matrix row modification not enabled" << endl;
+       }
+
+
+
+     
+
+
+
+
     // PROPERTIES CONCERNING GATHERING STATISTICS
 
        // Gather/write statistics?

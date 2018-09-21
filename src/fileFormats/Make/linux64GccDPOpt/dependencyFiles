@@ -1,2 +1,0 @@
-DEPENDENCIES = \
-$(setWriters)/vtkStructured/vtkStructuredSetWriterRunTime.dep

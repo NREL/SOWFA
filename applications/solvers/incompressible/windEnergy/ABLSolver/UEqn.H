@@ -2,6 +2,8 @@
 
     #include "computeCoriolisForce.H"
 
+    #include "computeBuoyancyTerm.H"
+
     fvVectorMatrix UEqn
     (
         fvm::ddt(U)                             // time derivative
@@ -24,7 +26,7 @@
             (
                 (
                   - fvc::snGrad(p_rgh)          // modified pressure gradient
-                  - ghf*fvc::snGrad(rhok)       // buoyancy force
+                  + buoyancyTerm                // buoyancy force
                 ) * mesh.magSf()
             )
         );

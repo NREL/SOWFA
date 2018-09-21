@@ -25,9 +25,4 @@ surfaceVelocityModels = $(derivedFvPatchFields)/surfaceVelocityModels
 $(surfaceVelocityModels)/velocityABLWallFunction/velocityABLWallFunctionFvPatchField.C
 
 
-general = cfdTools/general
-$(general)/adjustPhiWind/adjustPhiWind.C
-
-
-
 LIB = $(FOAM_USER_LIBBIN)/libuserfiniteVolume

@@ -1,3 +1,0 @@
-horizontalAxisWindTurbinesALMfastv8/horizontalAxisWindTurbinesALMfastv8.C
-
-LIB = $(FOAM_USER_LIBBIN)/libuserTurbineModelsFASTv8

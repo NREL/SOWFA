@@ -271,6 +271,7 @@ PROGRAM toof
    zcol = 0.
    hfx = 0.
 
+   write(*,*) 'Getting variables from solution file'
    CALL getvar_real(ctrl,ncid,nfiles,'PH' ,ph ,it,3,ips,ipe-1,jps,jpe-1,kps,kpe  )
    CALL getvar_real(ctrl,ncid,nfiles,'PHB',phb,it,3,ips,ipe-1,jps,jpe-1,kps,kpe  )
    CALL getvar_real(ctrl,ncid,nfiles,'W'  ,w  ,it,3,ips,ipe-1,jps,jpe-1,kps,kpe  )
@@ -283,6 +284,7 @@ PROGRAM toof
 
    have_hfx = .FALSE.  ! false value going in says this field is required
    CALL getvar_real(have_hfx,ncid,nfiles,'HFX',hfx,it,3,ips,ipe-1,jps,jpe-1,1,1)
+   write(*,*) 'Have heat flux: ',have_hfx
 
    zz   = (ph + phb )/g
    z    = (zz(:,:,kps:kpe-1) + zz(:,:,kps+1:kpe))*0.5
@@ -450,6 +452,8 @@ PROGRAM toof
        ENDIF
      ENDIF
    ENDDO
+
+   write(*,*) 'End.' 
 
 END PROGRAM  toof
 
