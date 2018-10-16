@@ -91,7 +91,8 @@ public:
     // Constructors
     spongeLayer
     (
-        const volVectorField& U
+        const volVectorField& U,
+        const label upIndex
     );
 
 
@@ -101,7 +102,7 @@ public:
 
     // Public Member functions
 
-        //- Update sponge layer fore
+        //- Update sponge layer force
         void update();
 
         //- Return force

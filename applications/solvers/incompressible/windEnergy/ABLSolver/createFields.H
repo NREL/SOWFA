@@ -79,7 +79,7 @@
     );
 
     // Create sponge layer
-    spongeLayer sponge(U);
+    spongeLayer sponge(U,upIndex);
 
     // Create and calculate the Boussinesq density field for computing buoyancy forces
     Info << "Creating kinematic (Boussinesq) density field, rhok..." << endl;

@@ -53,7 +53,8 @@ void Foam::spongeLayer::update()
 
 Foam::spongeLayer::spongeLayer
 (
-    const volVectorField& U
+    const volVectorField& U,
+    const label upIndex
 )
 :
     // Set the pointer to runTime
@@ -159,7 +160,6 @@ Foam::spongeLayer::spongeLayer
     
     // Set viscosity to cosine profile between baseHeight and topHeight
     // and zero below baseHeight
-    label upIndex = 2;
     forAll(mesh_.cells(),cellI)
     {
         scalar z = mesh_.C()[cellI][upIndex];
