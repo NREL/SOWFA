@@ -62,23 +62,10 @@
         incompressible::turbulenceModel::New(U, phi, laminarTransport)
     );
 
-    // Create Coriolis force vector
-    Info << "Creating the Coriolis force vector, fCoriolis..." << endl;
-    volVectorField fCoriolis
-    (
-        IOobject
-        (
-            "fCoriolis",
-            runTime.timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedVector("fCoriolis",dimensionSet(0, 1, -2, 0, 0, 0, 0),vector::zero)
-    );
+    // Create Coriolis force object
+    CoriolisForce Coriolis(U,upIndex);
 
-    // Create sponge layer
+    // Create sponge layer object
     spongeLayer sponge(U,upIndex);
 
     // Create and calculate the Boussinesq density field for computing buoyancy forces

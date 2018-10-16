@@ -58,6 +58,7 @@ Description
 #include "interpolate2D.H"
 #include "windRoseToCartesian.H"
 #include "spongeLayer.H"
+#include "CoriolisForce.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

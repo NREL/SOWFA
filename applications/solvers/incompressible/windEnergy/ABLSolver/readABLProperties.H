@@ -167,38 +167,6 @@
 
 
 
-    // PROPERTIES CONCERNING CORIOLIS FORCES
-
-       // Planetary rotation period (hours)
-       scalar planetaryRotationPeriod(readScalar(ABLProperties.lookup("planetaryRotationPeriod")));
-
-       // Latitude on the planetary body (degrees)
-       scalar latitude(readScalar(ABLProperties.lookup("latitude")));
-
-       // Compute the planetar rotation vector
-       vector Omega_;
-       Omega_.x() = 0.0;
-       Omega_.y() = ((2.0 * Foam::constant::mathematical::pi) / (max(1.0E-5,planetaryRotationPeriod)*3600.0)) * Foam::cos(latitude*Foam::constant::mathematical::pi/180.0);
-       Omega_.z() = ((2.0 * Foam::constant::mathematical::pi) / (max(1.0E-5,planetaryRotationPeriod)*3600.0)) * Foam::sin(latitude*Foam::constant::mathematical::pi/180.0);
-       uniformDimensionedVectorField Omega
-       (
-           IOobject
-           (
-               "Omega",
-               runTime.constant(),
-               mesh,
-               IOobject::NO_READ,
-               IOobject::NO_WRITE
-           ),
-           dimensionedVector("Omega",dimensionSet(0, 0, -1, 0, 0, 0, 0),Omega_)
-       );
-
-       Info << Omega << endl;       
-
-
-
-
-
     // PROPERTIES CONCERNING THE WAY IN WHICH PERTURBATION PRESSURE IS DEFINED
 
        // Options for defining the perturbation pressure:

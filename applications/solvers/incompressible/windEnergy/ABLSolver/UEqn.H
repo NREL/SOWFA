@@ -1,6 +1,7 @@
     // Solve the momentum equation
 
-    #include "computeCoriolisForce.H"
+    // Update Coriolis forcing
+    Coriolis.update();
 
     #include "computeBuoyancyTerm.H"
 
@@ -13,7 +14,7 @@
       + fvm::div(phi, U)                        // convection
       + turbulence->divDevReff(U)               // momentum flux
       + fvc::div(Rwall)
-      - fCoriolis                               // Coriolis force
+      - Coriolis.force()                        // Coriolis force
       - sponge.force()                          // Sponge layer damping
       - SourceU                                 // mesoscale source terms
     );
