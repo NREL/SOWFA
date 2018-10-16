@@ -1,0 +1,3 @@
+spongeLayer/spongeLayer.C
+
+LIB = $(FOAM_USER_LIBBIN)/libuserexternalForcing

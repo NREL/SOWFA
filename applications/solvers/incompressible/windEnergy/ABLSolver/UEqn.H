@@ -4,6 +4,9 @@
 
     #include "computeBuoyancyTerm.H"
 
+    // Update sponge layer forcing
+    sponge.update();
+
     fvVectorMatrix UEqn
     (
         fvm::ddt(U)                             // time derivative
@@ -11,6 +14,7 @@
       + turbulence->divDevReff(U)               // momentum flux
       + fvc::div(Rwall)
       - fCoriolis                               // Coriolis force
+      - sponge.force()                          // Sponge layer damping
       - SourceU                                 // mesoscale source terms
     );
 

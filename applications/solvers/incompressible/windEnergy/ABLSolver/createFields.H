@@ -78,6 +78,9 @@
         dimensionedVector("fCoriolis",dimensionSet(0, 1, -2, 0, 0, 0, 0),vector::zero)
     );
 
+    // Create sponge layer
+    spongeLayer sponge(U);
+
     // Create and calculate the Boussinesq density field for computing buoyancy forces
     Info << "Creating kinematic (Boussinesq) density field, rhok..." << endl;
     volScalarField rhok

@@ -57,6 +57,7 @@ Description
 #include "interpolateSplineXY.H"
 #include "interpolate2D.H"
 #include "windRoseToCartesian.H"
+#include "spongeLayer.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

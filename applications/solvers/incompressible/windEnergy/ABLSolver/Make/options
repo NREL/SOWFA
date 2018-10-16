@@ -6,12 +6,14 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/externalForcing/lnInclude \
     -I../commonAlgorithms \
     -I../commonAlgorithms/interpolate2D \
     -I../commonAlgorithms/windRoseToCartesian
 
 
 EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
     -lincompressibleTransportModels \
     -lincompressibleTurbulenceModel \
     -lincompressibleRASModels \
@@ -19,4 +21,5 @@ EXE_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
     -lfvOptions \
-    -lsampling
+    -lsampling \
+    -luserexternalForcing
