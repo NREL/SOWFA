@@ -6,7 +6,7 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
-    -I$(WM_PROJECT_USER_DIR)/src/externalForcing/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/ABLForcing/lnInclude \
     -I../commonAlgorithms \
     -I../commonAlgorithms/interpolate2D \
     -I../commonAlgorithms/windRoseToCartesian
@@ -22,4 +22,4 @@ EXE_LIBS = \
     -lmeshTools \
     -lfvOptions \
     -lsampling \
-    -luserexternalForcing
+    -luserABLForcing

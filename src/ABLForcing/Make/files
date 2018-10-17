@@ -1,4 +1,4 @@
 spongeLayer/spongeLayer.C
 CoriolisForce/CoriolisForce.C
 
-LIB = $(FOAM_USER_LIBBIN)/libuserexternalForcing
+LIB = $(FOAM_USER_LIBBIN)/libuserABLForcing
