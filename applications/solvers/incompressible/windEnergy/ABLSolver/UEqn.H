@@ -3,7 +3,8 @@
     // Update Coriolis forcing
     Coriolis.update();
 
-    #include "computeBuoyancyTerm.H"
+    // Update Buoyancy term
+    Boussinesq.updateBuoyancyTerm();
 
     // Update sponge layer forcing
     sponge.update();
@@ -31,7 +32,7 @@
             (
                 (
                   - fvc::snGrad(p_rgh)          // modified pressure gradient
-                  + buoyancyTerm                // buoyancy force
+                  + Boussinesq.buoyancyTerm()                // buoyancy force
                 ) * mesh.magSf()
             )
         );

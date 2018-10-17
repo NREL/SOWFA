@@ -12,8 +12,8 @@
     HbyA = rAU*UEqn.H();
 
     // This is the Boussinesq buoyancy term multipled by the inverse of the A operator.
-    #include "computeBuoyancyTerm.H"
-    surfaceScalarField phig(rAUf * buoyancyTerm * mesh.magSf());
+    Boussinesq.updateBuoyancyTerm();
+    surfaceScalarField phig(rAUf * Boussinesq.buoyancyTerm() * mesh.magSf());
 
     // Project HbyA to cell faces and apply a correction for time stepping scheme.
     surfaceScalarField phiHbyA

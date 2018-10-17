@@ -80,7 +80,7 @@ Foam::CoriolisForce::CoriolisForce
     // Set the pointer to the velocity field
     U_(U),
 
-    // Set the pointer to upIndex
+    // Set upIndex
     upIndex_(upIndex),
 
     // Initialize the reference velocity field

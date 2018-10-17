@@ -167,29 +167,7 @@
 
 
 
-    // PROPERTIES CONCERNING THE WAY IN WHICH PERTURBATION PRESSURE IS DEFINED
-
-       // Options for defining the perturbation pressure:
-       // - noSplit:   do not split out hydrostatic part; pressure is then perturbation pressure.
-       // - rho0Split: split out the hydrostatic part; define hydrostatic as rho_0 * g * z.
-       // - rhokSplit: split out the hydrostatic part; define hydrostatic as rho_k * g * z.
-       word perturbationPressureType(ABLProperties.lookupOrDefault<word>("perturbationPressureType","rhokSplit"));
-       word perturbationOutput;
-       if (perturbationPressureType == "noSplit")
-       {
-           perturbationOutput = "nothing";
-       }
-       else if (perturbationPressureType == "rho0Split")
-       {
-           perturbationOutput = "rho_0 * g * z";
-       }
-       else if (perturbationPressureType == "rhokSplit")
-       {
-           perturbationOutput = "rho_k * g * z";
-       }
-       Info << "Defining background hydrostatic pressure to be " << perturbationOutput << endl;
-
-
+    // PROPERTIES CONCERNING THE PRESSURE
        // This switch dictates whether or not the pressure reference cell is set explicitly
        // in the p_rgh solve.  If true, pressure is constrained at the pressure reference
        // cell by manipulating the matrix row for that cell to remove the null space.  This

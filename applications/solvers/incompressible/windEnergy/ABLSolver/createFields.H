@@ -68,19 +68,6 @@
     // Create sponge layer object
     spongeLayer sponge(U,upIndex);
 
-    // Create and calculate the Boussinesq density field for computing buoyancy forces
-    Info << "Creating kinematic (Boussinesq) density field, rhok..." << endl;
-    volScalarField rhok
-    (
-        IOobject
-        (
-            "rhok",
-            runTime.timeName(),
-            mesh
-        ),
-        1.0 - ( (T - TRef)/TRef )
-    );   
-
     // Create and read the turbulent thermal conductivity field
     Info << "Creating the kinematic thermal conductivity field, kappat..." << endl;
     volScalarField kappat
@@ -158,9 +145,7 @@
     );
 
 
-    // Create and calculate the gravity potential field
-    Info << "Creating and calculating the gravity potential field, gh and ghf..." << endl;
-    
+    // Create buoyancy model
     vector hRef_ = vector::zero;
     if (pRefCell != -1)
     {
@@ -168,9 +153,8 @@
     }
     reduce(hRef_,sumOp<vector>());
     dimensionedVector hRef("hRef",dimLength,hRef_);
-
-    volScalarField gh("gh", g & (mesh.C() - hRef));
-    surfaceScalarField ghf("ghf", g & (mesh.Cf() - hRef));
+    
+    buoyancyModel Boussinesq(T, TRef, hRef);
 
 
     // Compute the full pressure and adjust the pressure level.
