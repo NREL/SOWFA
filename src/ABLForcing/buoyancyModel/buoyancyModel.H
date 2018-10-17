@@ -67,8 +67,8 @@ class buoyancyModel
             //- Reference temperature [K]
             const dimensionedScalar TRef_;
 
-        //- Gravitational acceleration field
-        uniformDimensionedVectorField g_;
+            //- Gravitational acceleration field
+            const uniformDimensionedVectorField& g_;
 
         //- Boussinesq density field
         volScalarField rhok_;

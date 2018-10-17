@@ -98,17 +98,7 @@ Foam::buoyancyModel::buoyancyModel
     TRef_(TRef),
 
     // Initialize the gravitational acceleration field
-    g_
-    (
-        IOobject
-        (
-            "g",
-            runTime_.constant(),
-            mesh_,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    ),
+    g_(T.db().lookupObject<uniformDimensionedVectorField>("g")),
 
     // Initialize the Boussinesq density field
     rhok_

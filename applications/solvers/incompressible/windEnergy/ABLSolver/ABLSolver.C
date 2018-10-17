@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
     #include "createPostProcessingDir.H"
     #include "findVerticalCellLevels.H"
+    #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createAverageFields.H"
     #include "createSGSTurbulenceFields.H"
