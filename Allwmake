@@ -42,6 +42,12 @@ else
     fi	
 fi
 
+# ABL forcing objects
+cd src/ABLForcing
+wmake libso
+cd ../../
+
+
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
 wmake libso
