@@ -15,5 +15,5 @@
     TEqn.relax();
     TEqn.solve();
 
-    rhok = 1.0 - ( (T - TRef)/TRef );
+    Boussinesq.updateDensityField();
 }

@@ -1,8 +1,13 @@
     // Solve the momentum equation
 
-    #include "computeCoriolisForce.H"
+    // Update Coriolis force
+    Coriolis.update();
 
-    #include "computeBuoyancyTerm.H"
+    // Update buoyancy term
+    Boussinesq.updateBuoyancyTerm();
+
+    // Update sponge layer forcing
+    sponge.update();
 
     fvVectorMatrix UEqn
     (
@@ -10,7 +15,8 @@
       + fvm::div(phi, U)                        // convection
       + turbulence->divDevReff(U)               // momentum flux
       + fvc::div(Rwall)
-      - fCoriolis                               // Coriolis force
+      - Coriolis.force()                        // Coriolis force
+      - sponge.force()                          // Sponge layer damping
       + gradP                                   // driving pressure gradient
     );
 
@@ -26,7 +32,7 @@
             (
                 (
                   - fvc::snGrad(p_rgh)          // modified pressure gradient
-                  + buoyancyTerm                // buoyancy force
+                  + Boussinesq.buoyancyTerm ()  // buoyancy force
                 ) * mesh.magSf()
             )
         );
