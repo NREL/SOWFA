@@ -88,7 +88,7 @@ Foam::CoriolisForce::CoriolisForce
     (
         IOobject
         (
-            "Omega_",
+            "Omega",
             runTime_.constant(),
             mesh_,
             IOobject::NO_READ,
@@ -102,7 +102,7 @@ Foam::CoriolisForce::CoriolisForce
     (
         IOobject
         (
-            "bodyForce_",
+            "Coriolisforce",
             runTime_.timeName(),
             mesh_,
             IOobject::NO_READ,

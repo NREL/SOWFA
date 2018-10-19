@@ -71,7 +71,7 @@ Foam::spongeLayer::spongeLayer
     (
         IOobject
         (
-            "Uref_",
+            "spongeLayerUref",
             runTime_.constant(),
             mesh_,
             IOobject::NO_READ,
@@ -85,11 +85,11 @@ Foam::spongeLayer::spongeLayer
     (
         IOobject
         (
-            "viscosity_",
+            "spongeLayerViscosity",
             runTime_.timeName(),
             mesh_,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh_,
         dimensionedScalar("viscosity_", dimensionSet(0, 0, -1, 0, 0, 0, 0), 0.0)
@@ -100,7 +100,7 @@ Foam::spongeLayer::spongeLayer
     (
         IOobject
         (
-            "bodyForce_",
+            "spongeLayerForce",
             runTime_.timeName(),
             mesh_,
             IOobject::NO_READ,
