@@ -340,8 +340,9 @@ private:
 	    //  specified pitch).
 	    DynamicList<word> BladePitchControllerType;
 
-        //_SSC_ Define the controller type
+        //_SSC_ Define the controller type and the IP address for the zeroMQ interface
         word sscControllerType;
+        std::string zmqAddress;
 
             //- Engage a rotor speed limiter (do not let rotor speed exceed rated
             //  or become negative.

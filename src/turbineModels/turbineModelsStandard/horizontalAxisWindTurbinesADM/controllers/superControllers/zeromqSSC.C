@@ -15,7 +15,7 @@
 #include <string>
 #include <sstream>
 
-void SC_zeromq(float timeStep, std::vector<float> infoToSC, std::vector<float> &infoFromSC, int sizeInfoFromSSC )
+void SC_zeromq(std::string zmqAddress, float timeStep, std::vector<float> infoToSC, std::vector<float> &infoFromSC, int sizeInfoFromSSC )
 {
     static int isFirstCall = 1;
     static void *context = zmq_ctx_new ();
@@ -25,8 +25,8 @@ void SC_zeromq(float timeStep, std::vector<float> infoToSC, std::vector<float> &
     
     // Establish connection of this is the first call to the SC
     if (isFirstCall){
-        printf ("0mq client: Connecting to 0mq server...\n");
-        zmq_connect (requester, "tcp://localhost:5553");
+        std::cout << "0mq client: Connecting to 0mq server on address: " << zmqAddress << " ... \n";
+        zmq_connect (requester, zmqAddress.c_str());
         isFirstCall = 0;  // disable for future calls
     }
 

@@ -172,7 +172,11 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC"))); 
         nOutputsFromSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSSC")));
         sscControllerType = word(turbineArrayProperties.subDict("sscProperties").lookup("sscControllerType"));
-
+        
+        if (sscControllerType == "zeromqSSC") { 
+            zmqAddress = string(turbineArrayProperties.subDict("sscProperties").lookup("zmqAddress"));
+        }
+        
         //Set up dynamic arrays
         for (int si = 0; si < numTurbines * nInputsToSSC; si++)
         {

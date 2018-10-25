@@ -30,7 +30,7 @@ for(int i = 0; i < nInputsToSSC*numTurbines; i++){
 }
     
 // Call the SC from external library
-SC_zeromq(runTime_.value(), zeromqInfoToSC, zeromqInfoFromSC, sizeInfoFromSSC );
+SC_zeromq(zmqAddress, runTime_.value(), zeromqInfoToSC, zeromqInfoFromSC, sizeInfoFromSSC );
 
 // Copy entries to global variable and print the to-be-applied control settings
 for(int i=0; i < numTurbines; i++){
