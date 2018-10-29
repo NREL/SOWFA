@@ -1,0 +1,1 @@
+torqueGenCommanded  = superInfoFromSSC[i * nOutputsFromSSC+2];
