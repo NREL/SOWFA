@@ -1,0 +1,6 @@
+meshPlanes/meshPlanes.C
+
+functionObjects/planarAveraging/planarAveraging.C
+functionObjects/planarAveraging/planarAveragingFunctionObject.C
+
+LIB = $(FOAM_USER_LIBBIN)/libuseraveraging

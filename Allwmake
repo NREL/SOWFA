@@ -48,6 +48,12 @@ wmake libso
 cd ../../
 
 
+# Custom averaging function objects
+cd src/averaging
+wmake libso
+cd ../../
+
+
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
 wmake libso

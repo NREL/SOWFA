@@ -36,6 +36,11 @@ rmdepall
 wclean
 cd ../../
 
+cd src/averaging
+rmdepall
+wclean
+cd ../../
+
 cd src/postProcessing/functionObjects/utilities
 rmdepall
 wclean

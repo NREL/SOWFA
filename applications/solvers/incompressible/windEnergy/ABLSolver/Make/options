@@ -7,6 +7,7 @@ EXE_INC = \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I$(WM_PROJECT_USER_DIR)/src/ABLForcing/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/averaging/lnInclude \
     -I../commonAlgorithms \
     -I../commonAlgorithms/interpolate2D \
     -I../commonAlgorithms/windRoseToCartesian
@@ -22,4 +23,5 @@ EXE_LIBS = \
     -lmeshTools \
     -lfvOptions \
     -lsampling \
-    -luserABLForcing
+    -luserABLForcing \
+    -luseraveraging
