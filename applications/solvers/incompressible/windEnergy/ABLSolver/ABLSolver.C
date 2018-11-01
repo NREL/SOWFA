@@ -72,14 +72,12 @@ int main(int argc, char *argv[])
     #include "findVerticalCellLevels.H"
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
-    #include "createAverageFields.H"
     #include "createSGSTurbulenceFields.H"
     #include "createSourceTerms.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
   //#include "findWindHeight.H"
-    #include "openCellStatisticsFiles.H"
     #include "computeDivergence.H"
     #include "createDivSchemeBlendingField.H"
     //#include "openABLStatisticsFiles.H"
@@ -143,15 +141,6 @@ int main(int argc, char *argv[])
 //              turbulence->correct();
 //          }
         }   
-
-        if (runTime.outputTime())
-        {
-            #include "averageFields.H"
-        }
-
-        #include "statisticsCell.H"
-//      #include "statisticsFace.H"
-//      #include "statisticsABL.H"
 
         #include "computeSGSTurbulenceFields.H"
 
