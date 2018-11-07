@@ -38,7 +38,6 @@ License
 #include "interpolateXY.H"
 
 // SSC inclusions without dependencies
-#include "controllers/superControllers/SCSimple.C"     //_SSC_ inclusion
 #include "controllers/superControllers/timeTableSSC.C" //_SSC_ inclusion
 
 // SSC inclusions with dependencies
@@ -1111,12 +1110,7 @@ void horizontalAxisWindTurbinesADM::superController()
 //  The super controller code facilitates the exchangess 
 void horizontalAxisWindTurbinesADM::callSuperController()
 {
-        // _SSC_, specific controller
-        if (sscControllerType == "simpleSSC")
-        {
-            #include "controllers/superControllers/SCSimple.H"
-        }
-        
+        // _SSC_, specific controller        
         if (sscControllerType == "timeTableSSC")
         {
             #include "controllers/superControllers/timeTableSSC.H"
