@@ -4,7 +4,7 @@
 std::vector< std::vector<float> > nextControlAction(numTurbines,std::vector<float>(nOutputsFromSSC)); 
 
 // Call the SC from external library
-SC_timeTable(numTurbines,nOutputsFromSSC,nextControlAction,runTime_.value());
+SC_timeTable_ADM(numTurbines,nOutputsFromSSC,nextControlAction,runTime_.value());
 
 // Copy entries to global variable and print the to-be-applied control settings
 for(int i=0; i < numTurbines; i++){

@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 // Read text file and format appropriately
-void readInputSSC(char *inputFile, int nTurbs, int nControlVars,
+void readInputSSC_ADM(char *inputFile, int nTurbs, int nControlVars,
 				  std::vector<int> &nTurbInputs, std::vector< std::vector<float> >&timeArray, 
 				  std::vector< std::vector <std::vector<float> > > &controlArray)
 {
@@ -86,7 +86,7 @@ void readInputSSC(char *inputFile, int nTurbs, int nControlVars,
 }
 
 // Function to determine next control setting
-void lookupControlAction(float simTime, int nTurbs, int nControlVars, std::vector< std::vector<float> >&timeArray, 
+void lookupControlAction_ADM(float simTime, int nTurbs, int nControlVars, std::vector< std::vector<float> >&timeArray, 
 							std::vector< std::vector <std::vector<float> > > &controlArray, std::vector<int> &nTurbInputs, 
 							std::vector< std::vector<float> >&nextControlAction)
 {
@@ -119,7 +119,7 @@ void lookupControlAction(float simTime, int nTurbs, int nControlVars, std::vecto
 	}
 }
 
-void SC_timeTable(int nTurbs,int nControlVars, std::vector< std::vector<float> >&nextControlAction, float simTime)
+void SC_timeTable_ADM(int nTurbs,int nControlVars, std::vector< std::vector<float> >&nextControlAction, float simTime)
 {
 	char *inputFile = "SC_INPUT.txt"; // Filename of input file/path address relative to main case folder
 		
@@ -130,12 +130,12 @@ void SC_timeTable(int nTurbs,int nControlVars, std::vector< std::vector<float> >
 			
 	// Read input SSC file if first time this function is called
 	if(isFirstCall == 1){
-		readInputSSC(inputFile, nTurbs, nControlVars, nTurbInputs, timeArray, controlArray);
+		readInputSSC_ADM(inputFile, nTurbs, nControlVars, nTurbInputs, timeArray, controlArray);
 		isFirstCall = 0; // disable for future calls
 	}
 	
 	// Retrieve control settings for time instant 'simTime'
-	lookupControlAction(simTime, nTurbs, nControlVars, timeArray,controlArray, nTurbInputs,nextControlAction);
+	lookupControlAction_ADM(simTime, nTurbs, nControlVars, timeArray,controlArray, nTurbInputs,nextControlAction);
 	
 	/*
 	// Print calculated control settings
@@ -161,19 +161,19 @@ int main()
 	
 	printf("TIME = 5.0 SECONDS.\n");
 	simTime = 5.0;
-	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
+	SC_timeTable_ADM(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 
 	printf("TIME = 11 SECONDS.\n");
 	simTime = 11.0;
-	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
+	SC_timeTable_ADM(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 
 	printf("TIME = 15 SECONDS.\n");
 	simTime = 15.0;	
-	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
+	SC_timeTable_ADM(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 
 	printf("TIME = 21 SECONDS.\n");
 	simTime = 21.0;	
-	SC_timeTable(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
+	SC_timeTable_ADM(nTurbs,nOutputsFromSSC,nextControlAction,simTime);
 	
     return 0;
 }*/

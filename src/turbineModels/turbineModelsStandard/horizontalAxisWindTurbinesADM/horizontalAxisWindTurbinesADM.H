@@ -704,7 +704,7 @@ private:
 
             //- _SSC_: Define the super controller
         void superController();
-
+        
         // _SSC_: Call the controller implementation
         void callSuperController();
         
