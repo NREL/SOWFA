@@ -1,7 +1,0 @@
-## Ignore any compiled functions
-*.pyc
-*.o
-cSSC
-*.dll
-*.exe
-*.so
