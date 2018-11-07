@@ -101,8 +101,8 @@ private:
 
             //- Revolutions per minute to radians per second conversion factor.
             const scalar rpmRadSec;
-
-
+		//- _SSC_ enabled option.
+		bool sscEnabled;
 
         //- Current time step size.
         scalar dt;
@@ -249,7 +249,7 @@ private:
             DynamicList<vector> bladeEpsilon;
             DynamicList<vector> nacelleEpsilon;
             DynamicList<vector> towerEpsilon;
-
+			DynamicList<scalar> forceScalar;
             //- The velocity used to calculate tower and nacelle forces must be sampled
             //  somewhere upstream of the actuator points.  These variables describe how
             //  far upstream the sampling occurs.
@@ -418,6 +418,11 @@ private:
             //  specified pitch).
             DynamicList<word> BladePitchControllerType;
 
+			        //_SSC_ Define the controller type and the IP address for the zeroMQ interface
+        word sscControllerType;
+        word sscMeasurementsFunction;
+        std::string zmqAddress;
+			
             //- Engage a rotor speed limiter (do not let rotor speed exceed rated
             //  or become negative.
             DynamicList<bool> RotSpeedLimiter;
@@ -769,7 +774,16 @@ private:
             DynamicList<scalar> generatorPower;
              
 
+            //- _SSC_ size of arrays passed to and from super controller
+            // 
+            // Note must be below superInfoBufferSize
+            int nInputsToSSC;
+            int nOutputsFromSSC;
 
+            //_SSC_ : Define a list for passing info between controllers and super controller
+            //List<scalar> superInfo(1000,scalar::zero);
+            DynamicList<scalar> superInfoFromSSC;  // Array of data from the SSC
+            DynamicList<scalar> superInfoToSSC;    // Aray of data to the SSC
 
         //- Output Data File Information.
             //- List of output files for blade points.
@@ -867,7 +881,8 @@ private:
             OFstream* generatorTorqueFile_;
 
             
-
+            //- _SSC_, List contents of superInfo
+            OFstream* superInfoFile_;
       
           
     
@@ -898,7 +913,16 @@ private:
 
         //- Calculate the nacelle yaw position.
         void controlNacYaw();
+		
+		            //- _SSC_: Define the super controller
+        void superController();
 
+        // _SSC_: Call the simple controller implementation
+        void callSuperController();
+        
+        // _SSC_: Call the SSC measurement function
+        void sscMeasurements();      
+        
         //- Calculate the blade pitch.
         void controlBladePitch();
 
