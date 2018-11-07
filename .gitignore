@@ -38,6 +38,8 @@ src/turbulenceModels/incompressible/LES/lnInclude/
 *Cases/**/log.*
 *Cases/**/*.log
 *Cases/**/*.gz
+*Cases/**/system/controlDict
+*Cases/**/constant/polyMesh/boundary
 *Cases/**/constant/boundaryData
 *Cases/**/constant/sources
 *Cases/**/0
