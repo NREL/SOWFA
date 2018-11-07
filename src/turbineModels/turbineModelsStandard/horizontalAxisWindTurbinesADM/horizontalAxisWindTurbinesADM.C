@@ -38,7 +38,7 @@ License
 #include "interpolateXY.H"
 
 // SSC inclusions without dependencies
-#include "controllers/superControllers/timeTableSSC.C" //_SSC_ inclusion
+#include "../superControllers/timeTableSSC.C" //_SSC_ inclusion
 
 // SSC inclusions with dependencies
 #define DO_EXPAND(VAL)  VAL ## 1
@@ -49,7 +49,7 @@ License
 #endif
 
 #if COMPILEZEROMQ == 1 // External definition for gcc compiler: '-D COMPILEZEROMQ=1'
-    #include "controllers/superControllers/zeromqSSC.C" //_SSC_ inclusion
+    #include "../superControllers/zeromqSSC.C" //_SSC_ inclusion
 #endif
 
 namespace Foam
@@ -1125,13 +1125,13 @@ void horizontalAxisWindTurbinesADM::callSuperController()
         // _SSC_, specific controller        
         if (sscControllerType == "timeTableSSC")
         {
-            #include "controllers/superControllers/timeTableSSC.H"
+            #include "../superControllers/timeTableSSC.H"
         }       
 
         #if COMPILEZEROMQ == 1
             if (sscControllerType == "zeromqSSC")
             {
-                #include "controllers/superControllers/zeromqSSC.H"
+                #include "../superControllers/zeromqSSC.H"
             }   
         #else
             if (sscControllerType == "zeromqSSC")
