@@ -32,6 +32,7 @@ else if  (yawError < 0)
 else
     deltaNacYaw[i] = Foam::constant::mathematical::pi / 180.0 * runTime_.deltaT().value();  // Yaw positive
 
+/*
 // Write measurements for the superController. In our example case, we have nInputsToSSC = 3
 if (Pstream::master()) {
     // Only write for 1 core to avoid the output being InfoToSSC*nCores
@@ -45,3 +46,4 @@ if (Pstream::master()) {
         superInfoToSSC[i*nInputsToSSC+2] = 0.0;
     }
 //}
+*/

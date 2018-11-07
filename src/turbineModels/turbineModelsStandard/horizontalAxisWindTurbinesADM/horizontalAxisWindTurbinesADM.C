@@ -171,6 +171,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC"))); 
         nOutputsFromSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSSC")));
         sscControllerType = word(turbineArrayProperties.subDict("sscProperties").lookup("sscControllerType"));
+        sscMeasurementsFunction = word(turbineArrayProperties.subDict("sscProperties").lookup("sscMeasurementsFunction"));
         
         if (sscControllerType == "zeromqSSC") { 
             zmqAddress = string(turbineArrayProperties.subDict("sscProperties").lookup("zmqAddress"));
@@ -1084,6 +1085,7 @@ void horizontalAxisWindTurbinesADM::superController()
     // if this is the master, call 
     if (Pstream::master())
     {
+        sscMeasurements(); // Gather measurements
         callSuperController();  // Call the superController function
 
         // Send result local
@@ -1104,6 +1106,16 @@ void horizontalAxisWindTurbinesADM::superController()
         superInfoFromSSC[si] = superInfoLocalOut[si];
     }
 
+}
+
+//_SSC_: define  the call to the SSC measurement function
+void horizontalAxisWindTurbinesADM::sscMeasurements()
+{
+        // _SSC_, specific measurement definition        
+        if (sscMeasurementsFunction == "default")
+        {
+            #include "controllers/measurementFunctions/default.H"
+        }       
 }
 
 //_SSC_: define  the call to the simple controller

@@ -29,6 +29,7 @@ sscProperties
     nInputsToSSC        3; // Number of inputs EACH turbine passes to the super controller
     nOutputsFromSSC     2; // Number of outputs the super controller sends to EACH turbine
     sscControllerType   "timeTableSSC"; // The type of SSC
+    sscMeasurementsFunction "default"; // Measurements function
 }
 
 turbine0

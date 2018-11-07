@@ -342,6 +342,7 @@ private:
 
         //_SSC_ Define the controller type and the IP address for the zeroMQ interface
         word sscControllerType;
+        word sscMeasurementsFunction;
         std::string zmqAddress;
 
             //- Engage a rotor speed limiter (do not let rotor speed exceed rated
@@ -704,8 +705,11 @@ private:
             //- _SSC_: Define the super controller
         void superController();
 
-        // _SSC_: Call the simple controller implementation
+        // _SSC_: Call the controller implementation
         void callSuperController();
+        
+        // _SSC_: Call the SSC measurement function
+        void sscMeasurements();        
 
         //- Calculate the blade pitch.
         void controlBladePitch();

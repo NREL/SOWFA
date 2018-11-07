@@ -30,7 +30,8 @@ sscProperties
     nInputsToSSC        3; // Number of inputs EACH turbine passes to the super controller
     nOutputsFromSSC     2; // Number of outputs the super controller sends to EACH turbine
     sscControllerType   "zeromqSSC"; // The type of SSC
-    zmqAddress          "tcp://localhost:5553";
+    sscMeasurementsFunction "default"; // Measurements function    
+    zmqAddress          "tcp://localhost:5553"; // zeroMQ connection port
 }
 
 turbine0
