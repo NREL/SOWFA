@@ -36,6 +36,6 @@ cp system/controlDict.$runNumber system/controlDict
 
 # Run the solver.
 (mpirun -np $cores $solver -parallel > log.$runNumber.$solver 2>&1) &
-(cd zeromqSSC; matlab -nodisplay -noFigureWindows -logfile 'zeromqSSC_MATLAB.log' -r florisSSC)
+(cd zeromqSSC; matlab -nodisplay -noFigureWindows -logfile 'zeromqSSC_MATLAB.log' -r exampleSSC)
 
 echo "Ending OpenFOAM job at: " $(date)
