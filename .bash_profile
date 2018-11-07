@@ -87,16 +87,13 @@ SOWFA-2.4.x_SSC()
 
    # Set the ZeroMQ compilation option to true
    echo "Enabling the compilation and usage of ZeroMQ."
-   echo "Note that you must have zeroMQ installed and specified the appropriate directory."
    export COMPILEZEROMQ=1
    export ZEROMQ_HOME=$HOME/OpenFOAM/zeroMQ/libzmq/install
    export ZEROMQ_INCLUDE=$ZEROMQ_HOME/include
    export ZEROMQ_LIB=$ZEROMQ_HOME/lib64
    export LD_LIBRARY_PATH=$ZEROMQ_HOME/lib:$LD_LIBRARY_PATH
-   export LD_LIBRARY_PATH=$ZEROMQ_HOME/lib64:$LD_LIBRARY_PATH   
-   
-   echo "Specified ZeroMQ /include/ directory: $ZEROMQ_INCLUDE"   
-   echo "Specified ZeroMQ /lib64/ directory: $ZEROMQ_LIB"      
+   export LD_LIBRARY_PATH=$ZEROMQ_HOME/lib64:$LD_LIBRARY_PATH    
+   echo "Specified ZeroMQ directory: $ZEROMQ_HOME"   
    
    
    foamDotFile=$FOAM_INST_DIR/$OPENFOAM_NAME/etc/bashrc
