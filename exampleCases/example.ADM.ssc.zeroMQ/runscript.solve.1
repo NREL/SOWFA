@@ -1,14 +1,22 @@
 #!/bin/bash
-#PBS -N piso_9tb_SSC
+#PBS -l walltime=48:00:00
 #PBS -l nodes=1:ppn=8
+#PBS -N "ADM.ssc.zeroMQ"
+
+
 
 cd $PBS_O_WORKDIR
 
+
+
+
 # User Input.
+OpenFOAMversion=2.4.x_SSC   # OpenFOAM version
 startTime=0                 # Start time
 cores=8                     # Enter the number of cores you will preprocess on.
 runNumber=1                 # Enter the run number (useful for keeping track of restarts).
 solver=pisoFoamTurbine.ADM  # Enter the name of the flow solver.
+
 
 
 echo "Starting OpenFOAM job at: " $(date)
@@ -18,19 +26,16 @@ echo "using " $cores " cores"
 # Source the bash profile and then call the appropriate OpenFOAM version function
 # so that all the modules and environment variables get set.
 echo "Sourcing the bash profile, loading modules, and setting the OpenFOAM environment variables..."
-module load openfoam/2.4.0
-module load matlab
-export ZEROMQ_INCLUDE=$HOME/OpenFOAM/zeroMQ/libzmq/install/include
-export ZEROMQ_LIB=$HOME/OpenFOAM/zeroMQ/libzmq/install/lib64
-export LD_LIBRARY_PATH=$HOME/OpenFOAM/zeroMQ/libzmq/install/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$HOME/OpenFOAM/zeroMQ/libzmq/install/lib64:$LD_LIBRARY_PATH
+source $HOME/.bash_profile
+OpenFOAM-$OpenFOAMversion
+
 
 # Get the control dictionary for this particular run.
 cp system/controlDict.$runNumber system/controlDict
 
 
 # Run the solver.
-(mpirun -np $cores $solver -parallel > log.$runNumber.$solver 2>&1) & 
-(cd zeromqServerFLORIS; matlab -nodisplay -noFigureWindows -logfile 'SSC_MATLAB.log' -r florisSSC)
+(mpirun -np $cores $solver -parallel > log.$runNumber.$solver 2>&1) &
+(cd zeromqSSC; matlab -nodisplay -noFigureWindows -logfile 'zeromqSSC_MATLAB.log' -r florisSSC)
 
 echo "Ending OpenFOAM job at: " $(date)

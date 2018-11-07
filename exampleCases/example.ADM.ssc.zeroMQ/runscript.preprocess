@@ -1,10 +1,10 @@
 #!/bin/bash
-#PBS -N ADM_noPrecursor_preprocess
-#PBS -l nodes=3:ppn=8
+#PBS -N ADM_pisoFoam_preprocess
+#PBS -l nodes=1:ppn=1
 
 
 # User Input.
-OpenFOAMversion=2.4.0           # OpenFOAM version
+OpenFOAMversion=2.4.x_SSC       # OpenFOAM version
 startTime=0                     # Start time
 updateBCType=0                  # Boolean for whether or not the boundary condition types will be updated over 
                                 #    what is in the initial conditions files. Leave it 0 for precursors.
@@ -65,8 +65,8 @@ fi
 # Source the bash profile and then call the appropriate OpenFOAM version function
 # so that all the modules and environment variables get set.
 echo "Sourcing the bash profile, loading modules, and setting the OpenFOAM environment variables..."
-#source $HOME/.bash_profile
-#OpenFOAM-$OpenFOAMversion
+source $HOME/.bash_profile
+OpenFOAM-$OpenFOAMversion
 
 
 # Copy the controlDict.1 (assuming this is the one the actual solver will start

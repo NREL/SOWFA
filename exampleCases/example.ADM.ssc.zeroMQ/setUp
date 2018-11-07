@@ -15,7 +15,7 @@ yMax                 3000.0;                      // Maximum y-extent of domain 
 zMax                 1000.0;                      // Maximum z-extent of domain (m).
 nx                   100;                         // Number of cells in x-direction.
 ny                   100;                         // Number of cells in y-direction.
-nz                   33;                          // Number of cells in z-direction.
+nz                   34;                          // Number of cells in z-direction.
 
 
 

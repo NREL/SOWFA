@@ -9,8 +9,8 @@ fi
 
 
 
-# SOWFA-2.4.x
-SOWFA-2.4.x()
+# OpenFOAM-2.4.x
+OpenFOAM-2.4.x()
 {
    # Unset OpenFOAM environment variables.
    if [ -z "$FOAM_INST_DIR" ]; then
@@ -58,8 +58,8 @@ SOWFA-2.4.x()
    export PATH=$FOAM_USER_APPBIN:$PATH
 }
 
-# SOWFA-2.4.x
-SOWFA-2.4.x_SSC()
+# OpenFOAM-2.4.x
+OpenFOAM-2.4.x_SSC()
 {
    # Unset OpenFOAM environment variables.
    if [ -z "$FOAM_INST_DIR" ]; then

@@ -30,11 +30,8 @@ sscProperties
     nInputsToSSC        3; // Number of inputs EACH turbine passes to the super controller
     nOutputsFromSSC     2; // Number of outputs the super controller sends to EACH turbine
     sscControllerType   "zeromqSSC"; // The type of SSC
-    zmqAddress          "tcp://localhost:5551";
+    zmqAddress          "tcp://localhost:5553";
 }
-
-// MATLAB: phi=-10; D=126.4; locs=D*[0 0 0;0 2 0;0 4 0;5 0 0; 5 2 0; 5 4 0; 10 0 0; 10 2 0; 10 4 0]*rotz(phi);
-//         locs(:,1)=locs(:,1)-min(locs(:,1)) + (3000-(max(locs(:,1))-min(locs(:,1))))/2; locs(:,2)=locs(:,2)-min(locs(:,2)) + (3000-(max(locs(:,2))-min(locs(:,2))))/2;
 
 turbine0
 {
