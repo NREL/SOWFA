@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Remove initial conditions and temporary files
+rm -rf 0
+rm -rf system/controlDict
+
+# Remove logs
+rm -rf log.*
+rm -rf runscript.solve.1.o* runscript.solve.1.e*
+
+# Remove processor files and folders
+rm -rf processor*
+
+# Remove simulation output
+rm -rf postProcessing
+rm -rf turbineOutput
+
+# Remove polyMesh data
+cp constant/polyMesh/blockMeshDict ./
+rm -rf constant/polyMesh/*
+mv ./blockMeshDict constant/polyMesh

@@ -1,9 +1,9 @@
 #!/bin/bash
 #PBS -l walltime=48:00:00
-#PBS -l nodes=8:ppn=24
-#PBS -l feature=24core
-#PBS -A windsim
-#PBS -q batch
+#PBS -l nodes=1:ppn=8
+#PBS -N "ADM.ssc.timeTable"
+
+
 
 cd $PBS_O_WORKDIR
 
@@ -11,11 +11,11 @@ cd $PBS_O_WORKDIR
 
 
 # User Input.
-OpenFOAMversion=2.4.x_SSC       # OpenFOAM version
-startTime=0                     # Start time
-cores=180                       # Enter the number of cores you will preprocess on.
-runNumber=1                     # Enter the run number (useful for keeping track of restarts).
-solver=pisoFoamTurbine.ADM      # Enter the name of the flow solver.
+OpenFOAMversion=2.4.x_SSC   # OpenFOAM version
+startTime=0                 # Start time
+cores=8                     # Enter the number of cores you will preprocess on.
+runNumber=1                 # Enter the run number (useful for keeping track of restarts).
+solver=pisoFoamTurbine.ADM  # Enter the name of the flow solver.
 
 
 
