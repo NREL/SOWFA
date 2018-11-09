@@ -289,8 +289,33 @@ List<Type> Foam::meshPlanes::average
 }
 
 
+template<class Type>
+Type Foam::meshPlanes::average
+(
+    const GeometricField<Type, fvPatchField, volMesh>& vField,
+    label planeI
+)
+{
+    Type vFieldMean(Type::zero);
+
+    for (label i = 0; i < numCellPerPlane_[planeI]; i++)
+    {
+        label cellI = planesCellList_[planeI][i];
+        vFieldMean += vField[cellI] * mesh_.V()[cellI];
+    }
+
+    reduce(vFieldMean,sumOp<Type>());
+
+    vFieldMean /= totVolPerPlane_[planeI];
+
+    return vFieldMean;
+}
+
+
 // Explicit instantiation of template function average<Type>
+template vector Foam::meshPlanes::average<vector>(const volVectorField&, label);
 template List<vector> Foam::meshPlanes::average<vector>(const volVectorField&);
+template symmTensor Foam::meshPlanes::average<symmTensor>(const volSymmTensorField&, label);
 template List<symmTensor> Foam::meshPlanes::average<symmTensor>(const volSymmTensorField&);
 
 // Specialization for average<scalar>
@@ -299,7 +324,8 @@ template List<symmTensor> Foam::meshPlanes::average<symmTensor>(const volSymmTen
 // and providing the namespace as part of the type does not work in this case.
 namespace Foam
 {
-    template <> List<scalar> meshPlanes::average<scalar>
+    template<>
+    List<scalar> meshPlanes::average<scalar>
     (
         const GeometricField<scalar, fvPatchField, volMesh>& vField
     )
@@ -321,6 +347,29 @@ namespace Foam
         {
             vFieldMean[planeI] /= totVolPerPlane_[planeI];
         }
+    
+        return vFieldMean;
+    }
+
+
+    template<>
+    scalar meshPlanes::average<scalar>
+    (
+        const GeometricField<scalar, fvPatchField, volMesh>& vField,
+        label planeI
+    )
+    {
+        scalar vFieldMean(0.0);
+    
+        for (label i = 0; i < numCellPerPlane_[planeI]; i++)
+        {
+            label cellI = planesCellList_[planeI][i];
+            vFieldMean += vField[cellI] * mesh_.V()[cellI];
+        }
+    
+        reduce(vFieldMean,sumOp<scalar>());
+    
+        vFieldMean /= totVolPerPlane_[planeI];
     
         return vFieldMean;
     }

@@ -121,6 +121,14 @@ public:
             const GeometricField<Type, fvPatchField, volMesh>& vField
         );
 
+        //- Compute planar average at particular plane
+        template<class Type>
+        Type average
+        (
+            const GeometricField<Type, fvPatchField, volMesh>& vField,
+            label planeI
+        );
+
         //- Access
         
             label numberOfPlanes() const
