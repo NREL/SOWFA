@@ -53,12 +53,8 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "wallDist.H"
-#include "interpolateXY.H"
 #include "interpolateSplineXY.H"
-#include "interpolate2D.H"
-#include "windRoseToCartesian.H"
 #include "ABL.H"
-#include "meshPlanes.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
