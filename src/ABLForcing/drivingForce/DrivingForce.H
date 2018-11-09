@@ -128,13 +128,6 @@ class DrivingForce
         }
 
 
-        //- Return name of the template type
-        word nameOfType_()
-        {
-            return Type::typeName;
-        }
-
-
         //- Read input data from ABLProperties dictionary
         void readInputData_();
 
@@ -222,13 +215,6 @@ template<>
 scalar DrivingForce<scalar>::zeroTensor_()
 {
     return 0.0;
-}
-
-
-template<>
-word DrivingForce<scalar>::nameOfType_()
-{
-    return "scalar";
 }
 
 

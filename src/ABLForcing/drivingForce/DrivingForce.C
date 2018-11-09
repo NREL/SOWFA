@@ -152,7 +152,7 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
     // Compute the planar-averaged actual field at each cell level
     List<Type> fldMean = zPlanes_.average<Type>(field_);
 
-    // Compute the correction to the siyrce term
+    // Compute the correction to the source term
     List<Type> source(zPlanes_.numberOfPlanes(),zeroTensor_());
     forAll(zPlanes_.planesCellList(),planeI)
     {
@@ -492,7 +492,6 @@ void Foam::DrivingForce<Type>::findSingleForcingHeight_()
             j++;
         }
     }
-
 }
 
 
@@ -581,14 +580,11 @@ Foam::DrivingForce<Type>::DrivingForce
     hLevels2I(0.0),
     hLevels1(0.0),
     hLevels2(0.0)
-
-
 {
-    Info << "Creating driving force object with name " << name_ << " and type " << nameOfType_() << endl;
+    Info << "Creating driving force object with for " << name_ << endl;
 
     readInputData_();
     openFiles_();
-    
 }
 
 
