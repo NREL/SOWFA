@@ -88,7 +88,7 @@ void Foam::planarAveraging::updatePlanarDevFields()
 
             List<Type> fldmean = zPlanes_.average<Type>(fld);
 
-            forAll(zPlanes_.planeLocationValues(),planeI)
+            forAllPlanes(zPlanes_,planeI)
             {
                 for(label i = 0; i < zPlanes_.numCellPerPlane()[planeI]; i++)
                 {
@@ -115,7 +115,7 @@ void Foam::planarAveraging::sampleAndWrite
 
         os << mesh_.time().timeName() << " " << mesh_.time().deltaT().value();
 
-        forAll(zPlanes_.planeLocationValues(),planeI)
+        forAllPlanes(zPlanes_,planeI)
         {
             os << " " << vFieldMean[planeI];
         }

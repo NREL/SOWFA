@@ -65,7 +65,7 @@ void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_()
 
 
     // Now go by cell levels and apply the source term
-    forAll(zPlanes_.planesCellList(),planeI)
+    forAllPlanes(zPlanes_,planeI)
     {
         for (label i = 0; i < zPlanes_.numCellPerPlane()[planeI]; i++)
         {
@@ -154,7 +154,7 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
 
     // Compute the correction to the source term
     List<Type> source(zPlanes_.numberOfPlanes(),zeroTensor_());
-    forAll(zPlanes_.planesCellList(),planeI)
+    forAllPlanes(zPlanes_,planeI)
     {
         // this is the correction at this level
         Type ds = (fldMeanDesired[planeI] - fldMean[planeI]) / dt;
@@ -215,7 +215,7 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
             {
                 sourceHistoryFile_() << runTime_.timeName() << " " << runTime_.deltaT().value();
 
-                forAll(zPlanes_.planeLocationValues(),planeI)
+                forAllPlanes(zPlanes_,planeI)
                 {
                    sourceHistoryFile_() << " " << source[planeI];
                 }
@@ -442,14 +442,14 @@ void Foam::DrivingForce<Type>::findSingleForcingHeight_()
 
     // Find the grid levels closest to the specified height
     List<scalar> hLevelsDiff(zPlanes_.numberOfPlanes());
-    forAll(zPlanes_.planeLocationValues(),planeI)
+    forAllPlanes(zPlanes_,planeI)
     {
         hLevelsDiff[planeI] = zPlanes_.planeLocationValues()[planeI] - sourceHeightsSpecified_[0];
     }
 
     // Find the two levels closest to the specified height
     // Find the closest level
-    forAll(zPlanes_.planeLocationValues(),planeI)
+    forAllPlanes(zPlanes_,planeI)
     {
         if (planeI == 0)
         {
@@ -470,7 +470,7 @@ void Foam::DrivingForce<Type>::findSingleForcingHeight_()
 
     // Find the next closest level
     int j = 0;
-    forAll(zPlanes_.planeLocationValues(),planeI)
+    forAllPlanes(zPlanes_,planeI)
     {
         if (planeI != hLevels1I)
         {
@@ -521,7 +521,7 @@ void Foam::DrivingForce<Type>::openFiles_()
         if (sourceHeightsSpecified_.size() > 1)
         {
             sourceHistoryFile_() << "Heights (m) ";
-            forAll(zPlanes_.planeLocationValues(),planeI)
+            forAllPlanes(zPlanes_,planeI)
             {
                 sourceHistoryFile_() << zPlanes_.planeLocationValues()[planeI] << " ";
             }

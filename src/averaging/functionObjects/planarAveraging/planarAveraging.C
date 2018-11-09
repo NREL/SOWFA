@@ -165,7 +165,7 @@ void Foam::planarAveraging::openFiles()
 
         // Open and write out the cell center vertical levels file
         OFstream hLevelsFile = outputPath_/"hLevelsCell";
-        forAll(zPlanes_.planeLocationValues(),planeI)
+        forAllPlanes(zPlanes_,planeI)
         {
             hLevelsFile << zPlanes_.planeLocationValues()[planeI] << " ";
         }

@@ -165,6 +165,20 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+//- Loop across all planes in \a meshPlanes
+// \par Usage
+// \code
+// forAllPlanes(meshPlanes, i)
+// {
+//      statements;
+// }
+// \endcode
+// \sa forAllPlanes
+#define forAllPlanes(meshPlanes, i) \
+    for (Foam::label i=0; i<(meshPlanes).numberOfPlanes(); i++)
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 #endif
 
 // ************************************************************************* //
