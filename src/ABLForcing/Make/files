@@ -1,5 +1,6 @@
 spongeLayer/spongeLayer.C
 CoriolisForce/CoriolisForce.C
 buoyancyModel/buoyancyModel.C
+drivingForce/drivingForce.C
 
 LIB = $(FOAM_USER_LIBBIN)/libuserABLForcing
