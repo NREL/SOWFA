@@ -10,7 +10,7 @@
       + fvm::div(phi, T)
       - fvm::laplacian(kappaEff, T)
       - fvc::div(qwall)
-      - SourceT
+      - temperatureSourceTerm.force()
     );
 
     TEqn.relax();

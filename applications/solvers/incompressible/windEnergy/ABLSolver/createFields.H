@@ -68,6 +68,12 @@
     // Create sponge layer object
     spongeLayer sponge(U,upIndex);
 
+
+    // Create external source term objects
+    DrivingForce<scalar> temperatureSourceTerm("temperature",T);
+    DrivingForce<vector> momentumSourceTerm("momentum",U);
+
+
     // Create and read the turbulent thermal conductivity field
     Info << "Creating the kinematic thermal conductivity field, kappat..." << endl;
     volScalarField kappat

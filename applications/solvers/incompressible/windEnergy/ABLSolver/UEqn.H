@@ -17,7 +17,7 @@
       + fvc::div(Rwall)
       - Coriolis.force()                        // Coriolis force
       - sponge.force()                          // Sponge layer damping
-      - SourceU                                 // mesoscale source terms
+      - momentumSourceTerm.force()              // mesoscale source terms
     );
 
     UEqn.relax();
@@ -32,7 +32,7 @@
             (
                 (
                   - fvc::snGrad(p_rgh)          // modified pressure gradient
-                  + Boussinesq.buoyancyTerm()                // buoyancy force
+                  + Boussinesq.buoyancyTerm()   // buoyancy force
                 ) * mesh.magSf()
             )
         );

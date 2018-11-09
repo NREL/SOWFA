@@ -69,18 +69,14 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "createPostProcessingDir.H"
-    #include "findVerticalCellLevels.H"
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createSGSTurbulenceFields.H"
-    #include "createSourceTerms.H"
     #include "readTimeControls.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
-  //#include "findWindHeight.H"
     #include "computeDivergence.H"
     #include "createDivSchemeBlendingField.H"
-    //#include "openABLStatisticsFiles.H"
 
     pimpleControl pimple(mesh);
 
@@ -126,11 +122,9 @@ int main(int argc, char *argv[])
                 corr++;
             }
 
-            // --- Update the driving pressure gradient
-          //#include "correctGradP.H"
-
             // --- Update the source terms
-            #include "correctSourceTerms.H"
+            momentumSourceTerm.update();
+            temperatureSourceTerm.update();
 
             // --- Compute the velocity flux divergence
             #include "computeDivergence.H"
@@ -145,7 +139,6 @@ int main(int argc, char *argv[])
         #include "computeSGSTurbulenceFields.H"
 
         runTime.write();
-//      #include "writeGradP.H"
 
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"
