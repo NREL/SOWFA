@@ -1094,6 +1094,12 @@ void horizontalAxisWindTurbinesADM::superController()
             superInfoLocalOut[si] = superInfoFromSSC[si];
         }
         
+    } else {
+        // If not master, set measurements to zero
+        for(int si = 0; si < nInputsToSSC *numTurbines; si++)
+        {
+            superInfoToSSC[si] = 0.0;
+        }
     }
 
     //Gather and scatter across procs
