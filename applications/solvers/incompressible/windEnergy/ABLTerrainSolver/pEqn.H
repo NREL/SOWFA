@@ -1,12 +1,21 @@
 {
+    // The inverse of the momentum equation "A" operator (the matrix diagonal) and
+    // its projection from cell centers to cell faces.  Because it is a diagonal matrix,
+    // The inverse is just the diagonal matrix of the reciprocals, hence the "r" in the
+    // name "rAU".
     volScalarField rAU("rAU", 1.0/UEqn.A());
     surfaceScalarField rAUf("(1|A(U))", fvc::interpolate(rAU));
 
+    // The momentum equation "H" operator is the off-diagonal times the last known U.
+    // In the equations it is always multiplied with inv(A).  This is HbyA.
     volVectorField HbyA("HbyA", U);
     HbyA = rAU*UEqn.H();
 
-    surfaceScalarField phig(-rAUf*ghf*fvc::snGrad(rhok)*mesh.magSf());
+    // This is the Boussinesq buoyancy term multipled by the inverse of the A operator.
+    #include "computeBuoyancyTerm.H"
+    surfaceScalarField phig(rAUf * buoyancyTerm * mesh.magSf());
 
+    // Project HbyA to cell faces and apply a correction for time stepping scheme.
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
@@ -14,9 +23,8 @@
       + rAUf*fvc::ddtCorr(U, phi)
     );
 
-    adjustPhi(phiHbyA, U, p_rgh);
-
-    surfaceScalarField phiFixedFlux = fvc::interpolate(U) & mesh.Sf();
+    // This part balances global mass flux.
+    surfaceScalarField phiFixedFlux = phiHbyA;
 
     adjustPhi(phiFixedFlux, U, p_rgh);
 
@@ -32,6 +40,8 @@
         )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
     );
 
+
+    // Non-orthogonal corrector loop.
     while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix p_rghEqn
@@ -39,7 +49,10 @@
             fvm::laplacian(rAUf, p_rgh) == fvc::div(phiHbyA)
         );
 
-        p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+        if (activatePressureRefCell)
+        {
+            p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+        }
 
         p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
 
@@ -58,16 +71,6 @@
         }
     }
 
-    p = p_rgh + rhok*gh;
-
-    if (p_rgh.needReference())
-    {
-        p += dimensionedScalar
-        (
-            "p",
-            p.dimensions(),
-            pRefValue - getRefCellValue(p, pRefCell)
-        );
-        p_rgh = p - rhok*gh;
-    }
+    // Compute the full pressure and adjust the pressure level.
+    #include "adjustPressureLevel.H"
 }

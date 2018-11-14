@@ -28,7 +28,17 @@ Group
     grpInletBoundaryConditions grpCoupledBoundaryConditions
 
 Description
-    This boundary conditions interpolates the values from a set of supplied
+    This boundary condition is like inletOutlet in which if the flow is
+    outflow, it is set to zero gradient; if the flow is inflow, the
+    value is set.  Rather than set it to a single value as with inletOutlet,
+    the value is set as timeVaryingMappedFixedValue would set the value
+    using a saved time history of spatially varying data.  This is of 
+    use in atmospheric simulations in which some boundaries may have
+    inflow and outflow faces, and the inflow comes from pregenerated,
+    saved turbulent flow.
+
+    As with timeVaryingMappedFixedValue, on inflow faces, this boundary
+    condition interpolates the values from a set of supplied
     points in space and time.  Supplied data should be specified in
     constant/boundaryData/\<patchname\> where:
     - points : pointField with locations
@@ -41,7 +51,7 @@ Description
     The optional mapMethod nearest will avoid all projection and
     triangulation and just use the value at the nearest vertex.
 
-    Values are interpolated linearly between times.
+    Inflow values are interpolated linearly between times.
 
     \heading Patch usage
 
@@ -52,23 +62,21 @@ Description
         fieldTableName | alternative field name to sample | no| this field name
         mapMethod    | type of mapping | no | planarInterpolation
         offset   | for applying offset to mapped values  | no | constant 0.0
-        phi          | Flux field name         | no          | phi
     \endtable
 
     \verbatim
     myPatch
     {
         type            timeVaryingMappedInletOutlet;
-        setAverage      0;
-        perturb         1e-05;
-        offset          0;
-        value           uniform 0;
+        setAverage      false;
+        //perturb       0.0;
+        //fieldTableName samples;
+        //offset    constant 0.2;
     }
     \endverbatim
 
 SeeAlso
-    Foam::inletOutletFvPatchField
-    Foam::mixedFvPatchField
+    Foam::fixedValueFvPatchField
 
 SourceFiles
     timeVaryingMappedInletOutletFvPatchField.C
@@ -78,8 +86,9 @@ SourceFiles
 #ifndef timeVaryingMappedInletOutletFvPatchField_H
 #define timeVaryingMappedInletOutletFvPatchField_H
 
-#include "inletOutletFvPatchField.H"
-//#include "FixedList.H"
+//#include "fixedValueFvPatchFields.H"
+#include "mixedFvPatchFields.H"
+#include "FixedList.H"
 #include "instantList.H"
 #include "pointToPointPlanarInterpolation.H"
 #include "DataEntry.H"
@@ -96,13 +105,20 @@ namespace Foam
 template<class Type>
 class timeVaryingMappedInletOutletFvPatchField
 :
-    public inletOutletFvPatchField<Type>
+  //public fixedValueFvPatchField<Type>
+    public mixedFvPatchField<Type>
 {
-    // Private data
 
-        //- Fixes (flux) values or not? Defaults to inletOutlet behavior, i.e.,
-        //  outflow fluxes are adjustable.
-        bool fixesValue_;
+protected:
+
+    // Protected data
+
+        //- Name of flux field
+        word phiName_;
+
+
+private:
+    // Private data
 
         //- Name of the field data table, defaults to the name of the field
         word fieldTableName_;
@@ -112,6 +128,9 @@ class timeVaryingMappedInletOutletFvPatchField
 
         //- Fraction of perturbation (fraction of bounding box) to add
         scalar perturb_;
+
+	//- Does this boundary fix values so that they can't be adjusted by adjustPhi
+	bool fixesValue_;
 
         //- Interpolation scheme to use
         word mapMethod_;
@@ -216,13 +235,20 @@ public:
 
         // Access
 
+	    //- Returns true if this patch fixes a value.  This is used for
+	    //  setting a reference value for a Poisson solve (pressure),
+	    //  and for determining if adjustPhi affects the flux here.
+	    virtual bool fixesValue() const
+            {
+	        return fixesValue_;
+	    }
+
             //- Return startSampledValues
             const Field<Type> startSampledValues()
             {
-                 return startSampledValues_;
+                return startSampledValues_;
             }
 
-            virtual bool fixesValue() const { return fixesValue_; }
 
         // Mapping functions
 
@@ -251,16 +277,13 @@ public:
             //- Update the coefficients associated with the patch field
             virtual void updateCoeffs();
 
-            //- Evaluate the patch field
-            virtual void evaluate
-            (
-                const Pstream::commsTypes commsType=Pstream::blocking
-            );
-
 
         //- Write
         virtual void write(Ostream&) const;
 
+
+    // Member operators
+    virtual void operator=(const fvPatchField<Type>& pvf);
 };
 
 

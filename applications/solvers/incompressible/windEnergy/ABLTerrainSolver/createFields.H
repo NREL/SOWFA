@@ -197,11 +197,6 @@
         mesh
     );
 
-    // Create and calculate the gravity potential field
-    Info << "Creating and calculating the gravity potential field, gh and ghf..." << endl;
-    volScalarField gh("gh", g & mesh.C());
-    surfaceScalarField ghf("ghf", g & mesh.Cf());
-
     // Create and calculate the static pressure field
     Info << "Creating and calculating the static pressure field, p..." << endl;
     volScalarField p
@@ -214,8 +209,9 @@
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        p_rgh + rhok*gh
+        p_rgh
     );
+
 
     // Set up the pressure reference cell information
     Info << "Setting up the pressure reference cell information..." << endl;
@@ -230,13 +226,21 @@
         pRefValue
     );
 
-    if (p_rgh.needReference())
-    {
-        p += dimensionedScalar
-        (
-            "p",
-            p.dimensions(),
-            pRefValue - getRefCellValue(p, pRefCell)
-        );
-    }
 
+    // Create and calculate the gravity potential field
+    Info << "Creating and calculating the gravity potential field, gh and ghf..." << endl;
+
+    vector hRef_ = vector::zero;
+    if (pRefCell != -1)
+    {
+        hRef_ = mesh.C()[pRefCell];
+    }
+    reduce(hRef_,sumOp<vector>());
+    dimensionedVector hRef("hRef",dimLength,hRef_);
+
+    volScalarField gh("gh", g & (mesh.C() - hRef));
+    surfaceScalarField ghf("ghf", g & (mesh.Cf() - hRef));
+
+
+    // Compute the full pressure and adjust the pressure level.
+    #include "adjustPressureLevel.H"

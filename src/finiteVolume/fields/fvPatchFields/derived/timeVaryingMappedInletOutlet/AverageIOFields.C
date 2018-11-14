@@ -21,29 +21,58 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Description
+
 \*---------------------------------------------------------------------------*/
 
-#ifndef timeVaryingMappedInletOutletFvPatchFields_H
-#define timeVaryingMappedInletOutletFvPatchFields_H
-
-#include "timeVaryingMappedInletOutletFvPatchField.H"
+#include "AverageIOField.H"
 #include "fieldTypes.H"
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-makePatchTypeFieldTypedefs(timeVaryingMappedInletOutlet);
+typedef AverageIOField<scalar> scalarAverageIOField;
+typedef AverageIOField<vector> vectorAverageIOField;
+typedef AverageIOField<sphericalTensor> sphericalTensorAverageIOField;
+typedef AverageIOField<symmTensor> symmTensorAverageIOField;
+typedef AverageIOField<tensor> tensorAverageIOField;
+
+defineTemplateTypeNameAndDebugWithName
+(
+    scalarAverageIOField,
+    "scalarAverageField",
+    0
+);
+defineTemplateTypeNameAndDebugWithName
+(
+    vectorAverageIOField,
+    "vectorAverageField",
+    0
+);
+defineTemplateTypeNameAndDebugWithName
+(
+    sphericalTensorAverageIOField,
+    "sphericalTensorAverageField",
+    0
+);
+defineTemplateTypeNameAndDebugWithName
+(
+    symmTensorAverageIOField,
+    "symmTensorAverageField",
+    0
+);
+defineTemplateTypeNameAndDebugWithName
+(
+    tensorAverageIOField,
+    "tensorAverageField",
+    0
+);
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
 
 // ************************************************************************* //
