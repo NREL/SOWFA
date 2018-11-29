@@ -93,7 +93,7 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
                                 sourceHeightsSpecified_,
                                 sourceSpecified_);
    
-    // Cobert from speedAndDirection to component if necessary
+    // Convert from speedAndDirection to component if necessary
     Type fldMeanDesired(zeroTensor_());
     if (velocityInputType_ == "component")
     {
@@ -115,7 +115,7 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
     Type fldMean = fldMean1 + (((fldMean2 - fldMean1)/(hLevels2 - hLevels1)) * (sourceHeightsSpecified_[0] - hLevels1));
    
 
-    // Compute the correction to the source term
+    // Compute the source term
     Type ds = (fldMeanDesired - fldMean) / dt;
 
     // Apply the relaxation
@@ -127,7 +127,6 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
         bodyForce_[cellI] = ds;
     }
 
-    //dsVol.correctBoundaryConditions();
     bodyForce_.correctBoundaryConditions();
     
     // Write the source information
@@ -152,7 +151,7 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
     // Compute the planar-averaged actual field at each cell level
     List<Type> fldMean = zPlanes_.average<Type>(field_);
 
-    // Compute the correction to the source term
+    // Compute the source term
     List<Type> source(zPlanes_.numberOfPlanes(),zeroTensor_());
     forAllPlanes(zPlanes_,planeI)
     {
@@ -162,10 +161,10 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
         // apply relaxation
         ds *= alpha_;
 
-        // add the correction to the source column vector
+        // store the source in the a column vector for postprocesssing
         source[planeI] = ds;
 
-        // add the correction on to the source field
+        // Now go by cell levels and apply the source term
         for (label i = 0; i < zPlanes_.numCellPerPlane()[planeI]; i++)
         {
             label cellI = zPlanes_.planesCellList()[planeI][i];
