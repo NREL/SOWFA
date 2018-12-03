@@ -166,6 +166,9 @@ class DrivingForce
         //- Update computed time-height-dependent source term
         void updateComputedTimeHeightDepSource_();
 
+        //- Update controller
+        List<Type> updateController_(List<Type>& error);
+
         //- Write source history to file (single value or column of values)
         void writeSourceHistory_(Type& source);
         void writeSourceHistory_(List<Type>& source);

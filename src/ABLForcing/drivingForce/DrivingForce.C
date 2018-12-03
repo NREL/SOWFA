@@ -137,9 +137,6 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
 template<class Type>
 void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
 {
-    // Get the current time step size.
-    scalar dt = runTime_.deltaT().value();
-
     // Interpolate specified source values in time and height
     List<Type> fldMeanDesired = interpolate2D(runTime_.value(),
                                 zPlanes_.planeLocationValues(),
@@ -151,24 +148,19 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
     // Compute the planar-averaged actual field at each cell level
     List<Type> fldMean = zPlanes_.average<Type>(field_);
 
-    // Compute the source term
-    List<Type> source(zPlanes_.numberOfPlanes(),zeroTensor_());
+    // Compute the error at each cell level
+    List<Type> fldError = fldMeanDesired - fldMean;
+
+    // Compute the controller action
+    List<Type> source = updateController_(fldError);
+
+    // Now go by cell levels and apply the source term
     forAllPlanes(zPlanes_,planeI)
     {
-        // this is the correction at this level
-        Type ds = (fldMeanDesired[planeI] - fldMean[planeI]) / dt;
-
-        // apply relaxation
-        ds *= alpha_;
-
-        // store the source in the a column vector for postprocesssing
-        source[planeI] = ds;
-
-        // Now go by cell levels and apply the source term
         for (label i = 0; i < zPlanes_.numCellPerPlane()[planeI]; i++)
         {
             label cellI = zPlanes_.planesCellList()[planeI][i];
-            bodyForce_[cellI] = ds;
+            bodyForce_[cellI] = source[planeI];
         }
     }
     bodyForce_.correctBoundaryConditions();
@@ -176,6 +168,23 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
 
     // Write the column of source information.
     writeSourceHistory_(source);
+}
+
+
+template<class Type>
+List<Type> Foam::DrivingForce<Type>::updateController_
+(
+    List<Type>& error
+)
+{
+    // Get the current time step size.
+    scalar dt = runTime_.deltaT().value();
+    
+    // Compute controller action
+    List<Type> source(error.size(),zeroTensor_());
+    source = alpha_ * error / dt;
+
+    return source;
 }
 
 
