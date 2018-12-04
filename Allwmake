@@ -42,14 +42,14 @@ else
     fi	
 fi
 
-# ABL forcing objects
-cd src/ABLForcing
+# Custom averaging function objects
+cd src/averaging
 wmake libso
 cd ../../
 
 
-# Custom averaging function objects
-cd src/averaging
+# ABL forcing objects
+cd src/ABLForcing
 wmake libso
 cd ../../
 
