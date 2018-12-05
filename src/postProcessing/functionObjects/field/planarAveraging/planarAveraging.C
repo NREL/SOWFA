@@ -282,7 +282,7 @@ void Foam::planarAveraging::execute()
 
 void Foam::planarAveraging::end()
 {
-    write();
+    // Do nothing
 }
 
 
