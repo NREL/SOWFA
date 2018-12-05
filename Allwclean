@@ -31,17 +31,22 @@ rmdepall
 wclean
 cd ../../
 
+cd src/meshTools
+rmdepall
+wclean
+cd ../../
+
 cd src/ABLForcing
 rmdepall
 wclean
 cd ../../
 
-cd src/averaging
+cd src/postProcessing/functionObjects/utilities
 rmdepall
 wclean
-cd ../../
+cd ../../../../
 
-cd src/postProcessing/functionObjects/utilities
+cd src/postProcessing/functionObjects/field
 rmdepall
 wclean
 cd ../../../../

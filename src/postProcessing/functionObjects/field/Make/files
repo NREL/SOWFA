@@ -1,0 +1,4 @@
+planarAveraging/planarAveraging.C
+planarAveraging/planarAveragingFunctionObject.C
+
+LIB = $(FOAM_USER_LIBBIN)/libuserfieldFunctionObjects

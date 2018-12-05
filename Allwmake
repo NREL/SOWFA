@@ -42,8 +42,8 @@ else
     fi	
 fi
 
-# Custom averaging function objects
-cd src/averaging
+# Custom mesh Tools
+cd src/meshTools
 wmake libso
 cd ../../
 
@@ -74,6 +74,12 @@ cd ../../
 
 # Custom function objects (this includes the lidar sampling).
 cd src/postProcessing/functionObjects/utilities
+wmake libso
+cd ../../../../
+
+
+# Custom function objects (this includes planar and temporal averaging).
+cd src/postProcessing/functionObjects/field
 wmake libso
 cd ../../../../
 
