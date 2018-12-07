@@ -228,7 +228,6 @@ void SchumannGrotzbachFvPatchField::evaluate
 
 
 
-
     // ---Compute the friction velocity, Obuhkov length, and non-dimensional shear
     //    Define friction velocity
     scalarField uStar(patch().size(),0.0);
@@ -450,17 +449,26 @@ vector SchumannGrotzbachFvPatchField::transformVectorCartToLocal
     // OpenFOAM normal is outward)
     scalar zPMag;
     zPMag = mag(zP);
-    zP = zP/zPMag;
+    if (zPMag != 0.0)
+    {
+       zP = zP/zPMag;
+    }
 
     // x' is pointed in the direction of the parallel resolved velocity at this cell
     scalar xPMag;
     xPMag = mag(xP);
-    xP = xP/xPMag;
+    if (xPMag != 0.0)
+    {
+       xP = xP/xPMag;
+    }
 
     // y' is orthogonal to x' and z', so it can be found with cross product
     scalar yPMag;
     yPMag = mag(yP);
-    yP = yP/yPMag;
+    if (yPMag != 0.0)
+    {
+       yP = yP/yPMag;
+    }
 
     // Create T'
     tensor TP;
@@ -512,17 +520,26 @@ symmTensor SchumannGrotzbachFvPatchField::transformSymmTensorLocalToCart
     // OpenFOAM normal is outward)
     scalar zPMag;
     zPMag = mag(zP);
-    zP = zP/zPMag;
+    if (zPMag != 0.0)
+    {
+       zP = zP/zPMag;
+    }
 
     // x' is pointed in the direction of the parallel resolved velocity at this cell
     scalar xPMag;
     xPMag = mag(xP);
-    xP = xP/xPMag;
+    if (xPMag != 0.0)
+    {
+       xP = xP/xPMag;
+    }
 
     // y' is orthogonal to x' and z', so it can be found with cross product
     scalar yPMag;
     yPMag = mag(yP);
-    yP = yP/yPMag;
+    if (yPMag != 0.0)
+    {
+       yP = yP/yPMag;
+    }
 
     // Create T'
     tensor TP;
