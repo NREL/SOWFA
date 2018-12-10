@@ -126,7 +126,7 @@ void Foam::planarAveraging::updateTurbulenceStatFields()
         wUU = symm(Uprime*Uprime);
         forAll(mesh_.cells(),cellI)
         {
-            wUU *= Uprime[cellI].z();
+            wUU[cellI] *= Uprime[cellI].z();
         }
     }
 
