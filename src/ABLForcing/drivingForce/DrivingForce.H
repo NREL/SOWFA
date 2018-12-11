@@ -110,6 +110,8 @@ class DrivingForce
 
         //- Relaxation coefficient
         scalar alpha_;
+        scalar Ti_;
+        List<Type> errorInt;
 
         //- Gather/write statistics?
         bool statisticsOn_;
@@ -125,6 +127,16 @@ class DrivingForce
         Type zeroTensor_()
         {
             return Type::zero;
+        }
+
+        Type unitTensor_()
+        {
+            Type x(Type::zero);
+            for (label k = 0; k < Type::nComponents; k++)
+            {
+                x[k] = 1.0;
+            }
+            return x;
         }
 
 
@@ -167,7 +179,10 @@ class DrivingForce
         void updateComputedTimeHeightDepSource_();
 
         //- Update controller
+        void initializeController_(label nSourceHeights);
         List<Type> updateController_(List<Type>& error);
+        List<Type> deadBand_(List<Type>& x);
+        List<Type> smoothStep_(List<Type>& x);
 
         //- Write source history to file (single value or column of values)
         void writeSourceHistory_(Type& source);
@@ -220,6 +235,17 @@ scalar DrivingForce<scalar>::zeroTensor_()
     return 0.0;
 }
 
+template<>
+scalar DrivingForce<scalar>::unitTensor_()
+{
+    return 1.0;
+}
+
+// Explicit specialization needs to be declared ahead because the
+// function smoothStep_ for Type scalar is instantiated implicitly
+// through the function deadBand_
+template<>
+List<scalar> DrivingForce<scalar>::smoothStep_(List<scalar>& x);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -229,6 +255,7 @@ scalar DrivingForce<scalar>::zeroTensor_()
 
 #ifdef NoRepository
 #   include "DrivingForce.C"
+#   include "DrivingForceController.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

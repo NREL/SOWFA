@@ -172,23 +172,6 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
 
 
 template<class Type>
-List<Type> Foam::DrivingForce<Type>::updateController_
-(
-    List<Type>& error
-)
-{
-    // Get the current time step size.
-    scalar dt = runTime_.deltaT().value();
-    
-    // Compute controller action
-    List<Type> source(error.size(),zeroTensor_());
-    source = alpha_ * error / dt;
-
-    return source;
-}
-
-
-template<class Type>
 void Foam::DrivingForce<Type>::writeSourceHistory_
 (
     Type& source
@@ -312,13 +295,17 @@ void Foam::DrivingForce<Type>::readInputData_()
     sourceHeightsSpecified_ = ABLProperties.lookup("sourceHeights" & name_);
     label nSourceHeights = sourceHeightsSpecified_.size();
 
+
     // Read in the source table(s) vs. time and height
     readSourceTables_(ABLProperties,nSourceHeights);
 
     // Relaxation factor on the source term application.
     scalar alpha(ABLProperties.lookupOrDefault<scalar>("alpha" & name_,1.0));
+    scalar Ti(ABLProperties.lookupOrDefault<scalar>("Ti" & name_,1.0));
     alpha_ = alpha;
-
+    Ti_ = Ti;
+    
+    initializeController_(nSourceHeights);
 
     // If the desired mean wind or temperature is given at only one height, then revert to
     // the old way of specifying the source term.  Find the two grid levels that bracket
