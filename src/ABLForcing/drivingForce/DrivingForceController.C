@@ -34,7 +34,7 @@ void Foam::DrivingForce<Type>::initializeController_
     label nSourceHeights
 )
 {
-    errorInt = List<Type>(nSourceHeights,zeroTensor_());
+    errorInt_ = List<Type>(nSourceHeights,zeroTensor_());
 }
 
 
@@ -54,10 +54,10 @@ List<Type> Foam::DrivingForce<Type>::updateController_
 
     for (label i = 0; i < error.size(); i++)
     {
-        errorInt[i] += KpError[i] * dt/Ti_;
-        //errorInt[i] += error[i] * dt/Ti_;
+        errorInt_[i] += KpError[i] * dt/Ti_;
+        //errorInt_[i] += error[i] * dt/Ti_;
 
-        source[i] = alpha_/dt * ( KpError[i] + errorInt[i] );
+        source[i] = alpha_/dt * ( KpError[i] + errorInt_[i] );
     }
     return source;
 }
@@ -69,15 +69,12 @@ List<Type> Foam::DrivingForce<Type>::deadBand_
     List<Type>& x
 )
 {
-    scalar width1 = 0.5;
-    scalar width2 = 1.5;
-
     List<Type> x1(x.size(),zeroTensor_());
     List<Type> x2(x.size(),zeroTensor_());
     List<Type> deadBand(x.size(),zeroTensor_());
 
-    x1 = (x+width2/2.*unitTensor_())/((width2 - width1)/2.);
-    x2 = (x-width2/2.*unitTensor_())/((width2 - width1)/2.) + unitTensor_();
+    x1 = (x+deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.);
+    x2 = (x-deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.) + unitTensor_();
 
     deadBand = smoothStep_(x2) - smoothStep_(x1) + unitTensor_();
 
@@ -121,34 +118,17 @@ List<Type> Foam::DrivingForce<Type>::smoothStep_
 namespace Foam
 {
     template<>
-    void Foam::DrivingForce<vector>::initializeController_
-    (
-        label nSourceHeights
-    )
-    {
-        errorInt = List<vector>(nSourceHeights,zeroTensor_());
-        for (label i = 0; i < nSourceHeights; i++)
-        {
-            errorInt[i].x() = 0.007142857;
-        }
-    }
-
-
-    template<>
     List<scalar> DrivingForce<scalar>::deadBand_
     (
         List<scalar>& x
     )
     {
-        scalar width1 = 0.5;
-        scalar width2 = 1.5;
-    
         List<scalar> x1(x.size(),zeroTensor_());
         List<scalar> x2(x.size(),zeroTensor_());
         List<scalar> deadBand(x.size(),zeroTensor_());
     
-        x1 = (x+width2/2.*unitTensor_())/((width2 - width1)/2.);
-        x2 = (x-width2/2.*unitTensor_())/((width2 - width1)/2.) + unitTensor_();
+        x1 = (x+deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.);
+        x2 = (x-deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.) + unitTensor_();
     
         deadBand = smoothStep_(x2) - smoothStep_(x1) + unitTensor_();
     

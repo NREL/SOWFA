@@ -110,8 +110,16 @@ class DrivingForce
 
         //- Relaxation coefficient
         scalar alpha_;
+
+        //- Integral time of PI controller
         scalar Ti_;
-        List<Type> errorInt;
+
+        //- Error integral
+        List<Type> errorInt_;
+
+        //- Width of deadband controller
+        scalar deadBandWidth1_;
+        scalar deadBandWidth2_;
 
         //- Gather/write statistics?
         bool statisticsOn_;
@@ -178,10 +186,16 @@ class DrivingForce
         //- Update computed time-height-dependent source term
         void updateComputedTimeHeightDepSource_();
 
-        //- Update controller
+        //- Initialize controller
         void initializeController_(label nSourceHeights);
+
+        //- Update controller
         List<Type> updateController_(List<Type>& error);
+
+        //- Deadband function
         List<Type> deadBand_(List<Type>& x);
+
+        //- Smooth step function
         List<Type> smoothStep_(List<Type>& x);
 
         //- Write source history to file (single value or column of values)

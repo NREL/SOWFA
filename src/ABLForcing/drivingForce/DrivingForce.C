@@ -299,12 +299,17 @@ void Foam::DrivingForce<Type>::readInputData_()
     // Read in the source table(s) vs. time and height
     readSourceTables_(ABLProperties,nSourceHeights);
 
-    // Relaxation factor on the source term application.
+    // Read in controller properties.
     scalar alpha(ABLProperties.lookupOrDefault<scalar>("alpha" & name_,1.0));
     scalar Ti(ABLProperties.lookupOrDefault<scalar>("Ti" & name_,1.0));
+    scalar w1(ABLProperties.lookupOrDefault<scalar>("deadBandWidth1" & name_,0.5));
+    scalar w2(ABLProperties.lookupOrDefault<scalar>("deadBandWidth2" & name_,1.5));
     alpha_ = alpha;
     Ti_ = Ti;
+    deadBandWidth1_ = w1;
+    deadBandWidth2_ = w2;
     
+    // Initialize controller
     initializeController_(nSourceHeights);
 
     // If the desired mean wind or temperature is given at only one height, then revert to
