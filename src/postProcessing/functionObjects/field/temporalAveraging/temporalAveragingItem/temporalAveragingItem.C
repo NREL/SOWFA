@@ -31,6 +31,7 @@ namespace Foam
 {
     const word temporalAveragingItem::EXT_MEAN = "Mean";
     const word temporalAveragingItem::EXT_PRIME2MEAN = "Prime2Mean";
+    const word temporalAveragingItem::EXT_PRIMEUPRIMEMEAN = "PrimeUPrimeMean";
 
     template<>
     const char* Foam::NamedEnum
@@ -59,6 +60,8 @@ Foam::temporalAveragingItem::temporalAveragingItem()
     meanFieldName_("unknown"),
     prime2Mean_(0),
     prime2MeanFieldName_("unknown"),
+    primeUPrimeMean_(0),
+    primeUPrimeMeanFieldName_("unknown"),
     base_(ITER),
     window_(-1.0),
     windowName_("")
@@ -73,6 +76,8 @@ Foam::temporalAveragingItem::temporalAveragingItem(const temporalAveragingItem& 
     meanFieldName_(faItem.meanFieldName_),
     prime2Mean_(faItem.prime2Mean_),
     prime2MeanFieldName_(faItem.prime2MeanFieldName_),
+    primeUPrimeMean_(faItem.primeUPrimeMean_),
+    primeUPrimeMeanFieldName_(faItem.primeUPrimeMeanFieldName_),
     base_(faItem.base_),
     window_(faItem.window_),
     windowName_(faItem.windowName_)
@@ -106,6 +111,8 @@ void Foam::temporalAveragingItem::operator=(const temporalAveragingItem& rhs)
     meanFieldName_ = rhs.meanFieldName_;
     prime2Mean_ = rhs.prime2Mean_;
     prime2MeanFieldName_ = rhs.prime2MeanFieldName_;
+    primeUPrimeMean_ = rhs.primeUPrimeMean_;
+    primeUPrimeMeanFieldName_ = rhs.primeUPrimeMeanFieldName_;
     base_ = rhs.base_;
     window_ = rhs.window_;
     windowName_ = rhs.windowName_;

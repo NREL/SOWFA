@@ -37,6 +37,8 @@ Foam::temporalAveragingItem::temporalAveragingItem(Istream& is)
     meanFieldName_("unknown"),
     prime2Mean_(0),
     prime2MeanFieldName_("unknown"),
+    primeUPrimeMean_(0),
+    primeUPrimeMeanFieldName_("unknown"),
     base_(ITER),
     window_(-1.0)
 {
@@ -47,16 +49,19 @@ Foam::temporalAveragingItem::temporalAveragingItem(Istream& is)
     fieldName_ = entry.keyword();
     entry.lookup("mean") >> mean_;
     entry.lookup("prime2Mean") >> prime2Mean_;
+    entry.lookup("primeUPrimeMean") >> primeUPrimeMean_;
     base_ = baseTypeNames_[entry.lookup("base")];
     window_ = entry.lookupOrDefault<scalar>("window", -1.0);
     windowName_ = entry.lookupOrDefault<word>("windowName", "");
 
     meanFieldName_ = fieldName_ + EXT_MEAN;
     prime2MeanFieldName_ = fieldName_ + EXT_PRIME2MEAN;
+    primeUPrimeMeanFieldName_ = fieldName_ + EXT_PRIMEUPRIMEMEAN;
     if ((window_ > 0) && (windowName_ != ""))
     {
         meanFieldName_ = meanFieldName_ + "_" + windowName_;
         prime2MeanFieldName_ = prime2MeanFieldName_ + "_" + windowName_;
+        primeUPrimeMeanFieldName_ = primeUPrimeMeanFieldName_ + "_" + windowName_;
     }
 }
 
@@ -77,6 +82,7 @@ Foam::Istream& Foam::operator>>(Istream& is, temporalAveragingItem& faItem)
     faItem.fieldName_ = entry.keyword();
     entry.lookup("mean") >> faItem.mean_;
     entry.lookup("prime2Mean") >> faItem.prime2Mean_;
+    entry.lookup("primeUPrimeMean") >> faItem.primeUPrimeMean_;
     faItem.base_ = faItem.baseTypeNames_[entry.lookup("base")];
     faItem.window_ = entry.lookupOrDefault<scalar>("window", -1.0);
     faItem.windowName_ = entry.lookupOrDefault<word>("windowName", "");
@@ -84,6 +90,8 @@ Foam::Istream& Foam::operator>>(Istream& is, temporalAveragingItem& faItem)
     faItem.meanFieldName_ = faItem.fieldName_ + temporalAveragingItem::EXT_MEAN;
     faItem.prime2MeanFieldName_ =
         faItem.fieldName_ + temporalAveragingItem::EXT_PRIME2MEAN;
+    faItem.primeUPrimeMeanFieldName_ =
+        faItem.fieldName_ + temporalAveragingItem::EXT_PRIMEUPRIMEMEAN;
 
     if ((faItem.window_ > 0) && (faItem.windowName_ != ""))
     {
@@ -92,6 +100,9 @@ Foam::Istream& Foam::operator>>(Istream& is, temporalAveragingItem& faItem)
 
         faItem.prime2MeanFieldName_ =
             faItem.prime2MeanFieldName_ + "_" + faItem.windowName_;
+
+        faItem.primeUPrimeMeanFieldName_ =
+            faItem.primeUPrimeMeanFieldName_ + "_" + faItem.windowName_;
     }
     return is;
 }
@@ -107,7 +118,9 @@ Foam::Ostream& Foam::operator<<(Ostream& os, const temporalAveragingItem& faItem
 
     os  << faItem.fieldName_ << nl << token::BEGIN_BLOCK << nl;
     os.writeKeyword("mean") << faItem.mean_ << token::END_STATEMENT << nl;
-    os.writeKeyword("prime2Mean") << faItem.mean_
+    os.writeKeyword("prime2Mean") << faItem.prime2Mean_
+        << token::END_STATEMENT << nl;
+    os.writeKeyword("primeUprimeMean") << faItem.primeUPrimeMean_
         << token::END_STATEMENT << nl;
     os.writeKeyword("base") << faItem.baseTypeNames_[faItem.base_]
         << token::END_STATEMENT << nl;

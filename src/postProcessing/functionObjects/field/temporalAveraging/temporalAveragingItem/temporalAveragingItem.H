@@ -32,7 +32,7 @@ Description
     {
         mean            on;
         prime2Mean      on;
-        corrUPrimeMean  on;
+        primeUPrimeMean on;
         base            time; // iteration
         window          200;  // optional averaging window
         windowName      w1;   // optional window name (default = "")
@@ -87,6 +87,9 @@ public:
             //- Prime-squared average
             static const word EXT_PRIME2MEAN;
 
+            //- Prime-Uprime average
+            static const word EXT_PRIMEUPRIMEMEAN;
+
         //- Enumeration defining the averaging base type
         enum baseType
         {
@@ -116,6 +119,12 @@ private:
 
         //- Name of prime-squared mean field
         word prime2MeanFieldName_;
+
+        //- Compute prime-Uprime mean flag
+        Switch primeUPrimeMean_;
+
+        //- Name of prime-Uprime mean field
+        word primeUPrimeMeanFieldName_;
 
         //- Averaging base type names
         static const NamedEnum<baseType, 2> baseTypeNames_;
@@ -206,6 +215,24 @@ public:
                 return prime2MeanFieldName_;
             }
 
+            //- Return const access to the prime-Uprime mean flag
+            const Switch& primeUPrimeMean() const
+            {
+                return primeUPrimeMean_;
+            }
+
+            //- Return non-const access to the prime-Uprime mean flag
+            Switch& primeUPrimeMean()
+            {
+                return primeUPrimeMean_;
+            }
+
+            //- Return const access to the prime-Uprime mean field name
+            const word& primeUPrimeMeanFieldName() const
+            {
+                return primeUPrimeMeanFieldName_;
+            }
+
             //- Return averaging base type name
             const word base() const
             {
@@ -254,6 +281,8 @@ public:
              && a.meanFieldName_ == b.meanFieldName_
              && a.prime2Mean_ == b.prime2Mean_
              && a.prime2MeanFieldName_ == b.prime2MeanFieldName_
+             && a.primeUPrimeMean_ == b.primeUPrimeMean_
+             && a.primeUPrimeMeanFieldName_ == b.primeUPrimeMeanFieldName_
              && a.base_ == b.base_
              && a.window_ == b.window_
              && a.windowName_ == b.windowName_;

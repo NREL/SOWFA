@@ -184,6 +184,100 @@ void Foam::temporalAveraging::addPrime2MeanField(const label fieldI)
 }
 
 
+template<class Type1, class Type2>
+void Foam::temporalAveraging::addPrimeUPrimeMeanFieldType(const label fieldI)
+{
+    const word& fieldName = faItems_[fieldI].fieldName();
+    const word& meanFieldName = faItems_[fieldI].meanFieldName();
+    const word& primeUPrimeMeanFieldName = faItems_[fieldI].primeUPrimeMeanFieldName();
+
+    Info<< "    Reading/initialising field " << primeUPrimeMeanFieldName << nl;
+
+    if (obr_.foundObject<Type2>(primeUPrimeMeanFieldName))
+    {
+        // do nothing
+    }
+    else if (obr_.found(primeUPrimeMeanFieldName))
+    {
+        Info<< "    Cannot allocate average field " << primeUPrimeMeanFieldName
+            << " since an object with that name already exists."
+            << " Disabling averaging for field." << nl;
+
+        faItems_[fieldI].primeUPrimeMean() = false;
+    }
+    else
+    {
+        const Type1& baseField = obr_.lookupObject<Type1>(fieldName);
+        const Type1& meanField = obr_.lookupObject<Type1>(meanFieldName);
+
+        const volVectorField& UField = obr_.lookupObject<volVectorField>("U");
+        const volVectorField& UMeanField = obr_.lookupObject<volVectorField>("UMean");
+
+        // Store on registry
+        obr_.store
+        (
+            new Type2
+            (
+                IOobject
+                (
+                    primeUPrimeMeanFieldName,
+                    obr_.time().timeName(obr_.time().startTime().value()),
+                    obr_,
+                    resetOnOutput_
+                  ? IOobject::NO_READ
+                  : IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
+                baseField*UField - meanField*UMeanField
+            )
+        );
+    }
+}
+
+
+template<class Type1, class Type2>
+void Foam::temporalAveraging::addPrimeUPrimeMeanField(const label fieldI)
+{
+    typedef GeometricField<Type1, fvPatchField, volMesh> volFieldType1;
+    typedef GeometricField<Type2, fvPatchField, volMesh> volFieldType2;
+
+    const word& fieldName = faItems_[fieldI].fieldName();
+
+    if (faItems_[fieldI].primeUPrimeMean() && !(fieldName=="U"))
+    {
+
+        if (!faItems_[fieldI].mean())
+        {
+            FatalErrorIn
+            (
+                "void Foam::temporalAveraging::addPrimeUPrimeMeanField(const label) const"
+            )
+                << "To calculate the prime-Uprime average, the "
+                << "mean average must also be selected for field "
+                << fieldName << nl << exit(FatalError);
+        }
+
+        if (!obr_.foundObject<volVectorField>("UMean"))
+        {
+            FatalErrorIn
+            (
+                "void Foam::temporalAveraging::addPrimeUPrimeMeanField(const label) const"
+            )
+                << "To calculate the prime-Uprime average, the "
+                << "U mean average must also be selected"
+                << nl << exit(FatalError);
+        }
+
+        // Only implemented for volMesh fields. Multiplying
+        // a surfaceMesh field with a volMesh field (U) is not possible
+        if (obr_.foundObject<volFieldType1>(fieldName))
+        {
+            addPrimeUPrimeMeanFieldType<volFieldType1, volFieldType2>(fieldI);
+        }
+    }
+}
+
+
 template<class Type>
 void Foam::temporalAveraging::calculateMeanFieldType(const label fieldI) const
 {
@@ -311,6 +405,72 @@ void Foam::temporalAveraging::calculatePrime2MeanFields() const
 
 
 template<class Type1, class Type2>
+void Foam::temporalAveraging::calculatePrimeUPrimeMeanFieldType(const label fieldI) const
+{
+    const word& fieldName = faItems_[fieldI].fieldName();
+
+    if (obr_.foundObject<Type1>(fieldName))
+    {
+        const Type1& baseField = obr_.lookupObject<Type1>(fieldName);
+        const Type1& meanField =
+            obr_.lookupObject<Type1>(faItems_[fieldI].meanFieldName());
+
+        const volVectorField& UField = obr_.lookupObject<volVectorField>("U");
+        const volVectorField& UMeanField = obr_.lookupObject<volVectorField>("UMean");
+
+        Type2& primeUPrimeMeanField = const_cast<Type2&>
+        (
+            obr_.lookupObject<Type2>(faItems_[fieldI].primeUPrimeMeanFieldName())
+        );
+
+        scalar dt = obr_.time().deltaTValue();
+        scalar Dt = totalTime_[fieldI];
+
+        if (faItems_[fieldI].iterBase())
+        {
+            dt = 1.0;
+            Dt = scalar(totalIter_[fieldI]);
+        }
+
+        scalar alpha = (Dt - dt)/Dt;
+        scalar beta = dt/Dt;
+
+        if (faItems_[fieldI].window() > 0)
+        {
+            const scalar w = faItems_[fieldI].window();
+
+            if (Dt - dt >= w)
+            {
+                alpha = (w - dt)/w;
+                beta = dt/w;
+            }
+        }
+
+        primeUPrimeMeanField =
+            alpha*primeUPrimeMeanField
+          + beta*baseField*UField
+          - meanField*UMeanField;
+    }
+}
+
+
+template<class Type1, class Type2>
+void Foam::temporalAveraging::calculatePrimeUPrimeMeanFields() const
+{
+    typedef GeometricField<Type1, fvPatchField, volMesh> volFieldType1;
+    typedef GeometricField<Type2, fvPatchField, volMesh> volFieldType2;
+
+    forAll(faItems_, i)
+    {
+        if (faItems_[i].primeUPrimeMean())
+        {
+            calculatePrimeUPrimeMeanFieldType<volFieldType1, volFieldType2>(i);
+        }
+    }
+}
+
+
+template<class Type1, class Type2>
 void Foam::temporalAveraging::addMeanSqrToPrime2MeanType(const label fieldI) const
 {
     const word& fieldName = faItems_[fieldI].fieldName();
@@ -350,6 +510,44 @@ void Foam::temporalAveraging::addMeanSqrToPrime2Mean() const
 }
 
 
+template<class Type1, class Type2>
+void Foam::temporalAveraging::addMeanUMeanToPrimeUPrimeMeanType(const label fieldI) const
+{
+    const word& fieldName = faItems_[fieldI].fieldName();
+
+    if (obr_.foundObject<Type1>(fieldName))
+    {
+        const Type1& meanField =
+            obr_.lookupObject<Type1>(faItems_[fieldI].meanFieldName());
+
+        const volVectorField& UMeanField = obr_.lookupObject<volVectorField>("UMean");
+
+        Type2& primeUPrimeMeanField = const_cast<Type2&>
+        (
+            obr_.lookupObject<Type2>(faItems_[fieldI].primeUPrimeMeanFieldName())
+        );
+
+        primeUPrimeMeanField += meanField*UMeanField;
+    }
+}
+
+
+template<class Type1, class Type2>
+void Foam::temporalAveraging::addMeanUMeanToPrimeUPrimeMean() const
+{
+    typedef GeometricField<Type1, fvPatchField, volMesh> volFieldType1;
+    typedef GeometricField<Type2, fvPatchField, volMesh> volFieldType2;
+
+    forAll(faItems_, i)
+    {
+        if (faItems_[i].primeUPrimeMean())
+        {
+            addMeanUMeanToPrimeUPrimeMeanType<volFieldType1, volFieldType2>(i);
+        }
+    }
+}
+
+
 template<class Type>
 void Foam::temporalAveraging::writeFieldType(const word& fieldName) const
 {
@@ -380,6 +578,11 @@ void Foam::temporalAveraging::writeFields() const
             const word& fieldName = faItems_[i].prime2MeanFieldName();
             writeFieldType<volFieldType>(fieldName);
             writeFieldType<surfFieldType>(fieldName);
+        }
+        if (faItems_[i].primeUPrimeMean())
+        {
+            const word& fieldName = faItems_[i].primeUPrimeMeanFieldName();
+            writeFieldType<volFieldType>(fieldName);
         }
     }
 }

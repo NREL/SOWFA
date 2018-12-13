@@ -48,7 +48,7 @@ Description
             \overline{x'}^2 = \frac{1}{N}\displaystyle\sum\limits_{i=0}^N
             (x_i - \overline{x})^2
         \f]
-    - \c corrUPrimeMean: mean of the correlation with velocity fluctuations
+    - \c primeUPrimeMean: prime-Uprime mean
         \f[
             \overline{x'u'} = \frac{1}{N}\displaystyle\sum\limits_{i=0}^N
             (x_i - \overline{x})(u_i - \overline{u})
@@ -57,13 +57,11 @@ Description
     - window: optional averaging window, specified in 'base' units
 
     Average field names are constructed by concatenating the base field with
-    the averaging type, e.g. when averaging field 'U', the resultant fields
+    the averaging type, e.g. when averaging field 'T', the resultant fields
     are:
-    - arithmetic mean field, UMean
-    - prime-squared field, UPrime2Mean
-    Correlation names are constructed in a similar way, e.g., when computing
-    the correlation between the field 'T' and 'U', the result is:
-    - correlation field, TPrimeUPrimeMean
+    - arithmetic mean field, TMean
+    - prime-squared field, TPrime2Mean
+    - prime-Uprime field, TPrimeUPrimeMean
 
     Information regarding the number of averaging steps, and total averaging
     time are written on a per-field basis to the
@@ -91,7 +89,7 @@ Description
             {
                 mean            on;
                 prime2Mean      on;
-                corrUPrimeMean  off;
+                primeUPrimeMean off;
                 base            time;
                 window          10.0;
                 windowName      w1;
@@ -100,7 +98,7 @@ Description
             {
                 mean            on;
                 prime2Mean      on;
-                corrUPrimeMean  on;
+                primeUPrimeMean on;
                 base            time;
             }
         );
@@ -119,8 +117,8 @@ Description
 
 Note
     To employ the \c prime2Mean option, the \c mean option must be selected.
-    To employ the \c corrUPrimeMean option, the \c mean option must be selected
-        for both the baseField and for U. Moreover, the corrUPrimeMean option is
+    To employ the \c primeUPrimeMean option, the \c mean option must be selected
+        for both the baseField and for U. Moreover, the primeUPrimeMean option is
         ignored for the 'U' field as this would be identical to the prime2Mean option
 
 SeeAlso
@@ -226,6 +224,14 @@ protected:
             template<class Type1, class Type2>
             void addPrime2MeanField(const label fieldI);
 
+            //- Add prime-Uprime average field to database
+            template<class Type1, class Type2>
+            void addPrimeUPrimeMeanFieldType(const label fieldI);
+
+            //- Add prime-Uprime average field to database
+            template<class Type1, class Type2>
+            void addPrimeUPrimeMeanField(const label fieldI);
+
 
         // Calculation functions
 
@@ -248,6 +254,14 @@ protected:
             template<class Type1, class Type2>
             void calculatePrime2MeanFields() const;
 
+            //- Calculate prime-Uprime average fields
+            template<class Type1, class Type2>
+            void calculatePrimeUPrimeMeanFieldType(const label fieldI) const;
+
+            //- Calculate prime-Uprime average fields
+            template<class Type1, class Type2>
+            void calculatePrimeUPrimeMeanFields() const;
+
             //- Add mean-squared field value to prime-squared mean field
             template<class Type1, class Type2>
             void addMeanSqrToPrime2MeanType(const label fieldI) const;
@@ -255,6 +269,14 @@ protected:
             //- Add mean-squared field value to prime-squared mean field
             template<class Type1, class Type2>
             void addMeanSqrToPrime2Mean() const;
+
+            //- Add mean-Umean field value to prime-Uprime mean field
+            template<class Type1, class Type2>
+            void addMeanUMeanToPrimeUPrimeMeanType(const label fieldI) const;
+
+            //- Add mean-Umean field value to prime-Uprime mean field
+            template<class Type1, class Type2>
+            void addMeanUMeanToPrimeUPrimeMean() const;
 
 
         // I-O

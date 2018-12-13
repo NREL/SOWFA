@@ -58,6 +58,14 @@ void Foam::temporalAveraging::resetFields()
                 obr_.checkOut(*obr_[faItems_[i].prime2MeanFieldName()]);
             }
         }
+
+        if (faItems_[i].primeUPrimeMean())
+        {
+            if (obr_.found(faItems_[i].primeUPrimeMeanFieldName()))
+            {
+                obr_.checkOut(*obr_[faItems_[i].primeUPrimeMeanFieldName()]);
+            }
+        }
     }
 }
 
@@ -83,6 +91,13 @@ void Foam::temporalAveraging::initialize()
     {
         addPrime2MeanField<scalar, scalar>(fieldI);
         addPrime2MeanField<vector, symmTensor>(fieldI);
+    }
+
+    // Add prime-Uprime mean fields to the field lists
+    forAll(faItems_, fieldI)
+    {
+        // Currently only implemented for scalar field like T or p
+        addPrimeUPrimeMeanField<scalar, vector>(fieldI);
     }
 
     forAll(faItems_, fieldI)
@@ -130,6 +145,8 @@ void Foam::temporalAveraging::calcAverages()
     addMeanSqrToPrime2Mean<scalar, scalar>();
     addMeanSqrToPrime2Mean<vector, symmTensor>();
 
+    addMeanUMeanToPrimeUPrimeMean<scalar, vector>();
+
     calculateMeanFields<scalar>();
     calculateMeanFields<vector>();
     calculateMeanFields<sphericalTensor>();
@@ -138,6 +155,8 @@ void Foam::temporalAveraging::calcAverages()
 
     calculatePrime2MeanFields<scalar, scalar>();
     calculatePrime2MeanFields<vector, symmTensor>();
+
+    calculatePrimeUPrimeMeanFields<scalar, vector>();
 
     forAll(faItems_, fieldI)
     {
