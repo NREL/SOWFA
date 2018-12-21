@@ -1696,13 +1696,17 @@ void horizontalAxisWindTurbinesALMAdvanced::controlNacYaw()
         }
 
       //Info << "nacYaw = " << nacYaw << endl;
-        if (((nacYawCommanded - nacYaw[i]) / degRad) <= 180.0)
+        if (((nacYawCommanded - nacYaw[i]) / degRad) <= -180.0)
+        {
+            deltaNacYaw[i] = nacYawCommanded - nacYaw[i] + (360.0*degRad);
+        }
+        else if (((nacYawCommanded - nacYaw[i]) / degRad) <= 180.0)
         {
             deltaNacYaw[i] = nacYawCommanded - nacYaw[i];
         }
         else
         {
-            deltaNacYaw[i] = nacYaw[i] - ((360.0*degRad) - nacYawCommanded);
+            deltaNacYaw[i] = nacYawCommanded - nacYaw[i] - (360.0*degRad);
         }
       //Info << "deltaNacYaw = " << deltaNacYaw / degRad << endl;
    
