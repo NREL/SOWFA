@@ -27,7 +27,7 @@ boundaryField
     {
         type            fixedHeatingRate;
         heatingRate     uniform $heatingRate;
-        TSurface        uniform $T0;
+        TSurface        uniform $TRef;
         kappa           $kappa;
         z0              uniform $z0;
         betaM           $betaM;

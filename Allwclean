@@ -11,7 +11,7 @@ rmdepall
 wclean
 cd ../../../
 
-cd src/turbineModels/turbineModelsFASTv8
+cd src/turbineModels/turbineModelsOpenFAST
 rmdepall
 wclean
 cd ../../../
@@ -22,6 +22,11 @@ wclean
 cd ../../
 
 cd src/sampling
+rmdepall
+wclean
+cd ../../
+
+cd src/fileFormats
 rmdepall
 wclean
 cd ../../
@@ -56,7 +61,7 @@ rmdepall
 wclean
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedFASTv8
+cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedOpenFAST
 rmdepall
 wclean
 cd ../../../../../
@@ -76,7 +81,7 @@ rmdepall
 wclean
 cd ../../../../../
 
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8
+cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedOpenFAST
 rmdepall
 wclean
 cd ../../../../../

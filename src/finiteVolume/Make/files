@@ -5,6 +5,11 @@ derivedFvPatchFields = $(fvPatchFields)/derived
 $(derivedFvPatchFields)/turbulentABLVelocityControlled/turbulentABLVelocityControlledFvPatchField.C
 $(derivedFvPatchFields)/turbulentABLTemperatureControlled/turbulentABLTemperatureControlledFvPatchField.C
 
+/* Generalized Time-Varying Mapped Inflow/Outflow */
+$(derivedFvPatchFields)/timeVaryingMappedInletOutlet/timeVaryingMappedInletOutletFvPatchFields.C
+
+/* TimeVaryingMappedFixedValue with organized random perturbations */
+$(derivedFvPatchFields)/timeVaryingMappedFluctuatingFixedValue/timeVaryingMappedFluctuatingFixedValueFvPatchFields.C
 
 /* Surface Shear Stress Models */
 surfaceStressModels = $(derivedFvPatchFields)/surfaceStressModels

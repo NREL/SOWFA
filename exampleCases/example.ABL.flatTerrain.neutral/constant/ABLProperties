@@ -33,6 +33,8 @@ temperatureSourceType    "given";
 velocityInputType        "speedAndDirection";
 
 
+//#include "forcingTable"
+
 // Use the source table in the file listed below.
 sourceHeightsMomentum
 (
@@ -67,6 +69,7 @@ sourceTableTemperature
     (    0.0 0.0)
     (90000.0 0.0)
 );
+
 
 // Relaxation factors applied when computing sources given desired
 // velocity and temperature.

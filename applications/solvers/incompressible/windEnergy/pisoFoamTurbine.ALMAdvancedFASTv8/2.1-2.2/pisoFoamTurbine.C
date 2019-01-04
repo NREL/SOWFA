@@ -1,1 +1,0 @@
-/home/mchurchf/bin/OpenFOAM/SOWFA/applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedFASTv8/2.1-2.2/pisoFoamTurbine.C

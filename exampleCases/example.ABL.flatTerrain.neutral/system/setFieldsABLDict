@@ -42,11 +42,11 @@ scaleVelocityWithHeight   false;
 
 
 // Specify how to initialze the base velocity and temperature profile.
-velocityInitType          "table";
+//velocityInitType          "table";
 //velocityInitType          "log";
-//velocityInitType          "geostrophic";
-temperatureInitType       "table";
-//temperatureInitType       "simple";
+velocityInitType          "geostrophic";
+//temperatureInitType       "table";
+temperatureInitType       "simple";
 
 // Maximum perturbation of streamwise/spanwise flow near surface.
 deltaU                    0.25;

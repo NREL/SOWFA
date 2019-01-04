@@ -197,6 +197,96 @@
 
 
 
+    // PROPERTIES CONCERNING THE WAY IN WHICH PERTURBATION PRESSURE IS DEFINED
+
+       // Options for defining the perturbation pressure:
+       // - noSplit:   do not split out hydrostatic part; pressure is then perturbation pressure.
+       // - rho0Split: split out the hydrostatic part; define hydrostatic as rho_0 * g * z.
+       // - rhokSplit: split out the hydrostatic part; define hydrostatic as rho_k * g * z.
+       word perturbationPressureType(ABLProperties.lookupOrDefault<word>("perturbationPressureType","rhokSplit"));
+       word perturbationOutput;
+       if (perturbationPressureType == "noSplit")
+       {
+           perturbationOutput = "nothing";
+       }
+       else if (perturbationPressureType == "rho0Split")
+       {
+           perturbationOutput = "rho_0 * g * z";
+       }
+       else if (perturbationPressureType == "rhokSplit")
+       {
+           perturbationOutput = "rho_k * g * z";
+       }
+       Info << "Defining background hydrostatic pressure to be " << perturbationOutput << endl;
+
+
+       // This switch dictates whether or not the pressure reference cell is set explicitly
+       // in the p_rgh solve.  If true, pressure is constrained at the pressure reference
+       // cell by manipulating the matrix row for that cell to remove the null space.  This
+       // assures that the pressure level is constrained, but it also means the continuity
+       // equation is no longer solved at that cell, so the divergence error can be significant
+       // enough there to cause localized oscillations.  Iterative solvers can still converge
+       // even with a null space, but more iterations may be needed, so this switch can be 
+       // set to false.
+       bool activatePressureRefCell(ABLProperties.lookupOrDefault<bool>("activatePressureRefCell", true));
+       if (activatePressureRefCell)
+       {
+            Info << "Pressure reference cell matrix row modification enabled" << endl;
+       }
+       else
+       {
+            Info << "Pressure reference cell matrix row modification not enabled" << endl;
+       }
+
+
+
+     
+    // PROPERTIES CONCERNING SPONGE LAYER
+
+       // Specify the type of sponge layer to use.  The
+       // possible types are "Rayleigh", "viscous" or "none".  
+       // - The "Rayleigh" type means that the damping term is computed as nu*(u_ref-u)
+       //   The viscosity coefficient nu has dimensions of 1/s
+       // - The "viscous" type means that the damping term is computed as nu * Lapl(u)
+       //   The viscosity coefficient nu has dimensions of m**2/s
+       // - The "none" type means no damping is added
+       word spongeLayerType(ABLProperties.lookupOrDefault<word>("spongeLayerType","none"));
+       
+       // Sponge layer base height
+       scalar spongeLayerBaseHeight(ABLProperties.lookupOrDefault<scalar>("spongeLayerBaseHeight",0.0));
+
+       // Sponge layer top height
+       scalar spongeLayerTopHeight(ABLProperties.lookupOrDefault<scalar>("spongeLayerTopHeight",10000.0));
+
+       // Sponge layer viscosity at the top boundary
+       scalar spongeLayerViscosityTop(ABLProperties.lookupOrDefault<scalar>("spongeLayerViscosityTop",0.0));
+
+
+       // Create sponge layer reference velocity
+       scalar spongeLayerUx(ABLProperties.lookupOrDefault<scalar>("spongeLayerUx",0.0));
+       scalar spongeLayerUy(ABLProperties.lookupOrDefault<scalar>("spongeLayerUy",0.0));
+       vector Uref_;
+       Uref_.x() = spongeLayerUx;
+       Uref_.y() = spongeLayerUy;
+       Uref_.z() = 0.0;
+       uniformDimensionedVectorField spongeLayerReferenceVelocity
+       (
+           IOobject
+           (
+               "spongeLayerReferenceVelocity",
+               runTime.constant(),
+               mesh,
+               IOobject::NO_READ,
+               IOobject::NO_WRITE
+           ),
+           dimensionedVector("spongeLayerReferenceVelocity",dimensionSet(0, 1, -1, 0, 0, 0, 0),Uref_)
+       );
+       
+       if (spongeLayerType == "Rayleigh")
+       {
+           Info << spongeLayerReferenceVelocity << endl;
+       }
+
 
     // PROPERTIES CONCERNING GATHERING STATISTICS
 

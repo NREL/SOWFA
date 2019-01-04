@@ -68,9 +68,9 @@ GenTorqueControllerParams
 
 BladePitchControllerParams
 {
-    RateLimitBladePitch       4.500;
+    RateLimitBladePitch       8.000;
     PitchMin                  0.000;
-    PitchMax                 80.000;
+    PitchMax                 90.000;
     PitchK                    6.302336;
     PitchControlKP            1.82620057;
     PitchControlKI            0.78265750;

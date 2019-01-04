@@ -1,0 +1,5 @@
+setWriters = sampledSetWriters
+
+$(setWriters)/vtkStructured/vtkStructuredSetWriterRunTime.C
+
+LIB = $(FOAM_USER_LIBBIN)/libuserfileFormats

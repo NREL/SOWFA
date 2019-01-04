@@ -78,6 +78,83 @@
         dimensionedVector("fCoriolis",dimensionSet(0, 1, -2, 0, 0, 0, 0),vector::zero)
     );
 
+    // Create sponge layer viscosity field
+    Info << "Creating sponge layer viscosity field, spongeLayerViscosity..." << endl;
+    label lengthDimension;
+    if (spongeLayerType == "Rayleigh")
+    {
+        lengthDimension = 0;
+    }
+    else
+    {
+        lengthDimension = 2;
+    }
+
+    volScalarField spongeLayerViscosity
+    (
+        IOobject
+        (
+            "spongeLayerViscosity",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("spongeLayerViscosity",dimensionSet(0, lengthDimension, -1, 0, 0, 0, 0),spongeLayerViscosityTop)
+    );
+
+    forAll(mesh.cells(),cellI)
+    {
+        scalar z = mesh.C()[cellI][upIndex];
+        spongeLayerViscosity[cellI] *= 0.5 *
+            (
+                1.0 - Foam::cos
+                    (
+                        Foam::constant::mathematical::pi *
+                        max( (z - spongeLayerBaseHeight)/(spongeLayerTopHeight - spongeLayerBaseHeight) , 0.0 )
+                    )
+                
+            );
+    }
+
+    forAll(spongeLayerViscosity.boundaryField(),i)
+    {
+        if ( !mesh.boundary()[i].coupled() )
+        {
+            forAll(spongeLayerViscosity.boundaryField()[i],j)
+            {
+                scalar z = mesh.boundary()[i].Cf()[j].z();
+                spongeLayerViscosity.boundaryField()[i][j] *= 0.5 *
+                    (
+                        1.0 - Foam::cos
+                            (
+                                Foam::constant::mathematical::pi *
+                                max( (z - spongeLayerBaseHeight)/(spongeLayerTopHeight - spongeLayerBaseHeight) , 0.0 )
+                            )
+                        
+                    );
+            }
+        }
+    }
+
+    // Create sponge layer force vector
+    Info << "Creating sponge layer force vector, fSponge..." << endl;
+    volVectorField fSponge
+    (
+        IOobject
+        (
+            "fSponge",
+            runTime.timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedVector("fSponge",dimensionSet(0, 1, -2, 0, 0, 0, 0),vector::zero)
+    );
+
+
     // Create and calculate the Boussinesq density field for computing buoyancy forces
     Info << "Creating kinematic (Boussinesq) density field, rhok..." << endl;
     volScalarField rhok
@@ -136,10 +213,6 @@
         mesh
     );
 
-    // Create and calculate the gravity potential field
-    Info << "Creating and calculating the gravity potential field, gh and ghf..." << endl;
-    volScalarField gh("gh", g & mesh.C());
-    surfaceScalarField ghf("ghf", g & mesh.Cf());
 
     // Create and calculate the static pressure field
     Info << "Creating and calculating the static pressure field, p..." << endl;
@@ -153,8 +226,10 @@
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        p_rgh + rhok*gh
+      //p_rgh + rhok*gh
+        p_rgh
     );
+
 
     // Set up the pressure reference cell information
     Info << "Setting up the pressure reference cell information..." << endl;
@@ -169,13 +244,21 @@
         pRefValue
     );
 
-    if (p_rgh.needReference())
-    {
-        p += dimensionedScalar
-        (
-            "p",
-            p.dimensions(),
-            pRefValue - getRefCellValue(p, pRefCell)
-        );
-    }
 
+    // Create and calculate the gravity potential field
+    Info << "Creating and calculating the gravity potential field, gh and ghf..." << endl;
+    
+    vector hRef_ = vector::zero;
+    if (pRefCell != -1)
+    {
+        hRef_ = mesh.C()[pRefCell];
+    }
+    reduce(hRef_,sumOp<vector>());
+    dimensionedVector hRef("hRef",dimLength,hRef_);
+
+    volScalarField gh("gh", g & (mesh.C() - hRef));
+    surfaceScalarField ghf("ghf", g & (mesh.Cf() - hRef));
+
+
+    // Compute the full pressure and adjust the pressure level.
+    #include "adjustPressureLevel.H"
