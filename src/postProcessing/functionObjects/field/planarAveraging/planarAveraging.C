@@ -163,13 +163,13 @@ void Foam::planarAveraging::openFiles()
         // Create directory if it does not exist
         mkDir(outputPath_);
 
-        // Open and write out the cell center vertical levels file
-        OFstream hLevelsFile = outputPath_/"hLevelsCell";
-        forAllPlanes(zPlanes_,planeI)
-        {
-            hLevelsFile << zPlanes_.planeLocationValues()[planeI] << " ";
-        }
-        hLevelsFile << endl;
+//        // Open and write out the cell center vertical levels file
+//        OFstream hLevelsFile = outputPath_/"hLevelsCell";
+//        forAllPlanes(zPlanes_,planeI)
+//        {
+//            hLevelsFile << zPlanes_.planeLocationValues()[planeI] << " ";
+//        }
+//        hLevelsFile << endl;
 
         // Open the statistics files
         forAll(fieldSelection_,fieldI)
@@ -178,7 +178,18 @@ void Foam::planarAveraging::openFiles()
 
             OFstream* fPtr = new OFstream(outputPath_/fieldName);
 
+            OFstream& fout = *fPtr;
+
             filePtrs_.insert(fieldName, fPtr);
+
+            fout << "Heights (m) ";
+            forAllPlanes(zPlanes_,planeI)
+            {
+                fout << zPlanes_.planeLocationValues()[planeI] << " ";
+            }
+            fout << endl;
+
+            fout << "Time(s)" << " " << "dt (s)" << " " << fieldName << endl;
 
         }
     }
