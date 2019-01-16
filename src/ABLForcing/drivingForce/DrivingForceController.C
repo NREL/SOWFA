@@ -35,6 +35,64 @@ void Foam::DrivingForce<Type>::initializeController_
 )
 {
     errorInt_ = List<Type>(nSourceHeights,zeroTensor_());
+
+    //Initialize weighted regression
+    
+    label Nz = zPlanes_.numberOfPlanes();
+    // Regression order
+    Nreg_ = 3;
+    // Matrix X
+    scalarRectangularMatrix X(Nz,Nreg_+1);
+    forAllPlanes(zPlanes_,planeI)
+    {
+        for (label i = 0; i < Nreg_+1; i++)
+        {
+            X[planeI][i] = pow(zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()),i);
+        }
+    }
+    // Weights
+    forAllPlanes(zPlanes_,planeI)
+    {
+        weights_.append(
+                min( 1.0,2.0*zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()) )
+                        );
+    }
+
+    scalarDiagonalMatrix W(Nz);
+    forAllPlanes(zPlanes_,i)
+    {
+        W[i] = weights_[i];
+    }
+
+    //Compute regression matrix
+    //- XtWX = X.T W X
+    scalarRectangularMatrix XtWX(Nreg_+1,Nreg_+1);
+    multiply(XtWX,X.T(),W,X);
+
+    //- compute inverse of XtWX by
+    //  converting to symmetricSquareMatrix.
+    //  SVDinv could also be used but is less accurate
+    //  scalarRectangularMatrix XtWXinv = SVDinv(XtWX);
+    scalarSymmetricSquareMatrix Z(Nreg_+1);
+    for (label i = 0; i < Nreg_+1; i++)
+    {
+        for (label j=0; j < Nreg_+1; j++)
+        {
+            Z[i][j] = XtWX[i][j];
+        }
+    }
+    scalarSymmetricSquareMatrix Zinv=inv(Z);
+    scalarRectangularMatrix XtWXinv(Nreg_+1,Nreg_+1);
+    for (label i = 0; i < Nreg_+1; i++)
+    {
+        for (label j=0; j < Nreg_+1; j++)
+        {
+            XtWXinv[i][j] = Zinv[i][j];
+        }
+    }
+
+    //- Areg = (X.T W X)^-1 X.T
+    multiply(Areg_,XtWXinv,X.T());
 }
 
 
@@ -49,17 +107,60 @@ List<Type> Foam::DrivingForce<Type>::updateController_
     
     // Compute controller action
     List<Type> source(error.size(),zeroTensor_());
-    List<Type> KpError = deadBand_(error);
+    //List<Type> KpError = deadBand_(error);
     //List<Type> KpError = error;
+    List<Type> KpError = weightedRegression_(error);
 
     for (label i = 0; i < error.size(); i++)
     {
-        errorInt_[i] += KpError[i] * dt/Ti_;
+        //errorInt_[i] += KpError[i] * dt/Ti_;
         //errorInt_[i] += error[i] * dt/Ti_;
 
-        source[i] = alpha_/dt * ( KpError[i] + errorInt_[i] );
+        //source[i] = alpha_/dt * ( KpError[i] + errorInt_[i] );
+        source[i] = alpha_/dt * KpError[i];
     }
     return source;
+}
+
+
+template<class Type>
+List<Type> Foam::DrivingForce<Type>::weightedRegression_
+(
+    List<Type>& y
+)
+{
+    label Nz = zPlanes_.numberOfPlanes();
+
+    scalarRectangularMatrix Wy(Nz,Type::nComponents);
+    for (label i = 0; i < Nz; i++)
+    {
+        for (label j = 0; j < Type::nComponents; j++)
+        {
+            Wy[i][j] = weights_[i] * y[i][j];
+        }
+    }
+
+    //Compute coefficients
+    scalarRectangularMatrix beta(Nreg_+1,Type::nComponents);
+    multiply(beta,Areg_,Wy);
+
+
+    //Compute regression line
+    List<Type> yRegression(Nz);
+    for (label i = 0; i < Nz; i++)
+    {
+        for (label j = 0; j < Nreg_; j++)
+        {
+            for (label k = 0; k < Type::nComponents; k++)
+            {
+                yRegression[i][k] = beta[j][k] * pow(
+                    zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
+            }
+        }
+    }
+
+    return yRegression;
+
 }
 
 
@@ -117,6 +218,41 @@ List<Type> Foam::DrivingForce<Type>::smoothStep_
 // Type scalar does not have nComponent nor componentNames
 namespace Foam
 {
+    template<>
+    List<scalar> DrivingForce<scalar>::weightedRegression_
+    (
+        List<scalar>& y
+    )
+    {
+        label Nz = zPlanes_.numberOfPlanes();
+    
+        scalarRectangularMatrix Wy(Nz,1);
+        for (label i = 0; i < Nz; i++)
+        {
+            Wy[i][0] = weights_[i] * y[i];
+        }
+    
+        //Compute coefficients
+        scalarRectangularMatrix beta(Nreg_+1,1);
+        multiply(beta,Areg_,Wy);
+    
+    
+        //Compute regression line
+        List<scalar> yRegression(Nz);
+        for (label i = 0; i < Nz; i++)
+        {
+            for (label j = 0; j < Nreg_; j++)
+            {
+                yRegression[i] = beta[j][0] * pow(
+                    zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
+            }
+        }
+    
+        return yRegression;
+    
+    }
+
+
     template<>
     List<scalar> DrivingForce<scalar>::deadBand_
     (

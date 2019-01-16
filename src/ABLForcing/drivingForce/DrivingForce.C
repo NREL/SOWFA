@@ -310,7 +310,10 @@ void Foam::DrivingForce<Type>::readInputData_()
     deadBandWidth2_ = w2;
     
     // Initialize controller
-    initializeController_(nSourceHeights);
+    if (sourceType_ == "computed")
+    {
+        initializeController_(nSourceHeights);
+    }
 
     // If the desired mean wind or temperature is given at only one height, then revert to
     // the old way of specifying the source term.  Find the two grid levels that bracket
@@ -581,7 +584,7 @@ Foam::DrivingForce<Type>::DrivingForce
     hLevels1(0.0),
     hLevels2(0.0)
 {
-    Info << "Creating driving force object with for " << name_ << endl;
+    Info << "Creating driving force object for " << name_ << endl;
 
     readInputData_();
     openFiles_();

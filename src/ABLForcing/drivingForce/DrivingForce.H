@@ -40,6 +40,7 @@ SourceFiles
 #include "meshPlanes.H"
 #include "interpolate2D.H"
 #include "windRoseToCartesian.H"
+#include "scalarMatrices.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -121,6 +122,11 @@ class DrivingForce
         scalar deadBandWidth1_;
         scalar deadBandWidth2_;
 
+        //- Weighted regression
+        label Nreg_;
+        List<scalar> weights_;
+        scalarRectangularMatrix Areg_;
+
         //- Gather/write statistics?
         bool statisticsOn_;
 
@@ -191,6 +197,9 @@ class DrivingForce
 
         //- Update controller
         List<Type> updateController_(List<Type>& error);
+
+        //- Weighted regression
+        List<Type> weightedRegression_(List<Type>& y);
 
         //- Deadband function
         List<Type> deadBand_(List<Type>& x);
