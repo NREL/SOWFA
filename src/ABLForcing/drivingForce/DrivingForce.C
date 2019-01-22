@@ -261,7 +261,7 @@ void Foam::DrivingForce<Type>::writeErrorHistory_
                    errorHistoryFile_() << " " << error[planeI];
                 }
 
-                sourceHistoryFile_() << endl;
+                errorHistoryFile_() << endl;
             }
         }
     }
