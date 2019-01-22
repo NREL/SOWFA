@@ -86,6 +86,9 @@ class DrivingForce
         //- Output file pointer
         autoPtr<OFstream> sourceHistoryFile_;
 
+        //- Output file pointer
+        autoPtr<OFstream> errorHistoryFile_;
+
         //- Type of source
         word sourceType_;
 
@@ -210,6 +213,10 @@ class DrivingForce
         //- Write source history to file (single value or column of values)
         void writeSourceHistory_(Type& source);
         void writeSourceHistory_(List<Type>& source);
+
+        //- Write error history to file (single value or column of values)
+        void writeErrorHistory_(Type& error);
+        void writeErrorHistory_(List<Type>& error);
 
         //- Convert speedAndDirection input to components (only for Type vector)
         Type speedDirToComp_

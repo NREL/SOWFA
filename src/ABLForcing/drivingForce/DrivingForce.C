@@ -151,6 +151,9 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
     // Compute the error at each cell level
     List<Type> fldError = fldMeanDesired - fldMean;
 
+    // Write the error
+    writeErrorHistory_(fldError);
+
     // Compute the controller action
     List<Type> source = updateController_(fldError);
 
@@ -192,6 +195,26 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
 
 
 template<class Type>
+void Foam::DrivingForce<Type>::writeErrorHistory_
+(
+    Type& error
+)
+{
+    // Write the error information.
+    if (Pstream::master())
+    {
+        if (statisticsOn_)
+        {
+            if (runTime_.timeIndex() % statisticsFreq_ == 0)
+            {
+                errorHistoryFile_() << runTime_.timeName() << " " << runTime_.deltaT().value() << " " << error << endl;
+            }
+        }
+    }
+}
+
+
+template<class Type>
 void Foam::DrivingForce<Type>::writeSourceHistory_
 (
     List<Type>& source
@@ -209,6 +232,33 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
                 forAllPlanes(zPlanes_,planeI)
                 {
                    sourceHistoryFile_() << " " << source[planeI];
+                }
+
+                sourceHistoryFile_() << endl;
+            }
+        }
+    }
+}
+
+
+template<class Type>
+void Foam::DrivingForce<Type>::writeErrorHistory_
+(
+    List<Type>& error
+)
+{
+    // Write the column of source information.
+    if (Pstream::master())
+    {
+        if (statisticsOn_)
+        {
+            if (runTime_.timeIndex() % statisticsFreq_ == 0)
+            {
+                errorHistoryFile_() << runTime_.timeName() << " " << runTime_.deltaT().value();
+
+                forAllPlanes(zPlanes_,planeI)
+                {
+                   errorHistoryFile_() << " " << error[planeI];
                 }
 
                 sourceHistoryFile_() << endl;
@@ -532,6 +582,22 @@ void Foam::DrivingForce<Type>::openFiles_()
         }
 
         sourceHistoryFile_() << "Time(s)" << " " << "dt (s)" << " " << "source term " << bodyForce_.dimensions() << endl;
+
+        //File for saving the error
+        word errorFileName = ("Error" & name_) & "History";
+        errorHistoryFile_.reset(new OFstream(outputPath/errorFileName));
+        
+        if (sourceHeightsSpecified_.size() > 1)
+        {
+            errorHistoryFile_() << "Heights (m) ";
+            forAllPlanes(zPlanes_,planeI)
+            {
+                errorHistoryFile_() << zPlanes_.planeLocationValues()[planeI] << " ";
+            }
+            errorHistoryFile_() << endl;
+        }
+
+        errorHistoryFile_() << "Time(s)" << " " << "dt (s)" << " " << "error term " << endl;
     }
 }
 
