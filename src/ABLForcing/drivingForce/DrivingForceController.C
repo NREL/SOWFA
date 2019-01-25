@@ -47,7 +47,7 @@ void Foam::DrivingForce<Type>::initializeController_
     {
         for (label i = 0; i < Nreg_+1; i++)
         {
-            X[planeI][i] = pow(zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()),i);
+            X[planeI][i] = Foam::pow(zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()),i);
         }
     }
     // Weights
@@ -58,7 +58,7 @@ void Foam::DrivingForce<Type>::initializeController_
                         );
     }
 
-    scalarDiagonalMatrix W(Nz);
+    scalarDiagonalMatrix W(Nz,0.0);
     forAllPlanes(zPlanes_,i)
     {
         W[i] = weights_[i];
@@ -149,11 +149,11 @@ List<Type> Foam::DrivingForce<Type>::weightedRegression_
     List<Type> yRegression(Nz);
     for (label i = 0; i < Nz; i++)
     {
-        for (label j = 0; j < Nreg_; j++)
+        for (label j = 0; j < Nreg_+1; j++)
         {
             for (label k = 0; k < Type::nComponents; k++)
             {
-                yRegression[i][k] = beta[j][k] * pow(
+                yRegression[i][k] = beta[j][k] * Foam::pow(
                     zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
             }
         }
@@ -241,7 +241,7 @@ namespace Foam
         List<scalar> yRegression(Nz);
         for (label i = 0; i < Nz; i++)
         {
-            for (label j = 0; j < Nreg_; j++)
+            for (label j = 0; j < Nreg_+1; j++)
             {
                 yRegression[i] = beta[j][0] * pow(
                     zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
