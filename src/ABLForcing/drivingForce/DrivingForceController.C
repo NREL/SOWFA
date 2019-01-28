@@ -146,14 +146,14 @@ List<Type> Foam::DrivingForce<Type>::weightedRegression_
 
 
     //Compute regression line
-    List<Type> yRegression(Nz);
+    List<Type> yRegression(Nz,zeroTensor_());
     for (label i = 0; i < Nz; i++)
     {
         for (label j = 0; j < Nreg_+1; j++)
         {
             for (label k = 0; k < Type::nComponents; k++)
             {
-                yRegression[i][k] = beta[j][k] * Foam::pow(
+                yRegression[i][k] += beta[j][k] * Foam::pow(
                     zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
             }
         }
@@ -238,12 +238,12 @@ namespace Foam
     
     
         //Compute regression line
-        List<scalar> yRegression(Nz);
+        List<scalar> yRegression(Nz,zeroTensor_());
         for (label i = 0; i < Nz; i++)
         {
             for (label j = 0; j < Nreg_+1; j++)
             {
-                yRegression[i] = beta[j][0] * pow(
+                yRegression[i] += beta[j][0] * pow(
                     zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
             }
         }
