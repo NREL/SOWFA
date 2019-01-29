@@ -2,4 +2,4 @@ setWriters = sampledSetWriters
 
 $(setWriters)/vtkStructured/vtkStructuredSetWriterRunTime.C
 
-LIB = $(FOAM_USER_LIBBIN)/libuserfileFormats
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAfileFormats
