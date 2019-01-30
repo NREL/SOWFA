@@ -97,6 +97,8 @@ private:
             //- Revolutions per minute to radians per second conversion factor.
             const scalar rpmRadSec;
 
+		//- _SSC_ enabled option.
+		bool sscEnabled;
 
 
         //- Current time step size.
@@ -337,6 +339,11 @@ private:
 	    //- Pitch controller type (NOT IMPLEMENTED, just remains at 
 	    //  specified pitch).
 	    DynamicList<word> BladePitchControllerType;
+
+        //_SSC_ Define the controller type and the IP address for the zeroMQ interface
+        word sscControllerType;
+        word sscMeasurementsFunction;
+        std::string zmqAddress;
 
             //- Engage a rotor speed limiter (do not let rotor speed exceed rated
             //  or become negative.
@@ -593,7 +600,16 @@ private:
             // - Power on the generator.
             DynamicList<scalar> powerGenerator;
              
+            //- _SSC_ size of arrays passed to and from super controller
+            // 
+            // Note must be below superInfoBufferSize
+            int nInputsToSSC;
+            int nOutputsFromSSC;
 
+            //_SSC_ : Define a list for passing info between controllers and super controller
+            //List<scalar> superInfo(1000,scalar::zero);
+            DynamicList<scalar> superInfoFromSSC;  // Array of data from the SSC
+            DynamicList<scalar> superInfoToSSC;    // Aray of data to the SSC
 
 
         //- Output Data File Information.
@@ -660,7 +676,8 @@ private:
             //- List of output files for nacelle yaw angle.
             OFstream* nacYawFile_;
 
-            
+            //- _SSC_, List contents of superInfo
+            OFstream* superInfoFile_;
 
       
           
@@ -684,6 +701,15 @@ private:
 
 	//- Calculate the nacelle yaw position.
 	void controlNacYaw();
+
+            //- _SSC_: Define the super controller
+        void superController();
+        
+        // _SSC_: Call the controller implementation
+        void callSuperController();
+        
+        // _SSC_: Call the SSC measurement function
+        void sscMeasurements();        
 
         //- Calculate the blade pitch.
         void controlBladePitch();

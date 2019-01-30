@@ -33,8 +33,24 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// General inclusions
 #include "horizontalAxisWindTurbinesADM.H"
 #include "interpolateXY.H"
+
+// SSC inclusions without dependencies
+#include "controllers/superControllers/timeTableSSC_ADM.C" //_SSC_ inclusion
+
+// SSC inclusions with dependencies
+#define DO_EXPAND(VAL)  VAL ## 1
+#define EXPAND(VAL)     DO_EXPAND(VAL)
+#if !defined(COMPILEZEROMQ) || (EXPAND(COMPILEZEROMQ) == 1) // (Re)define if COMPILEZEROMQ undefined or empty string
+    #undef COMPILEZEROMQ
+    #define COMPILEZEROMQ 0 // Set default option to 0, meaning 'do not compile ZeroMQ interface'
+#endif
+
+#if COMPILEZEROMQ == 1 // External definition for gcc compiler: '-D COMPILEZEROMQ=1'
+    #include "controllers/superControllers/zeromqSSC_ADM.C" //_SSC_ inclusion
+#endif
 
 namespace Foam
 {
@@ -46,7 +62,7 @@ namespace turbineModels
 horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
 (
     const volVectorField& U
-)	      
+)         
 :
     // Set the pointer to runTime
     runTime_(U.time()),
@@ -124,22 +140,70 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         )
     );
     
+    // _SSC_ Import SSC setting from the turbineArrayProperties dictionary file
     // Read in the turbine array properties dictionary.  This is the uppermost level dictionary
     // that describes where the turbines are, what kind they are, their initial state, and 
     // information about how the actuator line method is applied to each turbine.
     {
+        sscEnabled = false; // _SSC_ Set default option to 'false'
         List<word> listTemp = turbineArrayProperties.toc();
         for (int i = 0; i < listTemp.size(); i++)
         {
-            if (listTemp[i] != "globalProperties")
+            if (listTemp[i] != "globalProperties" && listTemp[i] != "sscProperties") // _SSC_ Edit to ignore 'sscProperties' as a turbine
             {
                 turbineName.append(listTemp[i]);
             }
+
+            // _SSC_ Check for sscProperties subDict. If exists, import the 'sscEnabled' setting (backwards compatibility)
+            if (listTemp[i] == "sscProperties")
+            {
+                sscEnabled = turbineArrayProperties.subDict("sscProperties").lookupOrDefault<bool>("sscEnabled",false);         
+            }
+            //
         }
     }
 
     numTurbines = turbineName.size();
 
+    //_SSC_ If SSC enabled, read the number of inputs and outputs, and 
+    // set up the dynamic arrays which will pass the memory between super controller and turbine controllers
+    if (sscEnabled) {
+        nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC"))); 
+        nOutputsFromSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSSC")));
+        sscControllerType = word(turbineArrayProperties.subDict("sscProperties").lookup("sscControllerType"));
+        sscMeasurementsFunction = word(turbineArrayProperties.subDict("sscProperties").lookup("sscMeasurementsFunction"));
+        
+        if (sscControllerType == "zeromqSSC") { 
+            zmqAddress = string(turbineArrayProperties.subDict("sscProperties").lookup("zmqAddress"));
+        }
+        
+        //Set up dynamic arrays
+        for (int si = 0; si < numTurbines * nInputsToSSC; si++)
+        {
+            superInfoToSSC.append(0.0);
+        }
+        for (int si = 0; si < numTurbines * nOutputsFromSSC; si++)
+        {
+            superInfoFromSSC.append(0.0);
+        }
+
+    }
+
+    // _SSC_ Report whether ssc has been enabled or disabled
+    if(Pstream::myProcNo() == 0) // Only print to log file for processor0, to avoid $nCores messages
+    {
+        if(sscEnabled) {
+            printf("The SSC is enabled.\n");
+            printf("  The SSC is expecting %d inputs per turbine.\n",nInputsToSSC );
+            printf("  The SSC is expecting %d outputs per turbine.\n",nOutputsFromSSC );
+        } else {
+            printf("The SSC is disabled.\n");
+        }
+    }
+    //  
+
+
+    
     outputControl = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<word>("outputControl","timeStep");
     outputInterval = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("outputInterval",1);
     perturb = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("perturb",1E-5);
@@ -297,7 +361,7 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
         {
             // Read nothing.
         }
-        else if (BladePitchControllerType[i] == "PID")
+        else if (BladePitchControllerType[i] == "PID" || BladePitchControllerType[i] == "PIDSC" ) //_SSC_ include PIDSC in init routine
         {
             PitchK.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchK")));
             PitchMin.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchMin")));
@@ -560,8 +624,8 @@ horizontalAxisWindTurbinesADM::horizontalAxisWindTurbinesADM
 
         // Define the vector aligned with the tower pointing from
         // the ground to the nacelle.
-	    uvTower.append(towerShaftIntersect[i] - baseLocation[i]);
-	    uvTower[i] = uvTower[i]/mag(uvTower[i]);
+        uvTower.append(towerShaftIntersect[i] - baseLocation[i]);
+        uvTower[i] = uvTower[i]/mag(uvTower[i]);
 
         // Calculate the width of each actuator section.
         dr.append(DynamicList<scalar>(0));
@@ -776,9 +840,9 @@ void horizontalAxisWindTurbinesADM::rotateBlades()
 {  
     // Perform rotation turbine by turbine.
     forAll(uvShaft, i)
-    {	
+    {   
         // Check the rotation direction first and set the local delta azimuth
-	// variable accordingly.
+    // variable accordingly.
       //scalar deltaAzimuthI = 0.0;
       //if (rotationDir[i] == "cw")
       //{
@@ -789,7 +853,7 @@ void horizontalAxisWindTurbinesADM::rotateBlades()
       //    deltaAzimuthI = -deltaAzimuth[i];
       //}
 
-	// Rotate turbine blades, blade by blade, point by point.
+    // Rotate turbine blades, blade by blade, point by point.
       //forAll(bladePoints[i], j)
       //{
       //    forAll(bladePoints[i][j], k)
@@ -798,11 +862,11 @@ void horizontalAxisWindTurbinesADM::rotateBlades()
       //    }
       //}   
 
-	// Calculate the new azimuth angle and make sure it isn't
+    // Calculate the new azimuth angle and make sure it isn't
         // bigger than 2*pi.
         if (pastFirstTimeStep)
         {
-	    azimuth[i] = azimuth[i] + deltaAzimuth[i];
+        azimuth[i] = azimuth[i] + deltaAzimuth[i];
             if (azimuth[i] >= 2.0 * Foam::constant::mathematical::pi)
             {
                 azimuth[i] -= 2.0 * Foam::constant::mathematical::pi;
@@ -817,15 +881,15 @@ void horizontalAxisWindTurbinesADM::yawNacelle()
     // Perform rotation turbine by turbine.
     forAll(uvTower, i)
     {
-	// Rotate the rotor apex first.
+    // Rotate the rotor apex first.
         rotorApex[i] = rotatePoint(rotorApex[i], towerShaftIntersect[i], uvTower[i], deltaNacYaw[i]);
 
-	// Recompute the shaft unit vector since the shaft has rotated.
-	uvShaft[i] = rotorApex[i] - towerShaftIntersect[i];
-	uvShaft[i] = (uvShaft[i]/mag(uvShaft[i])) * uvShaftDir[i];
-	
-	// Rotate turbine blades, blade by blade, point by point.
-	forAll(bladePoints[i], j)
+    // Recompute the shaft unit vector since the shaft has rotated.
+    uvShaft[i] = rotorApex[i] - towerShaftIntersect[i];
+    uvShaft[i] = (uvShaft[i]/mag(uvShaft[i])) * uvShaftDir[i];
+    
+    // Rotate turbine blades, blade by blade, point by point.
+    forAll(bladePoints[i], j)
         {
             forAll(bladePoints[i][j], k)
             {
@@ -833,11 +897,11 @@ void horizontalAxisWindTurbinesADM::yawNacelle()
             }
         }   
 
-	// Compute the new yaw angle and make sure it isn't
+    // Compute the new yaw angle and make sure it isn't
         // bigger than 2*pi.
         if (pastFirstTimeStep)
         {
-	    nacYaw[i] = nacYaw[i] + deltaNacYaw[i];
+        nacYaw[i] = nacYaw[i] + deltaNacYaw[i];
             if (nacYaw[i] >= 2.0 * Foam::constant::mathematical::pi)
             {
                 nacYaw[i] -= 2.0 * Foam::constant::mathematical::pi;
@@ -919,20 +983,25 @@ void horizontalAxisWindTurbinesADM::controlGenTorque()
 
 
         // Apply a controller to update the rotor speed.
-	if (GenTorqueControllerType[j] == "none")
+        if (GenTorqueControllerType[j] == "none")
         {
             #include "controllers/genTorqueControllers/none.H"
         }
-
-	else if (GenTorqueControllerType[j] == "fiveRegion")
+    
+        else if (GenTorqueControllerType[j] == "fiveRegion")
         {
             #include "controllers/genTorqueControllers/fiveRegion.H"
-	}
+        }
 
         else if (GenTorqueControllerType[j] == "speedTorqueTable")
         {
             #include "controllers/genTorqueControllers/speedTorqueTable.H"
         }
+        else if (GenTorqueControllerType[j] == "torqueSC")
+        {
+            #include "controllers/genTorqueControllers/torqueSC.H"
+        }
+      
 
         // Limit the change in generator torque.
         if (GenTorqueRateLimiter[j])
@@ -954,13 +1023,11 @@ void horizontalAxisWindTurbinesADM::controlNacYaw()
         // Get the turbine type index.
         int j = turbineTypeID[i];
 
-
-        
         // Apply a controller to update the nacelle yaw position.
         if (NacYawControllerType[j] == "none")
         {
             // Do nothing.
-	    deltaNacYaw[i] = 0.0;
+            deltaNacYaw[i] = 0.0;
         }
 
         else if (NacYawControllerType[j] == "simple")
@@ -970,6 +1037,14 @@ void horizontalAxisWindTurbinesADM::controlNacYaw()
         
         else if (NacYawControllerType[j] == "timeYawTable")
         {
+        }
+
+        // _SSC_, set a case for yawSC
+        // simple function assumes the first entry per turbine in 
+        // superInfoFromSSC is a yaw reference to seek
+        else if (NacYawControllerType[j] == "yawSC")
+        {
+            #include "controllers/yawControllers/yawSC.H"
         }
 
 
@@ -982,6 +1057,96 @@ void horizontalAxisWindTurbinesADM::controlNacYaw()
     }
 }
         
+//_SSC_: define the super controller function
+//  The super controller code facilitates the exchangess 
+void horizontalAxisWindTurbinesADM::superController()
+{
+    Info << "Entering SuperController" << endl;
+
+    //As a first step spool up the "To" data from each of the turbines
+    List<scalar> superInfoLocalIn(nInputsToSSC*numTurbines,0.0);
+    List<scalar> superInfoLocalOut(nOutputsFromSSC*numTurbines,0.0);
+
+    for(int si = 0; si < nInputsToSSC * numTurbines; si++)
+    {
+        superInfoLocalIn[si] = superInfoToSSC[si];
+    }
+
+    //Gather and scatter across procs
+    Pstream::gather(superInfoLocalIn,sumOp<List<scalar> >());
+    Pstream::scatter(superInfoLocalIn);
+
+    // Send back out
+    for(int si = 0; si < nInputsToSSC *numTurbines; si++)
+    {
+        superInfoToSSC[si] = superInfoLocalIn[si];
+    }
+    
+    // if this is the master, call 
+    if (Pstream::master())
+    {
+        sscMeasurements(); // Gather measurements
+        callSuperController();  // Call the superController function
+
+        // Send result local
+        for(int si = 0; si < nOutputsFromSSC *numTurbines; si++)
+        {
+            superInfoLocalOut[si] = superInfoFromSSC[si];
+        }
+        
+    } else {
+        // If not master, set measurements to zero
+        for(int si = 0; si < nInputsToSSC *numTurbines; si++)
+        {
+            superInfoToSSC[si] = 0.0;
+        }
+    }
+
+    //Gather and scatter across procs
+    Pstream::gather(superInfoLocalOut,sumOp<List<scalar> >());
+    Pstream::scatter(superInfoLocalOut);
+
+    // Now reassign out/send back out
+    for(int si = 0; si < nOutputsFromSSC *numTurbines; si++)
+    {
+        superInfoFromSSC[si] = superInfoLocalOut[si];
+    }
+
+}
+
+//_SSC_: define  the call to the SSC measurement function
+void horizontalAxisWindTurbinesADM::sscMeasurements()
+{
+        // _SSC_, specific measurement definition        
+        if (sscMeasurementsFunction == "default")
+        {
+            #include "controllers/measurementFunctions/default.H"
+        }       
+}
+
+//_SSC_: define  the call to the simple controller
+//  The super controller code facilitates the exchangess 
+void horizontalAxisWindTurbinesADM::callSuperController()
+{
+        // _SSC_, specific controller        
+        if (sscControllerType == "timeTableSSC")
+        {
+            #include "controllers/superControllers/timeTableSSC_ADM.H"
+        }       
+
+        #if COMPILEZEROMQ == 1
+            if (sscControllerType == "zeromqSSC")
+            {
+                #include "controllers/superControllers/zeromqSSC_ADM.H"
+            }   
+        #else
+            if (sscControllerType == "zeromqSSC")
+            {
+                printf("\n \n ERROR: Please recompile SOWFA with the correct zeroMQ libraries to use the zeromqSSC controller functionality. \n\n");
+            }   
+        #endif
+}
+
 
 void horizontalAxisWindTurbinesADM::controlBladePitch()
 {
@@ -1008,6 +1173,12 @@ void horizontalAxisWindTurbinesADM::controlBladePitch()
         else if (BladePitchControllerType[j] == "PID")
         {
             #include "controllers/bladePitchControllers/PID.H"
+        }
+        
+        //_SSC_: allow a pidSC controller where the minimum pitch is chosen by super controller
+        else if (BladePitchControllerType[j] == "PIDSC")
+        {
+            #include "controllers/bladePitchControllers/PIDSC.H"
         }
 
         // Apply pitch rate limiter.
@@ -1098,7 +1269,7 @@ void horizontalAxisWindTurbinesADM::findControlProcNo()
             }
         }
     }
-}	
+}   
 
 
 void horizontalAxisWindTurbinesADM::computeWindVectors()
@@ -1631,6 +1802,10 @@ void horizontalAxisWindTurbinesADM::update()
         computeRotSpeed();
         rotateBlades();
         yawNacelle();
+        //_SSC_
+        if (sscEnabled){
+            superController(); 
+        }
     }
     else if(bladeUpdateType[0] == "newPosition")
     {
@@ -1642,6 +1817,10 @@ void horizontalAxisWindTurbinesADM::update()
         computeRotSpeed();
         rotateBlades();
         yawNacelle();
+        //_SSC_
+        if (sscEnabled){
+            superController(); 
+        }
 
         // Find out which processor controls which actuator point,
         // and with that information sample the wind at the actuator
@@ -1662,19 +1841,19 @@ void horizontalAxisWindTurbinesADM::update()
         if (outputControl == "timeStep")
         {
             if (outputIndex >= outputInterval)
-    	    {
-	        outputIndex = 0;
+            {
+            outputIndex = 0;
                 computeSectorAverage();
-	        printOutputFiles();
-	    }
+            printOutputFiles();
+        }
         }
         else if (outputControl == "runTime")
         {
             if ((runTime_.value() - lastOutputTime) >= outputInterval)
             {
-    	        lastOutputTime += outputInterval;
+                lastOutputTime += outputInterval;
                 computeSectorAverage();
-	        printOutputFiles();
+            printOutputFiles();
             }
         }
         else
@@ -1760,6 +1939,10 @@ void horizontalAxisWindTurbinesADM::openOutputFiles()
         nacYawFile_ = new OFstream(rootDir/time/"nacYaw");
         *nacYawFile_ << "#Turbine    Time(s)    dt(s)    nacelle yaw angle (degrees)" << endl;
 
+         // _SSC_: Create a superInfo file.
+        superInfoFile_ = new OFstream(rootDir/time/"superInfo");
+        *superInfoFile_ << "#Turbine    Sector    Time(s)    dt(s)    superInfo(fromThento)" << endl;
+
         // Create an angle of attack file.
         alphaFile_ = new OFstream(rootDir/time/"alpha");
         *alphaFile_ << "#Turbine    Sector    Time(s)    dt(s)    angle-of-attack(degrees)" << endl;
@@ -1825,6 +2008,7 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
             *azimuthFile_ << i << " " << time << " " << dt << " ";
             *pitchFile_ << i << " " << time << " " << dt << " ";
             *nacYawFile_ << i << " " << time << " " << dt << " ";
+            *superInfoFile_ << i << " " << time << " " << dt << " "; //_SSC_
 
             // Write out information for each turbine.
             *torqueRotorFile_ << torqueRotor[i]*fluidDensity[i] << endl;
@@ -1837,6 +2021,17 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
             *azimuthFile_ << azimuth[i]/degRad << endl;
             *pitchFile_ << pitch[i] << endl;
             *nacYawFile_ << standardToCompass(nacYaw[i]/degRad) << endl;
+
+            // _SSC_, print out superInfo for this turbine
+            for(int si = 0; si < nOutputsFromSSC; si++)
+            {
+                *superInfoFile_ << superInfoFromSSC[i * nOutputsFromSSC + si] << " ";
+            }
+            for(int si = 0; si < nInputsToSSC; si++)
+            {
+                *superInfoFile_ << superInfoToSSC[i * nInputsToSSC + si] << " ";
+            }
+            *superInfoFile_ << endl; //_SSC_
 
             // Proceed sector by sector.
             forAll(alphaSecAvg[i], j)
@@ -1892,6 +2087,7 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
         *azimuthFile_ << endl;
         *pitchFile_ << endl;
         *nacYawFile_ << endl;
+        *superInfoFile_ << endl; //_SSC_
 
         *alphaFile_ << endl;
         *VmagFile_ << endl;

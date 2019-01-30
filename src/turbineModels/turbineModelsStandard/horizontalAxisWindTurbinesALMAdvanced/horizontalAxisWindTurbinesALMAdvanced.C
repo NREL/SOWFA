@@ -6,6 +6,11 @@ are based on the OpenFOAM software. Access to and use of SOWFA imposes
 obligations on the user, as set forth in the NWTC Design Codes DATA USE
 DISCLAIMER AGREEMENT that can be found at
 <http://wind.nrel.gov/designcodes/disclaimer.html>.
+And modified by the TUD to include:
+- a matlab interface
+- supercontroller
+- forcescalar
+
 \*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*\
@@ -35,6 +40,22 @@ License
 
 #include "horizontalAxisWindTurbinesALMAdvanced.H"
 #include "interpolateXY.H"
+
+
+// SSC inclusions without dependencies
+#include "controllers/superControllers/timeTableSSC_ALMAdvanced.C" //_SSC_ inclusion
+
+// SSC inclusions with dependencies
+#define DO_EXPAND(VAL)  VAL ## 1
+#define EXPAND(VAL)     DO_EXPAND(VAL)
+#if !defined(COMPILEZEROMQ) || (EXPAND(COMPILEZEROMQ) == 1) // (Re)define if COMPILEZEROMQ undefined or empty string
+    #undef COMPILEZEROMQ
+    #define COMPILEZEROMQ 0 // Set default option to 0, meaning 'do not compile ZeroMQ interface'
+#endif
+
+#if COMPILEZEROMQ == 1 // External definition for gcc compiler: '-D COMPILEZEROMQ=1'
+    #include "controllers/superControllers/zeromqSSC_ALMAdvanced.C" //_SSC_ inclusion
+#endif
 
 namespace Foam
 {
@@ -184,22 +205,68 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         )
     );
     
+    // _SSC_ Import SSC setting from the turbineArrayProperties dictionary file
     // Read in the turbine array properties dictionary.  This is the uppermost level dictionary
     // that describes where the turbines are, what kind they are, their initial state, and 
     // information about how the actuator line method is applied to each turbine.
     {
+        sscEnabled = false; // _SSC_ Set default option to 'false'
         List<word> listTemp = turbineArrayProperties.toc();
         for (int i = 0; i < listTemp.size(); i++)
         {
-            if (listTemp[i] != "globalProperties")
+            if (listTemp[i] != "globalProperties" && listTemp[i] != "sscProperties") // _SSC_ Edit to ignore 'sscProperties' as a turbine
             {
                 turbineName.append(listTemp[i]);
             }
+
+            // _SSC_ Check for sscProperties subDict. If exists, import the 'sscEnabled' setting (backwards compatibility)
+            if (listTemp[i] == "sscProperties")
+            {
+                sscEnabled = turbineArrayProperties.subDict("sscProperties").lookupOrDefault<bool>("sscEnabled",false);         
+            }
+            //
         }
     }
 
     numTurbines = turbineName.size();
 
+	    //_SSC_ If SSC enabled, read the number of inputs and outputs, and 
+    // set up the dynamic arrays which will pass the memory between super controller and turbine controllers
+    if (sscEnabled) {
+        nInputsToSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nInputsToSSC"))); 
+        nOutputsFromSSC = int(readScalar(turbineArrayProperties.subDict("sscProperties").lookup("nOutputsFromSSC")));
+        sscControllerType = word(turbineArrayProperties.subDict("sscProperties").lookup("sscControllerType"));
+        sscMeasurementsFunction = word(turbineArrayProperties.subDict("sscProperties").lookup("sscMeasurementsFunction"));
+        
+        if (sscControllerType == "zeromqSSC") { 
+            zmqAddress = string(turbineArrayProperties.subDict("sscProperties").lookup("zmqAddress"));
+        }
+        
+        //Set up dynamic arrays
+        for (int si = 0; si < numTurbines * nInputsToSSC; si++)
+        {
+            superInfoToSSC.append(0.0);
+        }
+        for (int si = 0; si < numTurbines * nOutputsFromSSC; si++)
+        {
+            superInfoFromSSC.append(0.0);
+        }
+
+    }
+
+    // _SSC_ Report whether ssc has been enabled or disabled
+    if(Pstream::myProcNo() == 0) // Only print to log file for processor0, to avoid $nCores messages
+    {
+        if(sscEnabled) {
+            printf("The SSC is enabled.\n");
+            printf("  The SSC is expecting %d inputs per turbine.\n",nInputsToSSC );
+            printf("  The SSC is expecting %d outputs per turbine.\n",nOutputsFromSSC );
+        } else {
+            printf("The SSC is disabled.\n");
+        }
+    }
+    // 
+	
     outputControl = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<word>("outputControl","timeStep");
     outputInterval = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("outputInterval",1);
     perturb = turbineArrayProperties.subDict("globalProperties").lookupOrDefault<scalar>("perturb",1E-5);
@@ -214,6 +281,7 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         turbineType.append(word(turbineArrayProperties.subDict(turbineName[i]).lookup("turbineType")));
         includeNacelle.append(readBool(turbineArrayProperties.subDict(turbineName[i]).lookup("includeNacelle")));
         includeTower.append(readBool(turbineArrayProperties.subDict(turbineName[i]).lookup("includeTower")));
+        forceScalar.append(scalar(readScalar(turbineArrayProperties.subDict(turbineName[i]).lookup("forceScalar"))));
 
         baseLocation.append(vector(turbineArrayProperties.subDict(turbineName[i]).lookup("baseLocation")));
 
@@ -329,6 +397,7 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
     }
 
 
+	
 
     // For each distinct turbine, read in properties of that turbine from separate
     // dictionaries.
@@ -421,7 +490,7 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         {
             // Read nothing.
         }
-        else if (BladePitchControllerType[i] == "PID")
+        else if (BladePitchControllerType[i] == "PID"|| BladePitchControllerType[i] == "PIDSC" )
         {
             PitchK.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchK")));
             PitchMin.append(readScalar(turbineProperties.subDict("BladePitchControllerParams").lookup("PitchMin")));
@@ -459,8 +528,6 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
 
 
         AirfoilType.append(turbineProperties.lookup("Airfoils"));
-
-
 
         BladeData.append(turbineProperties.lookup("BladeData"));
         {
@@ -561,6 +628,8 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         }
     }
 
+	
+	
     // Reassign airfoil type IDs to blades of each turbine based on the global
     // distinct list of airfoils.
     forAll(BladeAirfoilTypeID,i)
@@ -638,6 +707,8 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
 
 
 
+	
+		
     // Convert nacelle yaw from compass directions to the standard
     // convention of 0 degrees on the + x axis with positive degrees
     // in the counter-clockwise direction.
@@ -1006,6 +1077,7 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
     Pstream::scatter(towerPointsPerturbVector);
 
 
+	
 
     // Yaw the nacelle to initial position.
     deltaNacYaw = nacYaw;
@@ -1554,7 +1626,8 @@ void horizontalAxisWindTurbinesALMAdvanced::controlGenTorque()
         scalar generatorTorqueCommanded = generatorTorque[i];
 
 
-
+		
+		
         // Apply a controller to update the rotor speed.
         if (GenTorqueControllerType[j] == "none")
         {
@@ -1569,6 +1642,10 @@ void horizontalAxisWindTurbinesALMAdvanced::controlGenTorque()
         else if (GenTorqueControllerType[j] == "speedTorqueTable")
         {
             #include "controllers/genTorqueControllers/speedTorqueTable.H"
+        }
+			        else if (GenTorqueControllerType[j] == "TorqueSC")
+        {
+            #include "controllers/genTorqueControllers/TorqueSC.H"
         }
 
         // Limit the change in generator torque.
@@ -1610,16 +1687,26 @@ void horizontalAxisWindTurbinesALMAdvanced::controlNacYaw()
         {
             #include "controllers/nacYawControllers/timeYawTable.H"
         }
-
+        // _SSC_, set a case for yawSC
+        // simple function assumes the first entry per turbine in 
+        // superInfoFromSSC is a yaw reference to seek
+        else if (NacYawControllerType[j] == "yawSC")
+        {
+            #include "controllers/nacYawControllers/yawSC.H"
+        }
 
       //Info << "nacYaw = " << nacYaw << endl;
-        if (((nacYawCommanded - nacYaw[i]) / degRad) <= 180.0)
+        if (((nacYawCommanded - nacYaw[i]) / degRad) <= -180.0)
+        {
+            deltaNacYaw[i] = nacYawCommanded - nacYaw[i] + (360.0*degRad);
+        }
+        else if (((nacYawCommanded - nacYaw[i]) / degRad) <= 180.0)
         {
             deltaNacYaw[i] = nacYawCommanded - nacYaw[i];
         }
         else
         {
-            deltaNacYaw[i] = nacYaw[i] - ((360.0*degRad) - nacYawCommanded);
+            deltaNacYaw[i] = nacYawCommanded - nacYaw[i] - (360.0*degRad);
         }
       //Info << "deltaNacYaw = " << deltaNacYaw / degRad << endl;
    
@@ -1632,7 +1719,97 @@ void horizontalAxisWindTurbinesALMAdvanced::controlNacYaw()
       //Info << "deltaNacYaw = " << deltaNacYaw / degRad << endl;
     }
 }
+
+//_SSC_: define the super controller function
+//  The super controller code facilitates the exchangess 
+void horizontalAxisWindTurbinesALMAdvanced::superController()
+{
+    Info << "Entering SuperController" << endl;
+
+    //As a first step spool up the "To" data from each of the turbines
+    List<scalar> superInfoLocalIn(nInputsToSSC*numTurbines,0.0);
+    List<scalar> superInfoLocalOut(nOutputsFromSSC*numTurbines,0.0);
+
+    for(int si = 0; si < nInputsToSSC * numTurbines; si++)
+    {
+        superInfoLocalIn[si] = superInfoToSSC[si];
+    }
+
+    //Gather and scatter across procs
+    Pstream::gather(superInfoLocalIn,sumOp<List<scalar> >());
+    Pstream::scatter(superInfoLocalIn);
+
+    // Send back out
+    for(int si = 0; si < nInputsToSSC *numTurbines; si++)
+    {
+        superInfoToSSC[si] = superInfoLocalIn[si];
+    }
+    
+    // if this is the master, call 
+    if (Pstream::master())
+    {
+        sscMeasurements(); // Gather measurements
+        callSuperController();  // Call the superController function
+
+        // Send result local
+        for(int si = 0; si < nOutputsFromSSC *numTurbines; si++)
+        {
+            superInfoLocalOut[si] = superInfoFromSSC[si];
+        }
         
+    } else {
+        // If not master, set measurements to zero
+        for(int si = 0; si < nInputsToSSC *numTurbines; si++)
+        {
+            superInfoToSSC[si] = 0.0;
+        }
+    }
+
+    //Gather and scatter across procs
+    Pstream::gather(superInfoLocalOut,sumOp<List<scalar> >());
+    Pstream::scatter(superInfoLocalOut);
+
+    // Now reassign out/send back out
+    for(int si = 0; si < nOutputsFromSSC *numTurbines; si++)
+    {
+        superInfoFromSSC[si] = superInfoLocalOut[si];
+    }
+
+}
+
+//_SSC_: define  the call to the SSC measurement function
+void horizontalAxisWindTurbinesALMAdvanced::sscMeasurements()
+{
+        // _SSC_, specific measurement definition        
+        if (sscMeasurementsFunction == "default")
+        {
+            #include "controllers/measurementFunctions/default.H"
+        }       
+}
+
+//_SSC_: define  the call to the simple controller
+//  The super controller code facilitates the exchangess 
+void horizontalAxisWindTurbinesALMAdvanced::callSuperController()
+{
+        // _SSC_, specific controller       
+        if (sscControllerType == "timeTableSSC")
+        {
+            #include "controllers/superControllers/timeTableSSC_ALMAdvanced.H"
+        }       
+
+        #if COMPILEZEROMQ == 1
+            if (sscControllerType == "zeromqSSC")
+            {
+                #include "controllers/superControllers/zeromqSSC_ALMAdvanced.H"
+            }   
+        #else
+            if (sscControllerType == "zeromqSSC")
+            {
+                printf("\n \n ERROR: Please recompile SOWFA with the correct zeroMQ libraries to use the zeromqSSC controller functionality. \n\n");
+            }   
+        #endif
+}
+  
 
 void horizontalAxisWindTurbinesALMAdvanced::controlBladePitch()
 {
@@ -1660,7 +1837,11 @@ void horizontalAxisWindTurbinesALMAdvanced::controlBladePitch()
         {
             #include "controllers/bladePitchControllers/PID.H"
         }
-
+        //_SSC_: allow a pidSC controller where the minimum pitch is chosen by super controller
+        else if (BladePitchControllerType[j] == "PIDSC")
+        {
+            #include "controllers/bladePitchControllers/PIDSC.H"
+        }
         // Apply pitch rate limiter.
         if (BladePitchRateLimiter[j])
         {
@@ -2364,8 +2545,8 @@ void horizontalAxisWindTurbinesALMAdvanced::computeBladePointForce()
 
                 // Using Cl, Cd, wind velocity, chord, and actuator element width, calculate the
                 // lift and drag per density.
-                bladePointCl[i][j][k] *= F;
-                bladePointCd[i][j][k] *= F;
+                bladePointCl[i][j][k] *= F* forceScalar[i];
+                bladePointCd[i][j][k] *= F* forceScalar[i];
                 bladePointLift[i][j][k] = 0.5 * bladePointCl[i][j][k] * bladePointVmag[i][j][k] * bladePointVmag[i][j][k] * bladePointChord[i][j][k] * bladeDs[i][k];
                 bladePointDrag[i][j][k] = 0.5 * bladePointCd[i][j][k] * bladePointVmag[i][j][k] * bladePointVmag[i][j][k] * bladePointChord[i][j][k] * bladeDs[i][k];
 
@@ -3646,7 +3827,10 @@ void horizontalAxisWindTurbinesALMAdvanced::update()
         computeRotSpeed();
         rotateBlades();
         yawNacelle();
-
+        //_SSC_
+        if (sscEnabled){
+            superController(); 
+        }
         // Find search cells.
         for(int i = 0; i < numTurbines; i++)
         {
@@ -3689,7 +3873,10 @@ void horizontalAxisWindTurbinesALMAdvanced::update()
         computeRotSpeed();
         rotateBlades();
         yawNacelle();
-
+        //_SSC_
+        if (sscEnabled){
+            superController(); 
+        }
         // Find search cells.
         for(int i = 0; i < numTurbines; i++)
         {
