@@ -34,13 +34,12 @@ void Foam::DrivingForce<Type>::initializeController_
     label nSourceHeights
 )
 {
-    errorInt_ = List<Type>(nSourceHeights,zeroTensor_());
-
     //Initialize weighted regression
     
     label Nz = zPlanes_.numberOfPlanes();
     // Regression order
     Nreg_ = 3;
+    betaInt_ = scalarRectangularMatrix(Nreg_+1,nComponents_(),0.0);
     // Matrix X
     scalarRectangularMatrix X(Nz,Nreg_+1);
     forAllPlanes(zPlanes_,planeI)
@@ -107,24 +106,21 @@ List<Type> Foam::DrivingForce<Type>::updateController_
     
     // Compute controller action
     List<Type> source(error.size(),zeroTensor_());
-    //List<Type> KpError = deadBand_(error);
-    //List<Type> KpError = error;
-    List<Type> KpError = weightedRegression_(error);
+    scalarRectangularMatrix beta = computeRegressionCoeff_(error);
+    scalarRectangularMatrix beta_eff(Nreg_+1,nComponents_());
 
-    for (label i = 0; i < error.size(); i++)
-    {
-        //errorInt_[i] += KpError[i] * dt/Ti_;
-        //errorInt_[i] += error[i] * dt/Ti_;
+    betaInt_ = betaInt_ + dt/Ti_*beta;
+    beta_eff = beta + betaInt_;
 
-        //source[i] = alpha_/dt * ( KpError[i] + errorInt_[i] );
-        source[i] = alpha_/dt * KpError[i];
-    }
+    List<Type> regressionCurve = constructRegressionCurve_(beta_eff);
+
+    source = alpha_/dt * regressionCurve;
     return source;
 }
 
 
 template<class Type>
-List<Type> Foam::DrivingForce<Type>::weightedRegression_
+scalarRectangularMatrix Foam::DrivingForce<Type>::computeRegressionCoeff_
 (
     List<Type>& y
 )
@@ -143,74 +139,32 @@ List<Type> Foam::DrivingForce<Type>::weightedRegression_
     //Compute coefficients
     scalarRectangularMatrix beta(Nreg_+1,Type::nComponents);
     multiply(beta,Areg_,Wy);
+    return beta;
+}
 
+
+template<class Type>
+List<Type> Foam::DrivingForce<Type>::constructRegressionCurve_
+(
+    scalarRectangularMatrix& beta
+)
+{
+    label Nz = zPlanes_.numberOfPlanes();
 
     //Compute regression line
-    List<Type> yRegression(Nz,zeroTensor_());
+    List<Type> y(Nz,zeroTensor_());
     for (label i = 0; i < Nz; i++)
     {
         for (label j = 0; j < Nreg_+1; j++)
         {
             for (label k = 0; k < Type::nComponents; k++)
             {
-                yRegression[i][k] += beta[j][k] * Foam::pow(
+                y[i][k] += beta[j][k] * Foam::pow(
                     zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
             }
         }
     }
-
-    return yRegression;
-
-}
-
-
-template<class Type>
-List<Type> Foam::DrivingForce<Type>::deadBand_
-(
-    List<Type>& x
-)
-{
-    List<Type> x1(x.size(),zeroTensor_());
-    List<Type> x2(x.size(),zeroTensor_());
-    List<Type> deadBand(x.size(),zeroTensor_());
-
-    x1 = (x+deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.);
-    x2 = (x-deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.) + unitTensor_();
-
-    deadBand = smoothStep_(x2) - smoothStep_(x1) + unitTensor_();
-
-    List<Type> KpError(x.size(),Type::zero);
-
-    for (label i = 0; i < x.size(); i++)
-    {
-        for (label j = 0; j < Type::nComponents; j++)
-        {
-            KpError[i][j] = deadBand[i][j] * x[i][j];
-        }
-    }
-    return KpError;
-}
-
-
-template<class Type>
-List<Type> Foam::DrivingForce<Type>::smoothStep_
-(
-    List<Type>& x
-)
-{
-    List<Type> step(x.size(),zeroTensor_());
-    for (label i = 0; i < x.size(); i++)
-    {
-        Type s(Type::zero);
-        for (label j = 0; j < Type::nComponents; j++)
-        {
-            //s[j] = (x<=0.0) * 0.0;
-            s[j]  = ((x[i][j]>0.0) && (x[i][j]<1.0)) * ( 0.5 + 0.5*sin( constant::mathematical::pi*(x[i][j]-0.5) ) );
-            s[j] += (x[i][j]>=1.0) * 1.0;
-        }
-        step[i] = s;
-    }
-    return step;
+    return y;
 }
 
 
@@ -219,7 +173,7 @@ List<Type> Foam::DrivingForce<Type>::smoothStep_
 namespace Foam
 {
     template<>
-    List<scalar> DrivingForce<scalar>::weightedRegression_
+    scalarRectangularMatrix DrivingForce<scalar>::computeRegressionCoeff_
     (
         List<scalar>& y
     )
@@ -235,63 +189,28 @@ namespace Foam
         //Compute coefficients
         scalarRectangularMatrix beta(Nreg_+1,1);
         multiply(beta,Areg_,Wy);
-    
-    
+        return beta;
+    }
+
+    template<>
+    List<scalar> DrivingForce<scalar>::constructRegressionCurve_
+    (
+        scalarRectangularMatrix& beta
+    )
+    {
+        label Nz = zPlanes_.numberOfPlanes();
+
         //Compute regression line
-        List<scalar> yRegression(Nz,zeroTensor_());
+        List<scalar> y(Nz,zeroTensor_());
         for (label i = 0; i < Nz; i++)
         {
             for (label j = 0; j < Nreg_+1; j++)
             {
-                yRegression[i] += beta[j][0] * pow(
+                y[i] += beta[j][0] * pow(
                     zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
             }
         }
-    
-        return yRegression;
-    
-    }
-
-
-    template<>
-    List<scalar> DrivingForce<scalar>::deadBand_
-    (
-        List<scalar>& x
-    )
-    {
-        List<scalar> x1(x.size(),zeroTensor_());
-        List<scalar> x2(x.size(),zeroTensor_());
-        List<scalar> deadBand(x.size(),zeroTensor_());
-    
-        x1 = (x+deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.);
-        x2 = (x-deadBandWidth2_/2.*unitTensor_())/((deadBandWidth2_ - deadBandWidth1_)/2.) + unitTensor_();
-    
-        deadBand = smoothStep_(x2) - smoothStep_(x1) + unitTensor_();
-    
-        List<scalar> KpError(x.size(),zeroTensor_());
-    
-        for (label i = 0; i < x.size(); i++)
-        {
-            KpError[i] = deadBand[i] * x[i];
-        }
-        return KpError;
-    }
-
-
-    template<>
-    List<scalar> DrivingForce<scalar>::smoothStep_
-    (
-        List<scalar>& x
-    )
-    {
-        List<scalar> step(x.size(),0.0);
-        for (label i = 0; i < x.size(); i++)
-        {
-            //step[i] = (x[i]<=0.0) * 0.0;
-            step[i]  = ((x[i]>0.0) && (x[i]<1.0)) * ( 0.5 + 0.5*sin( constant::mathematical::pi*(x[i]-0.5) ) );
-            step[i] += (x[i]>=1.0) * 1.0;
-        }
-        return step;
+        return y;
     }
 }
 

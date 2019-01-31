@@ -118,17 +118,11 @@ class DrivingForce
         //- Integral time of PI controller
         scalar Ti_;
 
-        //- Error integral
-        List<Type> errorInt_;
-
-        //- Width of deadband controller
-        scalar deadBandWidth1_;
-        scalar deadBandWidth2_;
-
         //- Weighted regression
         label Nreg_;
         List<scalar> weights_;
         scalarRectangularMatrix Areg_;
+        scalarRectangularMatrix betaInt_;
 
         //- Gather/write statistics?
         bool statisticsOn_;
@@ -146,14 +140,11 @@ class DrivingForce
             return Type::zero;
         }
 
-        Type unitTensor_()
+
+        //- Return number of components
+        label nComponents_()
         {
-            Type x(Type::zero);
-            for (label k = 0; k < Type::nComponents; k++)
-            {
-                x[k] = 1.0;
-            }
-            return x;
+            return Type::nComponents;
         }
 
 
@@ -201,14 +192,11 @@ class DrivingForce
         //- Update controller
         List<Type> updateController_(List<Type>& error);
 
-        //- Weighted regression
-        List<Type> weightedRegression_(List<Type>& y);
+        //- Compute regression coefficients
+        scalarRectangularMatrix computeRegressionCoeff_(List<Type>& y);
 
-        //- Deadband function
-        List<Type> deadBand_(List<Type>& x);
-
-        //- Smooth step function
-        List<Type> smoothStep_(List<Type>& x);
+        //- Construct regression curve
+        List<Type> constructRegressionCurve_(scalarRectangularMatrix& beta);
 
         //- Write source history to file (single value or column of values)
         void writeSourceHistory_(Type& source);
@@ -265,17 +253,13 @@ scalar DrivingForce<scalar>::zeroTensor_()
     return 0.0;
 }
 
+
 template<>
-scalar DrivingForce<scalar>::unitTensor_()
+label DrivingForce<scalar>::nComponents_()
 {
-    return 1.0;
+    return 1;
 }
 
-// Explicit specialization needs to be declared ahead because the
-// function smoothStep_ for Type scalar is instantiated implicitly
-// through the function deadBand_
-template<>
-List<scalar> DrivingForce<scalar>::smoothStep_(List<scalar>& x);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
