@@ -352,8 +352,10 @@ void Foam::DrivingForce<Type>::readInputData_()
     // Read in controller properties.
     scalar alpha(ABLProperties.lookupOrDefault<scalar>("alpha" & name_,1.0));
     scalar Ti(ABLProperties.lookupOrDefault<scalar>("Ti" & name_,1.0));
+    scalar Tw(ABLProperties.lookupOrDefault<scalar>("Tw" & name_,1.0));
     alpha_ = alpha;
     Ti_ = Ti;
+    Tw_ = Tw;
     
     // Initialize controller
     if (sourceType_ == "computed")

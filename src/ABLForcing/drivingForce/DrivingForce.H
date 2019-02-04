@@ -118,6 +118,9 @@ class DrivingForce
         //- Integral time of PI controller
         scalar Ti_;
 
+        //- Time scale of PI controller weighting function
+        scalar Tw_;
+
         //- Weighted regression
         label Nreg_;
         List<scalar> weights_;
