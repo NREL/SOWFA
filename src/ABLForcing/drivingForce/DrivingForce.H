@@ -112,11 +112,11 @@ class DrivingForce
         scalar hLevels1;
         scalar hLevels2;
 
-        //- Relaxation coefficient
+        //- Relaxation coefficient (1=P control, 0=I control)
         scalar alpha_;
 
-        //- Integral time of PI controller
-        scalar Ti_;
+        //- Gain of PI controller
+        scalar gain_;
 
         //- Time scale of PI controller weighting function
         scalar Tw_;

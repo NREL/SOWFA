@@ -110,11 +110,11 @@ List<Type> Foam::DrivingForce<Type>::updateController_
     scalarRectangularMatrix beta_eff(Nreg_+1,nComponents_());
 
     betaInt_ = Foam::exp(-dt/Tw_) * betaInt_ + dt/Tw_*beta;
-    beta_eff = beta + 1.0/Ti_ * betaInt_;
+    beta_eff = alpha_*beta + (1.0-alpha_) * betaInt_;
 
     List<Type> regressionCurve = constructRegressionCurve_(beta_eff);
 
-    source = alpha_/dt * regressionCurve;
+    source = gain_ * regressionCurve;
     return source;
 }
 
