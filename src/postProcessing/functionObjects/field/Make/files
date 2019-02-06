@@ -6,4 +6,4 @@ temporalAveraging/temporalAveragingItem/temporalAveragingItem.C
 temporalAveraging/temporalAveragingItem/temporalAveragingItemIO.C
 temporalAveraging/temporalAveragingFunctionObject/temporalAveragingFunctionObject.C
 
-LIB = $(FOAM_USER_LIBBIN)/libuserfieldFunctionObjects
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAfieldFunctionObjects
