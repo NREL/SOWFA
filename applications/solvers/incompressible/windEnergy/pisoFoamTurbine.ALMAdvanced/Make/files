@@ -1,3 +1,3 @@
 pisoFoamTurbine.C
 
-EXE = $(FOAM_USER_APPBIN)/pisoFoamTurbine.ALMAdvanced
+EXE = $(SOWFA_DIR)/applications/bin/$(WM_OPTIONS)/pisoFoamTurbine.ALMAdvanced
