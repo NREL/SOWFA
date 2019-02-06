@@ -3,4 +3,4 @@ scanningLidar/scanningLidarFunctionObject.C
 spinnerLidar/spinnerLidar.C
 spinnerLidar/spinnerLidarFunctionObject.C
 
-LIB = $(FOAM_USER_LIBBIN)/libuserutilityFunctionObjects
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAutilityFunctionObjects

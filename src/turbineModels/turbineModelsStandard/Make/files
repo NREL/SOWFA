@@ -2,4 +2,4 @@ horizontalAxisWindTurbinesALM/horizontalAxisWindTurbinesALM.C
 horizontalAxisWindTurbinesALMAdvanced/horizontalAxisWindTurbinesALMAdvanced.C
 horizontalAxisWindTurbinesADM/horizontalAxisWindTurbinesADM.C
 
-LIB = $(FOAM_USER_LIBBIN)/libuserTurbineModelsStandard
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFATurbineModelsStandard

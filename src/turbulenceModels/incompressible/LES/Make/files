@@ -6,4 +6,4 @@ oneEqEddyABL/oneEqEddyABL.C
 SmagorinskyABL/SmagorinskyABL.C
 KosovicOneEqNBA/KosovicOneEqNBA.C
 
-LIB = $(FOAM_USER_LIBBIN)/libuserincompressibleLESModels
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAincompressibleLESModels

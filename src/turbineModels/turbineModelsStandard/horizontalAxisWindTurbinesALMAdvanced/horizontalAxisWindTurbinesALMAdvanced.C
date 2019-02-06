@@ -2449,7 +2449,7 @@ void horizontalAxisWindTurbinesALMAdvanced::computeNacellePointForce()
                 // We assume the nacelle creates drag only.  Divide the drag up into portions
                 // for each nacelle point based on the ratio of nacelle element length to total
                 // nacelle length.
-                scalar contribution = nacelleDs[i][j] / NacelleLength[i];
+                scalar contribution = nacelleDs[i][j] / NacelleLength[m];
 
                 if (nacelleForceProjectionType[i] == "advanced2")
                 {  

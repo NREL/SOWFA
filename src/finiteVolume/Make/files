@@ -25,4 +25,4 @@ surfaceVelocityModels = $(derivedFvPatchFields)/surfaceVelocityModels
 $(surfaceVelocityModels)/velocityABLWallFunction/velocityABLWallFunctionFvPatchField.C
 
 
-LIB = $(FOAM_USER_LIBBIN)/libuserfiniteVolume
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAfiniteVolume
