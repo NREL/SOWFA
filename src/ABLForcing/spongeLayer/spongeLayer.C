@@ -53,10 +53,14 @@ void Foam::spongeLayer::update()
 
 Foam::spongeLayer::spongeLayer
 (
+    const word& name,
     const volVectorField& U,
     const label upIndex
 )
 :
+    // Set name
+    name_(name),
+
     // Set the pointer to runTime
     runTime_(U.time()),
 
@@ -71,7 +75,7 @@ Foam::spongeLayer::spongeLayer
     (
         IOobject
         (
-            "spongeLayerUref",
+            name_ & "Uref",
             runTime_.constant(),
             mesh_,
             IOobject::NO_READ,
@@ -85,7 +89,7 @@ Foam::spongeLayer::spongeLayer
     (
         IOobject
         (
-            "spongeLayerViscosity",
+            name_ & "viscosity",
             runTime_.timeName(),
             mesh_,
             IOobject::NO_READ,
@@ -100,7 +104,7 @@ Foam::spongeLayer::spongeLayer
     (
         IOobject
         (
-            "spongeLayerForce",
+            name_ & "force",
             runTime_.timeName(),
             mesh_,
             IOobject::NO_READ,
@@ -124,21 +128,23 @@ Foam::spongeLayer::spongeLayer
             IOobject::NO_WRITE
         )
     );
+    
+    const dictionary& spongeDict(ABLProperties.subOrEmptyDict(name_));
 
-    type_ = ABLProperties.lookupOrDefault<word>("spongeLayerType","none");
+    type_ = spongeDict.lookupOrDefault<word>("type","none");
 
     // Sponge layer base height
-    scalar baseHeight   = ABLProperties.lookupOrDefault<scalar>("spongeLayerBaseHeight",0.0);
+    scalar baseHeight   = spongeDict.lookupOrDefault<scalar>("baseHeight",0.0);
 
     // Sponge layer top height
-    scalar topHeight    = ABLProperties.lookupOrDefault<scalar>("spongeLayerTopHeight",10000.0);
+    scalar topHeight    = spongeDict.lookupOrDefault<scalar>("topHeight",10000.0);
 
     // Sponge layer viscosity at the top boundary
-    scalar viscosityTop = ABLProperties.lookupOrDefault<scalar>("spongeLayerViscosityTop",0.0);
+    scalar viscosityTop = spongeDict.lookupOrDefault<scalar>("viscosityTop",0.0);
 
     // Create sponge layer reference velocity
-    scalar Ux = ABLProperties.lookupOrDefault<scalar>("spongeLayerUx",0.0);
-    scalar Uy = ABLProperties.lookupOrDefault<scalar>("spongeLayerUy",0.0);
+    scalar Ux = spongeDict.lookupOrDefault<scalar>("Ux",0.0);
+    scalar Uy = spongeDict.lookupOrDefault<scalar>("Uy",0.0);
     vector Uref;
     Uref.x() = Ux;
     Uref.y() = Uy;

@@ -66,7 +66,7 @@
     CoriolisForce Coriolis(U,upIndex);
 
     // Create sponge layer object
-    spongeLayer sponge(U,upIndex);
+    spongeLayer sponge("upperSponge",U,upIndex);
 
 
     // Create external source term objects

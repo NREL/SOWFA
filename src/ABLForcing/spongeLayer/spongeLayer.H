@@ -60,8 +60,11 @@ class spongeLayer
     // Private data
 
         //- Constants
+            //- Name
+            const word name_;
+
             //- Runtime pointer
-            const Time& runTime_;;
+            const Time& runTime_;
     
             //- Mesh pointer
             const fvMesh& mesh_;
@@ -91,6 +94,7 @@ public:
     // Constructors
     spongeLayer
     (
+        const word& name,
         const volVectorField& U,
         const label upIndex
     );
