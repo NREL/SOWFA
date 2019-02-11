@@ -95,8 +95,7 @@ public:
     spongeLayer
     (
         const word& name,
-        const volVectorField& U,
-        const label upIndex
+        const volVectorField& U
     );
 
 
