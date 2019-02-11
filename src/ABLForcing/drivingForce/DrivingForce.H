@@ -166,6 +166,9 @@ class DrivingForce
         //- Update computed time-height-dependent source term
         void updateComputedTimeHeightDepSource_();
 
+        //- Initialize controller
+        void initializeController_(label nSourceHeights);
+
         //- Update controller
         List<Type> updateController_(List<Type>& error);
 
@@ -229,6 +232,7 @@ scalar DrivingForce<scalar>::zeroTensor_()
 
 #ifdef NoRepository
 #   include "DrivingForce.C"
+#   include "DrivingForceController.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
