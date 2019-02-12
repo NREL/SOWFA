@@ -294,7 +294,8 @@ void Foam::DrivingForce<Type>::readInputData_()
     
 
     // Read in the heights at which the sources are given.
-    sourceHeightsSpecified_ = ABLProperties.lookup("sourceHeights" & name_);
+    List<scalar> sourceHeightsSpecified = ABLProperties.lookup("sourceHeights" & name_);
+    sourceHeightsSpecified_ = sourceHeightsSpecified;
     label nSourceHeights = sourceHeightsSpecified_.size();
 
 
