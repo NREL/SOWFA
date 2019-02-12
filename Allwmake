@@ -42,6 +42,18 @@ else
     fi	
 fi
 
+# Custom mesh Tools
+cd src/meshTools
+wmake libso
+cd ../../
+
+
+# ABL forcing objects
+cd src/ABLForcing
+wmake libso
+cd ../../
+
+
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
 wmake libso
@@ -62,6 +74,12 @@ cd ../../
 
 # Custom function objects (this includes the lidar sampling).
 cd src/postProcessing/functionObjects/utilities
+wmake libso
+cd ../../../../
+
+
+# Custom function objects (this includes planar and temporal averaging).
+cd src/postProcessing/functionObjects/field
 wmake libso
 cd ../../../../
 
