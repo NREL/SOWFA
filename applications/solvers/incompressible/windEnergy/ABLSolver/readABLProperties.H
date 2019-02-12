@@ -238,56 +238,7 @@
             Info << "Pressure reference cell matrix row modification not enabled" << endl;
        }
 
-
-
      
-    // PROPERTIES CONCERNING SPONGE LAYER
-
-       // Specify the type of sponge layer to use.  The
-       // possible types are "Rayleigh", "viscous" or "none".  
-       // - The "Rayleigh" type means that the damping term is computed as nu*(u_ref-u)
-       //   The viscosity coefficient nu has dimensions of 1/s
-       // - The "viscous" type means that the damping term is computed as nu * Lapl(u)
-       //   The viscosity coefficient nu has dimensions of m**2/s
-       // - The "none" type means no damping is added
-       word spongeLayerType(ABLProperties.lookupOrDefault<word>("spongeLayerType","none"));
-       
-       // Sponge layer base height
-       scalar spongeLayerBaseHeight(ABLProperties.lookupOrDefault<scalar>("spongeLayerBaseHeight",0.0));
-
-       // Sponge layer top height
-       scalar spongeLayerTopHeight(ABLProperties.lookupOrDefault<scalar>("spongeLayerTopHeight",10000.0));
-
-       // Sponge layer viscosity at the top boundary
-       scalar spongeLayerViscosityTop(ABLProperties.lookupOrDefault<scalar>("spongeLayerViscosityTop",0.0));
-
-
-       // Create sponge layer reference velocity
-       scalar spongeLayerUx(ABLProperties.lookupOrDefault<scalar>("spongeLayerUx",0.0));
-       scalar spongeLayerUy(ABLProperties.lookupOrDefault<scalar>("spongeLayerUy",0.0));
-       vector Uref_;
-       Uref_.x() = spongeLayerUx;
-       Uref_.y() = spongeLayerUy;
-       Uref_.z() = 0.0;
-       uniformDimensionedVectorField spongeLayerReferenceVelocity
-       (
-           IOobject
-           (
-               "spongeLayerReferenceVelocity",
-               runTime.constant(),
-               mesh,
-               IOobject::NO_READ,
-               IOobject::NO_WRITE
-           ),
-           dimensionedVector("spongeLayerReferenceVelocity",dimensionSet(0, 1, -1, 0, 0, 0, 0),Uref_)
-       );
-       
-       if (spongeLayerType == "Rayleigh")
-       {
-           Info << spongeLayerReferenceVelocity << endl;
-       }
-
-
     // PROPERTIES CONCERNING GATHERING STATISTICS
 
        // Gather/write statistics?
