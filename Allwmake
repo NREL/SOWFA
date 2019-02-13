@@ -42,6 +42,18 @@ else
     fi	
 fi
 
+# Custom mesh Tools
+cd src/meshTools
+wmake libso
+cd ../../
+
+
+# ABL forcing objects
+cd src/ABLForcing
+wmake libso
+cd ../../
+
+
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
 wmake libso
