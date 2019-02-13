@@ -54,6 +54,7 @@ Description
 #include "radiationModel.H"
 #include "fvOptions.H"
 #include "pimpleControl.H"
+#include "ABL.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -112,6 +113,10 @@ int main(int argc, char *argv[])
                 laminarTransport.correct();
                 turbulence->correct();
             }
+
+            // --- Update the source terms
+            momentumSourceTerm.update();
+            temperatureSourceTerm.update();
         }
 
         runTime.write();
