@@ -203,8 +203,8 @@ Foam::spongeLayer::spongeLayer
             forAll(viscosity_.boundaryField()[i],j)
             {
                 scalar loc = mesh_.boundary()[i].Cf()[j][coordIndex];
-                viscosity_.boundaryField()[i][j]  = (loc<=startLocation) * (1.0 - fact);
-                viscosity_.boundaryField()[i][j] += ((loc>startLocation) && (loc<startLocation+width)) *
+                viscosity_.boundaryFieldRef()[i][j]  = (loc<=startLocation) * (1.0 - fact);
+                viscosity_.boundaryFieldRef()[i][j] += ((loc>startLocation) && (loc<startLocation+width)) *
                     (
                         1.0 - fact * Foam::cos
                             (
@@ -212,8 +212,8 @@ Foam::spongeLayer::spongeLayer
                             )
 
                     );
-                viscosity_.boundaryField()[i][j] += (loc>=startLocation+width) * (1.0 + fact);
-                viscosity_.boundaryField()[i][j] *= 0.5 * viscosityMax;
+                viscosity_.boundaryFieldRef()[i][j] += (loc>=startLocation+width) * (1.0 + fact);
+                viscosity_.boundaryFieldRef()[i][j] *= 0.5 * viscosityMax;
             }
         }
     }
