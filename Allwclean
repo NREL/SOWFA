@@ -41,15 +41,15 @@ rmdepall
 wclean
 cd ../../
 
-cd src/postProcessing/functionObjects/utilities
+cd src/functionObjects/utilities
 rmdepall
 wclean
-cd ../../../../
+cd ../../../
 
-cd src/postProcessing/functionObjects/field
+cd src/functionObjects/field
 rmdepall
 wclean
-cd ../../../../
+cd ../../../
 
 cd applications/utilities/setFieldsABL
 rmdepall
