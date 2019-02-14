@@ -1,0 +1,6 @@
+spongeLayer/spongeLayer.C
+CoriolisForce/CoriolisForce.C
+buoyancyModel/buoyancyModel.C
+drivingForce/drivingForce.C
+
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAABLForcing

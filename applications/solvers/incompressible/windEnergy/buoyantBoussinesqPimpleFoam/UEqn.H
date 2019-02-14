@@ -7,6 +7,7 @@
         fvm::ddt(U) + fvm::div(phi, U)
       + MRF.DDt(U)
       + turbulence->divDevReff(U)
+      - momentumSourceTerm.force()
      ==
         fvOptions(U)
     );

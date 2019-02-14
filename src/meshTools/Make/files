@@ -1,0 +1,3 @@
+meshPlanes/meshPlanes.C
+
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAmeshTools

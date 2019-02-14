@@ -9,6 +9,7 @@
         fvm::ddt(T)
       + fvm::div(phi, T)
       - fvm::laplacian(alphaEff, T)
+      - temperatureSourceTerm.force()
      ==
         radiation->ST(rhoCpRef, T)
       + fvOptions(T)

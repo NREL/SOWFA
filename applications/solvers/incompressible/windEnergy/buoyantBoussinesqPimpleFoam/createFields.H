@@ -52,6 +52,10 @@ autoPtr<incompressible::turbulenceModel> turbulence
     incompressible::turbulenceModel::New(U, phi, laminarTransport)
 );
 
+// Create external source term objects
+DrivingForce<scalar> temperatureSourceTerm("temperature",T);
+DrivingForce<vector> momentumSourceTerm("momentum",U);
+
 // Kinematic density for buoyancy force
 volScalarField rhok
 (
