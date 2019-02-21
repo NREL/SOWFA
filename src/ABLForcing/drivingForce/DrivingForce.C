@@ -350,9 +350,11 @@ void Foam::DrivingForce<Type>::readInputData_()
     readSourceTables_(ABLProperties,nSourceHeights);
 
     // Read in controller properties.
+    label Nreg(ABLProperties.lookupOrDefault<label>("regOrder" & name_,1));
     scalar alpha(ABLProperties.lookupOrDefault<scalar>("alpha" & name_,1.0));
     scalar gain(ABLProperties.lookupOrDefault<scalar>("gain" & name_,1.0));
     scalar Tw(ABLProperties.lookupOrDefault<scalar>("Tw" & name_,1.0));
+    Nreg_ = Nreg;
     alpha_ = alpha;
     gain_ = gain;
     Tw_ = Tw;

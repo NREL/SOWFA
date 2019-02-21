@@ -38,7 +38,6 @@ void Foam::DrivingForce<Type>::initializeController_
     
     label Nz = zPlanes_.numberOfPlanes();
     // Regression order
-    Nreg_ = 3;
     betaInt_ = scalarRectangularMatrix(Nreg_+1,nComponents_(),0.0);
     // Matrix X
     scalarRectangularMatrix X(Nz,Nreg_+1);
