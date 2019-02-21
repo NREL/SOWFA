@@ -5,7 +5,7 @@ makeType=${1:-libso}
 set -x
 
 #wmake $makeType turbulenceModel
-#wmake $makeType RAS
+wmake $makeType RAS
 wmake $makeType LES
 
 # ----------------------------------------------------------------- end-of-file
