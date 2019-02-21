@@ -25,12 +25,20 @@ License
 
 #include "planarAveraging.H"
 #include "dictionary.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-defineTypeNameAndDebug(planarAveraging, 0);
+    defineTypeNameAndDebug(planarAveraging, 0);
+
+    addToRunTimeSelectionTable
+    (
+        functionObject,
+        planarAveraging,
+        dictionary
+    );
 }
 
 
@@ -105,10 +113,8 @@ void Foam::planarAveraging::updateTurbulenceStatFields()
     {
         const volVectorField& Uprime = mesh_.thisDb().lookupObject<volVectorField>("UPlanarDev");
 
-        symmTensorField& UU = const_cast<symmTensorField&>
-        (
-            mesh_.thisDb().lookupObject<symmTensorField>("UU")
-        );
+        symmTensorField& UU = 
+            mesh_.thisDb().lookupObjectRef<symmTensorField>("UU");
 
         UU = symm(Uprime*Uprime);
     }
@@ -118,10 +124,8 @@ void Foam::planarAveraging::updateTurbulenceStatFields()
     {
         const volVectorField& Uprime = mesh_.thisDb().lookupObject<volVectorField>("UPlanarDev");
         
-        symmTensorField& wUU = const_cast<symmTensorField&>
-        (
-            mesh_.thisDb().lookupObject<symmTensorField>("wUU")
-        );
+        symmTensorField& wUU = 
+            mesh_.thisDb().lookupObjectRef<symmTensorField>("wUU");
 
         wUU = symm(Uprime*Uprime);
         forAll(mesh_.cells(),cellI)
@@ -136,10 +140,8 @@ void Foam::planarAveraging::updateTurbulenceStatFields()
         const volVectorField& Uprime = mesh_.thisDb().lookupObject<volVectorField>("UPlanarDev");
         const volScalarField& Tprime = mesh_.thisDb().lookupObject<volScalarField>("TPlanarDev");
 
-        vectorField& TU = const_cast<vectorField&>
-        (
-            mesh_.thisDb().lookupObject<vectorField>("TU")
-        );
+        vectorField& TU = 
+            mesh_.thisDb().lookupObjectRef<vectorField>("TU");
 
         TU = Tprime*Uprime;
     }
@@ -151,25 +153,17 @@ void Foam::planarAveraging::openFiles()
     // Specify output path
     if (Pstream::parRun())
     {
-        outputPath_ = mesh_.time().path()/".."/"postProcessing"/name_/mesh_.time().timeName();
+        outputPath_ = mesh_.time().path()/".."/"postProcessing"/name()/mesh_.time().timeName();
     }
     else
     {
-        outputPath_ = mesh_.time().path()/"postProcessing"/name_/mesh_.time().timeName();
+        outputPath_ = mesh_.time().path()/"postProcessing"/name()/mesh_.time().timeName();
     }
 
     if (Pstream::master)
     {
         // Create directory if it does not exist
         mkDir(outputPath_);
-
-//        // Open and write out the cell center vertical levels file
-//        OFstream hLevelsFile = outputPath_/"hLevelsCell";
-//        forAllPlanes(zPlanes_,planeI)
-//        {
-//            hLevelsFile << zPlanes_.planeLocationValues()[planeI] << " ";
-//        }
-//        hLevelsFile << endl;
 
         // Open the statistics files
         forAll(fieldSelection_,fieldI)
@@ -236,7 +230,7 @@ Foam::planarAveraging::planarAveraging
     const bool loadFromFiles
 )
 :
-    name_(name),
+    functionObject(name),
     mesh_(refCast<const fvMesh>(obr)),
     zPlanes_(mesh_),
     loadFromFiles_(loadFromFiles),
@@ -262,7 +256,7 @@ Foam::planarAveraging::~planarAveraging()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::planarAveraging::read(const dictionary& dict)
+bool Foam::planarAveraging::read(const dictionary& dict)
 {
     dict.lookup("fields") >> fieldSelection_;
 
@@ -282,28 +276,17 @@ void Foam::planarAveraging::read(const dictionary& dict)
             includeTU_ = true;
         }
     }
+
+    return true;
 }
 
-
-void Foam::planarAveraging::execute()
+bool Foam::planarAveraging::execute()
 {
-    // Do nothing
+    return true;
 }
 
 
-void Foam::planarAveraging::end()
-{
-    // Do nothing
-}
-
-
-void Foam::planarAveraging::timeSet()
-{
-    // Do nothing
-}
-
-
-void Foam::planarAveraging::write()
+bool Foam::planarAveraging::write()
 {
     //Update fields
     updateFields();
@@ -313,6 +296,8 @@ void Foam::planarAveraging::write()
     sampleAndWrite<volScalarField>(objects);
     sampleAndWrite<volVectorField>(objects);
     sampleAndWrite<volSymmTensorField>(objects);
+
+    return true;
 }
 
 

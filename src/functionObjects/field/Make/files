@@ -1,3 +1,5 @@
+planarAveraging/planarAveraging.C
+
 temporalAveraging/temporalAveraging.C
 temporalAveraging/temporalAveragingItem/temporalAveragingItem.C
 temporalAveraging/temporalAveragingItem/temporalAveragingItemIO.C

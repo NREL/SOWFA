@@ -24,22 +24,19 @@ License
 Class
     Foam::planarAveraging
 
-Group
-    grpUtilitiesFunctionObjects
-
 Description
     This function computes planar averaged values and writes the data
     to file as the solver runs.
 
 SourceFiles
     planarAveraging.C
-    IOplanarAveraging.H
 
 \*---------------------------------------------------------------------------*/
 
 #ifndef planarAveraging_H
 #define planarAveraging_H
 
+#include "functionObject.H"
 #include "fvCFD.H"
 #include "IOobjectList.H"
 #include "meshPlanes.H"
@@ -60,11 +57,10 @@ class mapPolyMesh;
 \*---------------------------------------------------------------------------*/
 
 class planarAveraging
+:
+    public functionObject
 {
     // Private data
-    
-        //- Name of this set of planarAveraging objects
-        word name_;
 
         //- Reference to the mesh database
         const fvMesh& mesh_;
@@ -160,34 +156,14 @@ public:
 
     // Member Functions
 
-        //- Return name of the set of planarAveraging
-        virtual const word& name() const
-        {
-            return name_;
-        }
-
         //- Read the planarAveraging data
-        virtual void read(const dictionary&);
+        virtual bool read(const dictionary&);
 
         //- Execute, currently does nothing
-        virtual void execute();
-
-        //- Execute at the final time-loop
-        virtual void end();
-
-        //- Called when time was set at the end of the Time::operator++
-        virtual void timeSet();
+        virtual bool execute();
 
         //- Standard write function.
-        virtual void write();
-
-        //- Update for changes of mesh
-        virtual void updateMesh(const mapPolyMesh&)
-        {}
-
-        //- Update for changes of mesh
-        virtual void movePoints(const polyMesh&)
-        {}
+        virtual bool write();
 };
 
 

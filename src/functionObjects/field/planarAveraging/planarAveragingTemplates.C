@@ -81,10 +81,8 @@ void Foam::planarAveraging::updatePlanarDevFields()
         {
             const volFieldType& fld = mesh_.thisDb().lookupObject<volFieldType>(fieldName);
 
-            volFieldType& fldprime = const_cast<volFieldType& >
-            (
-                mesh_.thisDb().lookupObject<volFieldType>(fieldName+"PlanarDev")
-            );
+            volFieldType& fldprime = 
+                mesh_.thisDb().lookupObjectRef<volFieldType>(fieldName+"PlanarDev");
 
             List<Type> fldmean = zPlanes_.average<Type>(fld);
 
