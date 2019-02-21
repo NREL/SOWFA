@@ -1,0 +1,7 @@
+planarAveraging/planarAveraging.C
+
+temporalAveraging/temporalAveraging.C
+temporalAveraging/temporalAveragingItem/temporalAveragingItem.C
+temporalAveraging/temporalAveragingItem/temporalAveragingItemIO.C
+
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAfieldFunctionObjects
