@@ -1,6 +1,4 @@
 scanningLidar/scanningLidar.C
-scanningLidar/scanningLidarFunctionObject.C
 spinnerLidar/spinnerLidar.C
-spinnerLidar/spinnerLidarFunctionObject.C
 
 LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAutilityFunctionObjects

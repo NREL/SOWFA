@@ -27,12 +27,20 @@ License
 #include "surfaceFields.H"
 #include "dictionary.H"
 #include "interpolateXY.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-defineTypeNameAndDebug(scanningLidar, 0);
+    defineTypeNameAndDebug(scanningLidar, 0);
+
+    addToRunTimeSelectionTable
+    (
+        functionObject,
+        scanningLidar,
+        dictionary
+    );
 }
 
 
@@ -50,7 +58,7 @@ Foam::scanningLidar::scanningLidar
     const bool loadFromFiles
 )
 :
-    name_(name),
+    functionObject(name),
     mesh_(refCast<const fvMesh>(obr)),
     runTime_(mesh_.time()),
     active_(true),
@@ -92,7 +100,7 @@ Foam::scanningLidar::~scanningLidar()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::scanningLidar::read(const dictionary& dict)
+bool Foam::scanningLidar::read(const dictionary& dict)
 {
     if (active_)
     {
@@ -118,7 +126,9 @@ void Foam::scanningLidar::read(const dictionary& dict)
    
         beamMaxDistance =  dict.lookupOrDefault<scalar>("beamMaxDistance", 1000.0);
 
-        beamDistribution = dict.lookup("beamDistribution");
+        List<scalar> beamDist(dict.lookup("beamDistribution"));
+        beamDistribution = beamDist;
+
         scalar beamDistMax = max(beamDistribution);
         forAll(beamDistribution,i)
         {
@@ -142,6 +152,8 @@ void Foam::scanningLidar::read(const dictionary& dict)
 
         perturb = dict.lookupOrDefault<scalar>("perturb", 1E-4);
     }
+
+    return true;
 }
 
 
@@ -334,7 +346,7 @@ void Foam::scanningLidar::rotateLidar()
 }
 
 
-void Foam::scanningLidar::execute()
+bool Foam::scanningLidar::execute()
 {
     if (active_)
     {
@@ -436,27 +448,25 @@ void Foam::scanningLidar::execute()
 
         Info << endl << endl;
     }
+
+    return true;
 }
 
 
-void Foam::scanningLidar::end()
+bool Foam::scanningLidar::end()
 {
     if (active_)
     {
         execute();
     }
+
+    return true;
 }
 
 
-void Foam::scanningLidar::timeSet()
+bool Foam::scanningLidar::write()
 {
-    // Do nothing
-}
-
-
-void Foam::scanningLidar::write()
-{
-    // Do nothing
+    return true;
 }
 
 
@@ -469,11 +479,11 @@ void Foam::scanningLidar::writeBeamData()
 
         if (Pstream::parRun())
         {
-            rootDir = runTime_.path()/"../postProcessing"/name_;
+            rootDir = runTime_.path()/"../postProcessing"/name();
         }
         else
         {
-            rootDir = runTime_.path()/"postProcessing"/name_;
+            rootDir = runTime_.path()/"postProcessing"/name();
         }
 
         // Create the time directory.  This is the lidar time, which 
@@ -563,7 +573,7 @@ void Foam::scanningLidar::writeBeamData()
 
 void Foam::scanningLidar::writeVariables()
 {
-    Info << "name_: " << name_ << endl;
+    Info << "name_: " << name() << endl;
     Info << "active_: " << active_ << endl;
     Info << "UName_: " << UName_ << endl;
     Info << "dtSolver: " << dtSolver << endl;
