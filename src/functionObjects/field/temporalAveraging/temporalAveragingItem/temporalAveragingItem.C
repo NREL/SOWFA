@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -27,34 +27,39 @@ License
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-namespace Foam
-{
-    const word temporalAveragingItem::EXT_MEAN = "Mean";
-    const word temporalAveragingItem::EXT_PRIME2MEAN = "Prime2Mean";
-    const word temporalAveragingItem::EXT_PRIMEUPRIMEMEAN = "PrimeUPrimeMean";
+const Foam::word Foam::functionObjects::temporalAveragingItem::EXT_MEAN
+(
+    "Mean"
+);
 
-    template<>
-    const char* Foam::NamedEnum
-    <
-        Foam::temporalAveragingItem::baseType,
-        2
-    >::names[] =
-    {
-        "iteration",
-        "time"
-    };
-}
+const Foam::word Foam::functionObjects::temporalAveragingItem::EXT_PRIME2MEAN
+(
+    "Prime2Mean"
+);
 
+const Foam::word Foam::functionObjects::temporalAveragingItem::EXT_PRIMEUPRIMEMEAN
+(
+    "PrimeUPrimeMean"
+);
 
-const Foam::NamedEnum<Foam::temporalAveragingItem::baseType, 2>
-    Foam::temporalAveragingItem::baseTypeNames_;
+template<>
+const char* Foam::NamedEnum
+<
+    Foam::functionObjects::temporalAveragingItem::baseType,
+    2
+>::names[] = { "iteration", "time"};
+
+const Foam::NamedEnum
+<
+    Foam::functionObjects::temporalAveragingItem::baseType,
+    2
+> Foam::functionObjects::temporalAveragingItem::baseTypeNames_;
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::temporalAveragingItem::temporalAveragingItem()
+Foam::functionObjects::temporalAveragingItem::temporalAveragingItem()
 :
-    active_(false),
     fieldName_("unknown"),
     mean_(0),
     meanFieldName_("unknown"),
@@ -62,15 +67,17 @@ Foam::temporalAveragingItem::temporalAveragingItem()
     prime2MeanFieldName_("unknown"),
     primeUPrimeMean_(0),
     primeUPrimeMeanFieldName_("unknown"),
-    base_(ITER),
+    base_(baseType::iter),
     window_(-1.0),
     windowName_("")
 {}
 
 
-Foam::temporalAveragingItem::temporalAveragingItem(const temporalAveragingItem& faItem)
+Foam::functionObjects::temporalAveragingItem::temporalAveragingItem
+(
+    const temporalAveragingItem& faItem
+)
 :
-    active_(faItem.active_),
     fieldName_(faItem.fieldName_),
     mean_(faItem.mean_),
     meanFieldName_(faItem.meanFieldName_),
@@ -86,26 +93,26 @@ Foam::temporalAveragingItem::temporalAveragingItem(const temporalAveragingItem& 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::temporalAveragingItem::~temporalAveragingItem()
+Foam::functionObjects::temporalAveragingItem::~temporalAveragingItem()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
 
-void Foam::temporalAveragingItem::operator=(const temporalAveragingItem& rhs)
+void Foam::functionObjects::temporalAveragingItem::operator=
+(
+    const temporalAveragingItem& rhs
+)
 {
     // Check for assignment to self
     if (this == &rhs)
     {
-        FatalErrorIn
-        (
-            "Foam::temporalAveragingItem::operator=(const Foam::temporalAveragingItem&)"
-        )   << "Attempted assignment to self" << nl
+        FatalErrorInFunction
+            << "Attempted assignment to self" << nl
             << abort(FatalError);
     }
 
     // Set updated values
-    active_ = rhs.active_;
     fieldName_ = rhs.fieldName_;
     mean_ = rhs.mean_;
     meanFieldName_ = rhs.meanFieldName_;

@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,10 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::temporalAveraging
-
-Group
-    grpFieldFunctionObjects
+    Foam::functionObjects::temporalAveraging
 
 Description
     This function object is an extension of the standard OpenFOAM fieldAverage
@@ -64,25 +61,31 @@ Description
     - prime-Uprime field, TPrimeUPrimeMean
 
     Information regarding the number of averaging steps, and total averaging
-    time are written on a per-field basis to the
-    \c temporalAveragingProperties dictionary, located in \<time\>/uniform
+    time are written on a per-field basis to the \c "<functionObject
+    name>Properties" dictionary, located in \<time\>/uniform
 
-    When restarting form a previous calculation, the averaging is continuous.
-    However, the averaging process can be restarted using the \c resetOnRestart
-    option.
+    When restarting form a previous calculation, the averaging is continuous or
+    may be restarted using the \c restartOnRestart option.
 
-    To restart the averaging process after each calculation output time, use
-    the \c resetOnOutput option.
+    The averaging process may be restarted after each calculation output time
+    using the \c restartOnOutput option or restarted periodically using the \c
+    periodicRestart option and setting \c restartPeriod to the required
+    averaging period.
 
     Example of function object specification:
     \verbatim
     temporalAveraging1
     {
         type temporalAveraging;
-        functionObjectLibs ("libfieldFunctionObjects.so");
-        ...
-        resetOnRestart true;
-        resetOnOutput false;
+        libs                ("libfieldFunctionObjects.so");
+
+        writeControl    writeTime;
+
+        restartOnRestart    false;
+        restartOnOutput     false;
+        periodicRestart     false;
+        restartPeriod       0.002;
+
         fields
         (
             U
@@ -105,15 +108,16 @@ Description
     }
     \endverbatim
 
-    \heading Function object usage
+Usage
     \table
-        Property     | Description             | Required    | Default value
-        type         | type name: temporalAveraging | yes         |
-        resetOnRestart | flag to reset the averaging on restart | yes  |
-        resetOnOutput| flag to reset the averaging on output | yes |
-        fields       | list of fields and averaging options | yes |
+        Property          | Description               | Required | Default
+        type              | type name: fieldAverage              | yes |
+        restartOnRestart  | Restart the averaging on restart     | no  | no
+        restartOnOutput   | Restart the averaging on output      | no  | no
+        periodicRestart   | Periodically restart the averaging   | no  | no
+        restartPeriod     | Periodic restart period              | conditional |
+        fields            | list of fields and averaging options | yes |
     \endtable
-
 
 Note
     To employ the \c prime2Mean option, the \c mean option must be selected.
@@ -121,9 +125,9 @@ Note
         for both the baseField and for U. Moreover, the primeUPrimeMean option is
         ignored for the 'U' field as this would be identical to the prime2Mean option
 
-SeeAlso
+See also
+    Foam::functionObjects::fvMeshFunctionObject
     Foam::functionObject
-    Foam::OutputFilterFunctionObject
 
 SourceFiles
     temporalAveraging.C
@@ -132,53 +136,47 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef temporalAveraging_H
-#define temporalAveraging_H
+#ifndef functionObjects_temporalAveraging_H
+#define functionObjects_temporalAveraging_H
 
-#include "volFieldsFwd.H"
-#include "Switch.H"
+#include "fvMeshFunctionObject.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+namespace functionObjects
+{
 
 // Forward declaration of classes
-class objectRegistry;
-class dictionary;
 class temporalAveragingItem;
-template<class Type>
-class List;
-class polyMesh;
-class mapPolyMesh;
 
 /*---------------------------------------------------------------------------*\
                         Class temporalAveraging Declaration
 \*---------------------------------------------------------------------------*/
 
 class temporalAveraging
+:
+    public fvMeshFunctionObject
 {
 protected:
 
     // Protected data
 
-        //- Name of this set of field averages.
-        word name_;
-
-        //- Database this class is registered to
-        const objectRegistry& obr_;
-
-        //- On/off switch
-        bool active_;
-
         //- Time at last call, prevents repeated averaging
         label prevTimeIndex_;
 
-        //- Reset the averaging process on restart flag
-        Switch resetOnRestart_;
+        //- Restart the averaging process on restart
+        Switch restartOnRestart_;
 
-        //- Reset the averaging process on output flag
-        Switch resetOnOutput_;
+        //- Restart the averaging process on output
+        Switch restartOnOutput_;
+
+        //- Periodically restart the averaging process
+        Switch periodicRestart_;
+
+        //- Restart period
+        scalar restartPeriod_;
 
         //- Initialised flag
         bool initialised_;
@@ -195,8 +193,11 @@ protected:
             //- Total time counter
             List<scalar> totalTime_;
 
+            //- Index for periodic restart
+            label periodIndex_;
 
-    // Private Member Functions
+
+    // Protected Member Functions
 
         // Initialisation routines
 
@@ -208,29 +209,32 @@ protected:
             //  Check requested field averages are valid, populate field lists
             void initialize();
 
-            //- Add mean average field to database
-            template<class Type>
-            void addMeanFieldType(const label fieldI);
+            //- Restart averaging for restartOnOutput
+            void restart();
 
             //- Add mean average field to database
             template<class Type>
-            void addMeanField(const label fieldI);
+            void addMeanFieldType(const label fieldi);
+
+            //- Add mean average field to database
+            template<class Type>
+            void addMeanField(const label fieldi);
 
             //- Add prime-squared average field to database
             template<class Type1, class Type2>
-            void addPrime2MeanFieldType(const label fieldI);
+            void addPrime2MeanFieldType(const label fieldi);
 
             //- Add prime-squared average field to database
             template<class Type1, class Type2>
-            void addPrime2MeanField(const label fieldI);
+            void addPrime2MeanField(const label fieldi);
 
             //- Add prime-Uprime average field to database
             template<class Type1, class Type2>
-            void addPrimeUPrimeMeanFieldType(const label fieldI);
+            void addPrimeUPrimeMeanFieldType(const label fieldi);
 
             //- Add prime-Uprime average field to database
             template<class Type1, class Type2>
-            void addPrimeUPrimeMeanField(const label fieldI);
+            void addPrimeUPrimeMeanField(const label fieldi);
 
 
         // Calculation functions
@@ -240,7 +244,7 @@ protected:
 
             //- Calculate mean average fields
             template<class Type>
-            void calculateMeanFieldType(const label fieldI) const;
+            void calculateMeanFieldType(const label fieldi) const;
 
             //- Calculate mean average fields
             template<class Type>
@@ -248,7 +252,7 @@ protected:
 
             //- Calculate prime-squared average fields
             template<class Type1, class Type2>
-            void calculatePrime2MeanFieldType(const label fieldI) const;
+            void calculatePrime2MeanFieldType(const label fieldi) const;
 
             //- Calculate prime-squared average fields
             template<class Type1, class Type2>
@@ -256,7 +260,7 @@ protected:
 
             //- Calculate prime-Uprime average fields
             template<class Type1, class Type2>
-            void calculatePrimeUPrimeMeanFieldType(const label fieldI) const;
+            void calculatePrimeUPrimeMeanFieldType(const label fieldi) const;
 
             //- Calculate prime-Uprime average fields
             template<class Type1, class Type2>
@@ -264,7 +268,7 @@ protected:
 
             //- Add mean-squared field value to prime-squared mean field
             template<class Type1, class Type2>
-            void addMeanSqrToPrime2MeanType(const label fieldI) const;
+            void addMeanSqrToPrime2MeanType(const label fieldi) const;
 
             //- Add mean-squared field value to prime-squared mean field
             template<class Type1, class Type2>
@@ -272,7 +276,7 @@ protected:
 
             //- Add mean-Umean field value to prime-Uprime mean field
             template<class Type1, class Type2>
-            void addMeanUMeanToPrimeUPrimeMeanType(const label fieldI) const;
+            void addMeanUMeanToPrimeUPrimeMeanType(const label fieldi) const;
 
             //- Add mean-Umean field value to prime-Uprime mean field
             template<class Type1, class Type2>
@@ -314,14 +318,12 @@ public:
 
     // Constructors
 
-        //- Construct for given objectRegistry and dictionary.
-        //  Allow the possibility to load fields from files
+        //- Construct from Time and dictionary
         temporalAveraging
         (
             const word& name,
-            const objectRegistry&,
-            const dictionary&,
-            const bool loadFromFiles = false
+            const Time& runTime,
+            const dictionary&
         );
 
 
@@ -331,43 +333,26 @@ public:
 
     // Member Functions
 
-        //- Return name of the set of field averages
-        virtual const word& name() const
-        {
-            return name_;
-        }
-
         //- Read the field average data
-        virtual void read(const dictionary&);
+        virtual bool read(const dictionary&);
 
-        //- Execute the averaging
-        virtual void execute();
+        //- Calculate the field averages
+        virtual bool execute();
 
-        //- Execute the averaging at the final time-loop, currently does nothing
-        virtual void end();
-
-        //- Called when time was set at the end of the Time::operator++
-        virtual void timeSet();
-
-        //- Calculate the field average data and write
-        virtual void write();
-
-        //- Update mesh
-        virtual void updateMesh(const mapPolyMesh&);
-
-        //- Move points
-        virtual void movePoints(const polyMesh&);
+        //- Write the field averages
+        virtual bool write();
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace functionObjects
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "temporalAveragingTemplates.C"
+    #include "temporalAveragingTemplates.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

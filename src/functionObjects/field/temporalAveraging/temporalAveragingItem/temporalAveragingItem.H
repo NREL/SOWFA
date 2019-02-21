@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::temporalAveragingItem
+    Foam::functionObjects::temporalAveragingItem
 
 Description
     Helper class to describe what form of averaging to apply.  A set will be
@@ -32,7 +32,7 @@ Description
     {
         mean            on;
         prime2Mean      on;
-        primeUPrimeMean on;
+        primeUprimeMean on;
         base            time; // iteration
         window          200;  // optional averaging window
         windowName      w1;   // optional window name (default = "")
@@ -63,11 +63,13 @@ namespace Foam
 class Istream;
 class Ostream;
 
+namespace functionObjects
+{
+
 // Forward declaration of friend functions and operators
 class temporalAveragingItem;
 Istream& operator>>(Istream&, temporalAveragingItem&);
 Ostream& operator<<(Ostream&, const temporalAveragingItem&);
-
 
 /*---------------------------------------------------------------------------*\
                       Class temporalAveragingItem Declaration
@@ -91,19 +93,16 @@ public:
             static const word EXT_PRIMEUPRIMEMEAN;
 
         //- Enumeration defining the averaging base type
-        enum baseType
+        enum class baseType
         {
-            ITER,
-            TIME
+            iter,
+            time
         };
 
 
 private:
 
     // Private data
-
-        //- Active flag
-        Switch active_;
 
         //- Field name
         word fieldName_;
@@ -160,18 +159,6 @@ public:
     // Member Functions
 
         // Access
-
-            //- Return const access to the active flag
-            const Switch& active() const
-            {
-                return active_;
-            }
-
-            //- Return non-const access to the active flag
-            Switch& active()
-            {
-                return active_;
-            }
 
             //- Return const access to the field name
             const word& fieldName() const
@@ -239,16 +226,16 @@ public:
                 return baseTypeNames_[base_];
             }
 
-            //- Return true if base is ITER
+            //- Return true if base is iter
             Switch iterBase() const
             {
-                return base_ == ITER;
+                return base_ == baseType::iter;
             }
 
             //- Return true if base is time
             Switch timeBase() const
             {
-                return base_ == TIME;
+                return base_ == baseType::time;
             }
 
             scalar window() const
@@ -307,6 +294,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace functionObjects
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

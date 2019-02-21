@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -29,9 +29,8 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::temporalAveragingItem::temporalAveragingItem(Istream& is)
+Foam::functionObjects::temporalAveragingItem::temporalAveragingItem(Istream& is)
 :
-    active_(false),
     fieldName_("unknown"),
     mean_(0),
     meanFieldName_("unknown"),
@@ -39,10 +38,14 @@ Foam::temporalAveragingItem::temporalAveragingItem(Istream& is)
     prime2MeanFieldName_("unknown"),
     primeUPrimeMean_(0),
     primeUPrimeMeanFieldName_("unknown"),
-    base_(ITER),
+    base_(baseType::iter),
     window_(-1.0)
 {
-    is.check("Foam::temporalAveragingItem::temporalAveragingItem(Foam::Istream&)");
+    is.check
+    (
+        "Foam::functionObjects::temporalAveragingItem::temporalAveragingItem"
+        "(Foam::Istream&)"
+    );
 
     const dictionaryEntry entry(dictionary::null, is);
 
@@ -68,17 +71,20 @@ Foam::temporalAveragingItem::temporalAveragingItem(Istream& is)
 
 // * * * * * * * * * * * * * * * IOstream Operators  * * * * * * * * * * * * //
 
-Foam::Istream& Foam::operator>>(Istream& is, temporalAveragingItem& faItem)
+Foam::Istream& Foam::functionObjects::operator>>
+(
+    Istream& is,
+    temporalAveragingItem& faItem
+)
 {
     is.check
     (
         "Foam::Istream& Foam::operator>>"
-        "(Foam::Istream&, Foam::temporalAveragingItem&)"
+        "(Foam::Istream&, Foam::functionObjects::temporalAveragingItem&)"
     );
 
     const dictionaryEntry entry(dictionary::null, is);
 
-    faItem.active_ = false;
     faItem.fieldName_ = entry.keyword();
     entry.lookup("mean") >> faItem.mean_;
     entry.lookup("prime2Mean") >> faItem.prime2Mean_;
@@ -108,32 +114,41 @@ Foam::Istream& Foam::operator>>(Istream& is, temporalAveragingItem& faItem)
 }
 
 
-Foam::Ostream& Foam::operator<<(Ostream& os, const temporalAveragingItem& faItem)
+Foam::Ostream& Foam::functionObjects::operator<<
+(
+    Ostream& os,
+    const temporalAveragingItem& faItem
+)
 {
     os.check
     (
         "Foam::Ostream& Foam::operator<<"
-        "(Foam::Ostream&, const Foam::temporalAveragingItem&)"
+        "(Foam::Ostream&, const Foam::functionObjects::temporalAveragingItem&)"
     );
 
     os  << faItem.fieldName_ << nl << token::BEGIN_BLOCK << nl;
-    os.writeKeyword("mean") << faItem.mean_ << token::END_STATEMENT << nl;
-    os.writeKeyword("prime2Mean") << faItem.prime2Mean_
-        << token::END_STATEMENT << nl;
-    os.writeKeyword("primeUprimeMean") << faItem.primeUPrimeMean_
-        << token::END_STATEMENT << nl;
-    os.writeKeyword("base") << faItem.baseTypeNames_[faItem.base_]
-        << token::END_STATEMENT << nl;
+
+    os.writeKeyword("mean")
+        << faItem.mean_ << token::END_STATEMENT << nl;
+
+    os.writeKeyword("prime2Mean")
+        << faItem.prime2Mean_ << token::END_STATEMENT << nl;
+
+    os.writeKeyword("primeUPrimeMean")
+        << faItem.primeUPrimeMean_ << token::END_STATEMENT << nl;
+
+    os.writeKeyword("base")
+        << faItem.baseTypeNames_[faItem.base_] << token::END_STATEMENT << nl;
 
     if (faItem.window_ > 0)
     {
-        os.writeKeyword("window") << faItem.window_
-            << token::END_STATEMENT << nl;
+        os.writeKeyword("window")
+            << faItem.window_ << token::END_STATEMENT << nl;
 
         if (faItem.windowName_ != "")
         {
-            os.writeKeyword("windowName") << faItem.windowName_
-                << token::END_STATEMENT << nl;
+            os.writeKeyword("windowName")
+                << faItem.windowName_ << token::END_STATEMENT << nl;
         }
     }
 
@@ -142,7 +157,7 @@ Foam::Ostream& Foam::operator<<(Ostream& os, const temporalAveragingItem& faItem
     os.check
     (
         "Foam::Ostream& Foam::operator<<"
-        "(Foam::Ostream&, const Foam::temporalAveragingItem&)"
+        "(Foam::Ostream&, const Foam::functionObjects::temporalAveragingItem&)"
     );
 
     return os;
