@@ -72,6 +72,12 @@ wmake libso
 cd ../../
 
 
+# Custom function objects (this includes planar and temporal averaging).
+cd src/functionObjects/field
+wmake libso
+cd ../../../
+
+
 # Custom function objects (this includes the lidar sampling).
 cd src/postProcessing/functionObjects/utilities
 wmake libso

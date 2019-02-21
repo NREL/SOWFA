@@ -46,6 +46,11 @@ rmdepall
 wclean
 cd ../../../../
 
+cd src/functionObjects/field
+rmdepall
+wclean
+cd ../../../
+
 cd applications/utilities/setFieldsABL
 rmdepall
 wclean
