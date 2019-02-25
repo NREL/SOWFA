@@ -28,12 +28,20 @@ License
 #include "dictionary.H"
 #include "interpolateXY.H"
 #include "clockTime.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-defineTypeNameAndDebug(spinnerLidar, 0);
+    defineTypeNameAndDebug(spinnerLidar, 0);
+
+    addToRunTimeSelectionTable
+    (
+        functionObject,
+        spinnerLidar,
+        dictionary
+    );
 }
 
 
@@ -51,7 +59,7 @@ Foam::spinnerLidar::spinnerLidar
     const bool loadFromFiles
 )
 :
-    name_(name),
+    functionObject(name),
     mesh_(refCast<const fvMesh>(obr)),
     runTime_(mesh_.time()),
     active_(true),
@@ -167,7 +175,7 @@ Foam::spinnerLidar::~spinnerLidar()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::spinnerLidar::read(const dictionary& dict)
+bool Foam::spinnerLidar::read(const dictionary& dict)
 {
     if (active_)
     {
@@ -196,7 +204,9 @@ void Foam::spinnerLidar::read(const dictionary& dict)
    
         beamMaxDistance =  dict.lookupOrDefault<scalar>("beamMaxDistance", 1000.0);
 
-        beamDistribution = dict.lookup("beamDistribution");
+        List<scalar> beamDist(dict.lookup("beamDistribution"));
+        beamDistribution = beamDist;
+
         scalar beamDistMax = max(beamDistribution);
         forAll(beamDistribution,i)
         {
@@ -222,6 +232,8 @@ void Foam::spinnerLidar::read(const dictionary& dict)
 
         perturb = dict.lookupOrDefault<scalar>("perturb", 1E-4);
     }
+
+    return true;
 }
 
 
@@ -498,7 +510,7 @@ void Foam::spinnerLidar::rotateLidar()
 }
 
 
-void Foam::spinnerLidar::execute()
+bool Foam::spinnerLidar::execute()
 {
     if (active_)
     {
@@ -604,27 +616,25 @@ void Foam::spinnerLidar::execute()
 
         tCarryOver = tElapsed - dtSolver - tCarryOverSubtractor;
     }
+
+    return true;
 }
 
 
-void Foam::spinnerLidar::end()
+bool Foam::spinnerLidar::end()
 {
     if (active_)
     {
         execute();
     }
+
+    return true;
 }
 
 
-void Foam::spinnerLidar::timeSet()
+bool Foam::spinnerLidar::write()
 {
-    // Do nothing
-}
-
-
-void Foam::spinnerLidar::write()
-{
-    // Do nothing
+    return true;
 }
 
 
@@ -644,11 +654,11 @@ void Foam::spinnerLidar::writeBeamDataFormatted()
 
         if (Pstream::parRun())
         {
-            rootDir = runTime_.path()/"../postProcessing"/name_;
+            rootDir = runTime_.path()/"../postProcessing"/name();
         }
         else
         {
-            rootDir = runTime_.path()/"postProcessing"/name_;
+            rootDir = runTime_.path()/"postProcessing"/name();
         }
 
         // Create the time directory.  This is the lidar time, which 
@@ -741,7 +751,7 @@ void Foam::spinnerLidar::writeBeamDataFormatted()
 
 void Foam::spinnerLidar::writeVariables()
 {
-    Info << "name_: " << name_ << endl;
+    Info << "name_: " << name() << endl;
     Info << "active_: " << active_ << endl;
     Info << "UName_: " << UName_ << endl;
     Info << "dtSolver: " << dtSolver << endl;

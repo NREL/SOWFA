@@ -72,10 +72,16 @@ wmake libso
 cd ../../
 
 
-# Custom function objects (this includes the lidar sampling).
-cd src/postProcessing/functionObjects/utilities
+# Custom function objects (this includes planar and temporal averaging).
+cd src/functionObjects/field
 wmake libso
-cd ../../../../
+cd ../../../
+
+
+# Custom function objects (this includes the lidar sampling).
+cd src/functionObjects/utilities
+wmake libso
+cd ../../../
 
 
 # Utility to set the initial fields for the ABL solver.
