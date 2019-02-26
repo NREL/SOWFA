@@ -95,11 +95,13 @@ protected:
             dimensionedScalar sigmaEps_;
             dimensionedScalar kappa_;
             dimensionedScalar lambda_;
-            dimensionedScalar lMax_;
+            dimensionedScalar lmax_;
             dimensionedScalar L_;
+            volScalarField alphaB_;
             volScalarField Ceps1Star_;
             volScalarField Ceps3_;
             volScalarField lm_;
+            
 
 
         // Fields
@@ -117,6 +119,7 @@ protected:
             const uniformDimensionedVectorField& g_;
             dimensionedScalar TRef_;
             dimensionedScalar Prt_;
+            vector upVec_;
 
 
 public:
