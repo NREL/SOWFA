@@ -125,26 +125,9 @@ kEpsilonABL::kEpsilonABL
         )
     ),
 
-    lambda_
-    (
-        dimensioned<scalar>::lookupOrAddToDict
-        (
-            "lambda",
-            coeffDict_,
-            0.00037
-        )
-    ),
-
     lmax_
     (
         "lmax",
-        dimLength,
-        1.0
-    ),
-
-    L_
-    (
-        "L",
         dimLength,
         1.0
     ),
@@ -261,16 +244,6 @@ kEpsilonABL::kEpsilonABL
         coeffDict_.lookupOrDefault<word>("TName","T")
     ),
 
-    RwallName_
-    (
-        coeffDict_.lookupOrDefault<word>("RwallName","Rwall")
-    ),
-
-    qwallName_
-    (
-        coeffDict_.lookupOrDefault<word>("qwallName","qwall")
-    ),
-
     T_(U.db().lookupObject<volScalarField>(TName_)),
 
     g_(U.db().lookupObject<uniformDimensionedVectorField>("g")),
@@ -294,69 +267,8 @@ kEpsilonABL::kEpsilonABL
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-void kEpsilonABL::computeLengthScale()
+void kEpsilonABL::computeMaxLengthScale()
 {
-    // Compute friction velocity and wall heat flux.
-    vectorField faceAreaNormal;
-    scalarField faceArea;
-    vectorField qwallLocal;
-    vectorField RwallNormal;
-    const fvPatchList& patches = mesh_.boundary();
-
-    forAll(patches, patchi)
-    {
-        if (isA<wallFvPatch>(patches[patchi]))
-        {
-            faceAreaNormal = patches[patchi].Sf();
-            faceArea = patches[patchi].magSf();
-            vectorField qwallLocal = patches[patchi].lookupPatchField<volVectorField,vector>(qwallName_);
-            symmTensorField Rwall = patches[patchi].lookupPatchField<volSymmTensorField,symmTensor>(RwallName_);
-            RwallNormal = Rwall & faceAreaNormal;
-        }
-    } 
-
-    scalar faceAreaSum = gSum(faceArea);
-
-    vector RwallAvg = gSum(RwallNormal)/faceAreaSum;
-    scalar tauWall = sqrt(pow(RwallAvg.x(),2) + pow(RwallAvg.y(),2));
-    dimensionedScalar uStar("uStar",dimVelocity,max(sqrt(tauWall),1.0E-10));
-
-    vector qwallAvg = gSum(qwallLocal)/faceAreaSum;
-    if (mag(qwallAvg) == 0.0)
-    {
-       vector tiny = -1.0E-10*upVec_;
-       qwallAvg += tiny;
-    }
-    dimensionedVector qwall("qwall",dimTemperature*dimVelocity,qwallAvg);
-
-  //Info << "uStar = " << uStar << endl;
-  //Info << "qwall = " << qwall << endl;
-  //Info << "TRef = " << TRef_ << endl;
-  //Info << "g = " << g_ << endl;
-
-    // Compute Obukhov length.
-    L_ = -pow(uStar,3)*TRef_/(kappa_*(-g_ & qwall));
-  //Info << "L = " << L_ << endl;
-  //Info << "upVec = " << upVec_ << endl;
- 
-    // Compute lm.
-    forAll(lm_, i)
-    {
-        scalar z = mesh_.C()[i] & upVec_;
-        scalar zeta = z/L_.value();
-        scalar phiM = 1.0;
-        if (zeta < 0.0)
-        {
-           phiM = pow((1.0 - 5.0*zeta),-0.25);
-        }
-        else
-        {
-           phiM = 1.0 + 5.0*zeta;
-        }
-        lm_[i] = ((kappa_*z)/(phiM + (kappa_*z/lambda_))).value();
-    }
-
-    // Compute lmax.
     scalar numerator = 0.0;
     scalar denominator = 0.0;
     forAll(k_, i)
@@ -369,10 +281,9 @@ void kEpsilonABL::computeLengthScale()
     reduce(denominator,sumOp<scalar>());
 
     dimensionedScalar n("n",dimVelocity*dimLength,numerator);
-    dimensionedScalar d("d",dimVelocity,min(denominator,1.0E-10));
+    dimensionedScalar d("d",dimVelocity,max(denominator,1.0E-10));
 
     lmax_ = Clambda_ * (n/d);
-  //Info << "lmax = " << lmax_ << endl;
 }
 
 tmp<volSymmTensorField> kEpsilonABL::R() const
@@ -469,13 +380,14 @@ void kEpsilonABL::correct()
         return;
     }
 
-    // Update all the length scales.
-    computeLengthScale();
+    // Update length scale
+    lm_ = pow(Cmu_,0.75)*pow(k_,1.5)/epsilon_;
+
+    // Compute maximum length scale
+    computeMaxLengthScale();
 
     // Compute the shear production term.
     volScalarField G("kEpsilonABL:G", 2.0*nut_*magSqr(symm(fvc::grad(U_))));
-  //dimensionedScalar Gmin("Gmin",dimVelocity*dimVelocity/dimTime,1.0E-10);
-  //bound(G, 1.0E-10);
 
     forAll(G,i)
     {
@@ -500,7 +412,7 @@ void kEpsilonABL::correct()
     volScalarField B("kEpsilonABL:B",(1.0/TRef_)*g_&((nut_/Prt_)*fvc::grad(T_)));
 
     // Compute the local gradient Richardson number.
-    volScalarField Ri = B/G;
+    volScalarField Ri = -B/G;
 
     // Compute alphaB.
     forAll(alphaB_,i)
@@ -511,17 +423,15 @@ void kEpsilonABL::correct()
         }
         else
         {
-            alphaB_[i] = 1.0 - (1.0 - (Ceps2_.value() - 1.0) / (Ceps2_.value() - Ceps1_.value())) * lm_[i]/lmax_.value();
+            alphaB_[i] = 1.0 - (1.0 + (Ceps2_.value() - 1.0) / (Ceps2_.value() - Ceps1_.value())) * lm_[i]/lmax_.value();
         }
     }
 
     // Compute Ceps1Star.
     Ceps1Star_ = Ceps1_ + (Ceps2_ - Ceps1_)*(lm_/lmax_);
-  //Info << "Ceps1Star = " << Ceps1Star_ << endl;
 
     // Compute Ceps3
     Ceps3_ = (Ceps1_ - Ceps2_)*alphaB_ + 1.0;
-  //Info << "Ceps3 = " << Ceps3_ << endl;
     
     // Update epsilon and G at the wall
     epsilon_.boundaryField().updateCoeffs();

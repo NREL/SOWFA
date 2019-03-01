@@ -94,9 +94,7 @@ protected:
             dimensionedScalar sigmak_;
             dimensionedScalar sigmaEps_;
             dimensionedScalar kappa_;
-            dimensionedScalar lambda_;
             dimensionedScalar lmax_;
-            dimensionedScalar L_;
             volScalarField alphaB_;
             volScalarField Ceps1Star_;
             volScalarField Ceps3_;
@@ -113,8 +111,6 @@ protected:
         // Other necessary information.
             IOdictionary transportDict_;
             word TName_;
-            word RwallName_;
-            word qwallName_;
             const volScalarField& T_;
             const uniformDimensionedVectorField& g_;
             dimensionedScalar TRef_;
@@ -146,8 +142,8 @@ public:
 
 
     // Member Functions
-        //- Compute the stability-dependent length scale
-        virtual void computeLengthScale();
+        //- Compute the maximum length scale
+        virtual void computeMaxLengthScale();
 
         //- Return the turbulence viscosity
         virtual tmp<volScalarField> nut() const
