@@ -127,7 +127,7 @@
     CoriolisForce Coriolis(U,upIndex);
 
     // Create sponge layer objec
-    spongeLayer sponge(U,upIndex);
+    spongeLayer sponge("upperSponge",U);
 
     // Create and read the turbulent thermal conductivity field
     Info << "Creating the kinematic thermal conductivity field, kappat..." << endl;
