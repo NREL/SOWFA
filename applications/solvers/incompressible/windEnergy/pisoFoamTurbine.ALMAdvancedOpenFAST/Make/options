@@ -15,12 +15,12 @@ EXE_INC = \
     -I$(OPENFAST_DIR)/include \
 
 EXE_LIBS = \
-    -L$(FOAM_USER_LIBBIN) \
+    -L$(SOWFA_DIR)/lib/$(WM_OPTIONS) \
     -lincompressibleTransportModels \
     -lincompressibleTurbulenceModel \
     -lincompressibleRASModels \
     -lincompressibleLESModels \
-    -luserTurbineModelsOpenFAST \
+    -lSOWFATurbineModelsOpenFAST \
     -lfiniteVolume \
     -lmeshTools \
     -lfvOptions \

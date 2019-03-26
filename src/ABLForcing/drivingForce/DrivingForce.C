@@ -327,6 +327,7 @@ void Foam::DrivingForce<Type>::readInputData_()
     word sourceType(ABLProperties.lookup(name_ & "SourceType"));
     sourceType_ = sourceType;
     
+
     // If giving the velocity and computing the sources, specify how the velocity
     // is given.  "component" means you enter the x, y, anc z components.
     // "speedAndDirection" means that you enter the horizontal wind speed, horizontal
@@ -341,6 +342,7 @@ void Foam::DrivingForce<Type>::readInputData_()
         velocityInputType_ = "component";
     }
     
+
     // Read in the heights at which the sources are given.
     sourceHeightsSpecified_ = ABLProperties.lookup("sourceHeights" & name_);
     label nSourceHeights = sourceHeightsSpecified_.size();
@@ -348,6 +350,7 @@ void Foam::DrivingForce<Type>::readInputData_()
 
     // Read in the source table(s) vs. time and height
     readSourceTables_(ABLProperties,nSourceHeights);
+
 
     // Read in controller properties.
     label Nreg(ABLProperties.lookupOrDefault<label>("regOrder" & name_,1));
