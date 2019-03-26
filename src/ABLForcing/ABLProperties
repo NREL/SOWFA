@@ -25,28 +25,51 @@ FoamFile
 #include        "../setUp"
 
 
-
 // Properties of the mesoscale source terms
-momentumSourceType       "computed";
-temperatureSourceType    "computed";
+// ----------------------------------------
+// There are two possible types of source terms:
+// - The "given" type means that the source values are directly given
+//   and the flow field will react accordingly.  
+// - The "computed" type means that the mean profiles
+//   are given and the source terms that maintain them are computed. 
 
-velocityInputType        "component";
+momentumSource
+{
+    type        "computed";                         // Type of source to use
+    inputType   "component";                        // Specific for momentum: "component" means the x, y and z components are specified,
+                                                    // "speedAndDirection" means wind speed, wind direction and vertical component are specified.
+    gain        0.0168;                             // Controller gain.
+    regOrder    3;                                  // Order of regression polynomial
+    alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
+    weightsTable
+    (
+        //  z   weight
+        (0.0        0.0)
+        (1000.0     1.0)
+        (4000.0     1.0)
+    );
 
+    #include "../forcing/fieldTable"
+}
 
-// Use the source table in the file listed below.
-#include "../../drivingData/$caseName/fieldTable"
+temperatureSource
+{
+    type        "computed";                         // Type of source to use
+    gain        0.0168;                             // Controller gain.
+    regOrder    3;                                  // Order of regression polynomial
+    alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
+    weightsTable
+    (
+        //  z   weight
+        (0.0        0.0)
+        (1000.0     1.0)
+        (4000.0     1.0)
+    );
 
-
-// Relaxation factors applied when computing sources given desired
-// velocity and temperature.
-regOrderMomentum    1;
-regOrderTemperature 4;
-alphaMomentum      1.0;
-alphaTemperature   1.0;
-gainMomentum         0.0084;
-gainTemperature      0.0084;
-TwMomentum         3600;
-TwTemperature      3600;
+    #include "../forcing/fieldTable"
+}
 
 
 // Properties of the Coriolis force

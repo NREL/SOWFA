@@ -48,13 +48,6 @@ void Foam::DrivingForce<Type>::initializeController_
             X[planeI][i] = Foam::pow(zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()),i);
         }
     }
-    // Weights
-    forAllPlanes(zPlanes_,planeI)
-    {
-        weights_.append(
-                min( 1.0,2.0*zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()) )
-                        );
-    }
 
     scalarDiagonalMatrix W(Nz,0.0);
     forAllPlanes(zPlanes_,i)
@@ -88,7 +81,7 @@ void Foam::DrivingForce<Type>::initializeController_
             XtWXinv[i][j] = Zinv[i][j];
         }
     }
-
+    
     //- Areg = (X.T W X)^-1 X.T
     multiply(Areg_,XtWXinv,X.T());
 }
@@ -108,7 +101,7 @@ List<Type> Foam::DrivingForce<Type>::updateController_
     scalarRectangularMatrix beta = computeRegressionCoeff_(error);
     scalarRectangularMatrix beta_eff(Nreg_+1,nComponents_());
 
-    betaInt_ = Foam::exp(-dt/Tw_) * betaInt_ + dt/Tw_*beta;
+    betaInt_ = Foam::exp(-dt/timeWindow_) * betaInt_ + dt/timeWindow_*beta;
     beta_eff = alpha_*beta + (1.0-alpha_) * betaInt_;
 
     List<Type> regressionCurve = constructRegressionCurve_(beta_eff);
