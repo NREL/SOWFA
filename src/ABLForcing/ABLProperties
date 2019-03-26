@@ -1,0 +1,87 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.4.x                                 |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          ABLProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "../setUp"
+
+
+
+// Properties of the mesoscale source terms
+momentumSourceType       "computed";
+temperatureSourceType    "computed";
+
+velocityInputType        "component";
+
+
+// Use the source table in the file listed below.
+#include "../../drivingData/$caseName/fieldTable"
+
+
+// Relaxation factors applied when computing sources given desired
+// velocity and temperature.
+regOrderMomentum    1;
+regOrderTemperature 4;
+alphaMomentum      1.0;
+alphaTemperature   1.0;
+gainMomentum         0.0084;
+gainTemperature      0.0084;
+TwMomentum         3600;
+TwTemperature      3600;
+
+
+// Properties of the Coriolis force
+planetaryRotationPeriod   $EarthPeriod;             // Latitude on the Earth of the site (deg).
+latitude                  $latitude;                // Earth's rotation period (hr).
+
+
+// Pressure handling.
+activatePressureRefCell   true;                     // Switch to set the pressure reference cell explicitly in the p_rgh solve.
+perturbationPressureType  "rhokSplit";              // Options for defining the background pressure:
+                                                    // - noSplit:   do not split out hydrostatic part; pressure is then perturbation pressure.
+                                                    // - rho0Split: split out the hydrostatic part; define hydrostatic as rho_0 * g * z.
+                                                    // - rhokSplit: split out the hydrostatic part; define hydrostatic as rho_k * g * z.
+
+
+// Sponge layer parameters.
+upperSponge
+{
+    type             "Rayleigh";                    // Type of sponge layer: "none" (Default), "Rayleigh" or "viscous".
+    startLocation    10000.0;                       // Start location of the sponge layer (m).
+    width            5000.0;                        // Width of the sponge layer (m).
+    Ux               10.0;                          // Sponge layer reference velocity (only for Rayleigh) in x direction (m/s).
+    Uy               0.0;                           // Sponge layer reference velocity (only for Rayleigh) in y direction (m/s).
+    viscosityMax     0.01;                          // Maximum viscosity, dimensions depend on type of damping:
+                                                    // Rayleigh (1/s)
+                                                    // viscous  (m^2/s)
+    coordIndex       2;                             // Coordinate index: 0, 1 or 2 corresponding to yz, xz or xy slab.
+    direction        "stepUp";                      // Shape of damping function: "stepUp" increases smoothly from 0 to 1 in the
+                                                    // specified coordinate direction, "stepDown" decreases in the coordinate direction.
+}
+
+
+// Statistics gathering input
+statisticsOn              $statisticsOn;
+statisticsFrequency       $statisticsFrequency;
+
+
+// ************************************************************************* //
