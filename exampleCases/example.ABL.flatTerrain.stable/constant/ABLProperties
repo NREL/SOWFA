@@ -27,52 +27,56 @@ FoamFile
 
 
 // Properties of the mesoscale source terms
-momentumSourceType       "computed";
-temperatureSourceType    "given";
+momentumSource
+{
+    type        "computed";
+    inputType   "speedAndDirection";
 
-velocityInputType        "speedAndDirection";
+    //Relaxation factor (only used when type is "computed")
+    gain        0.7;
 
+    sourceHeightsMomentum
+    (
+        $windHeight
+    );
+    
+    sourceTableMomentumX
+    (
+        (    0.0 $U0Mag)
+        (90000.0 $U0Mag)
+    );
+    
+    sourceTableMomentumY
+    (
+        (    0.0 $dir)
+        (90000.0 $dir)
+    );
+    
+    sourceTableMomentumZ
+    (
+        (    0.0 0.0)
+        (90000.0 0.0)
+    );
+}
 
-// Use the source table in the file listed below.
-sourceHeightsMomentum
-(
-    $windHeight
-);
+temperatureSource
+{
+    type        "given";
 
-sourceTableMomentumX
-(
-    (    0.0 $U0Mag)
-    (90000.0 $U0Mag)
-);
+    //Relaxation factor (only used when type is "computed")
+    gain        0.7;
 
-sourceTableMomentumY
-(
-    (    0.0 $dir)
-    (90000.0 $dir)
-);
-
-sourceTableMomentumZ
-(
-    (    0.0 0.0)
-    (90000.0 0.0)
-);
-
-sourceHeightsTemperature
-(
-    $windHeight
-);
-
-sourceTableTemperature
-(
-    (    0.0 0.0)
-    (90000.0 0.0)
-);
-
-// Relaxation factors applied when computing sources given desired
-// velocity and temperature.
-alphaMomentum      0.7;
-alphaTemperature   0.7;
-
+    sourceHeightsTemperature
+    (
+        $windHeight
+    );
+    
+    sourceTableTemperature
+    (
+        (    0.0 0.0)
+        (90000.0 0.0)
+    );
+}
 
 // Properties of the Coriolis force
 planetaryRotationPeriod   $EarthPeriod;
