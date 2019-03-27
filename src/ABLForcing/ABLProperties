@@ -42,6 +42,7 @@ momentumSource
     regOrder    3;                                  // Order of regression polynomial
     alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
     timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
+    writeError  true;                               // Write out error between horizontal averaged profile and given input profile.
     weightsTable
     (
         //  z   weight
@@ -60,6 +61,7 @@ temperatureSource
     regOrder    3;                                  // Order of regression polynomial
     alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
     timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
+    writeError  true;                               // Write out error between horizontal averaged profile and given input profile.
     weightsTable
     (
         //  z   weight

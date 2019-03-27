@@ -250,7 +250,7 @@ void Foam::DrivingForce<Type>::writeErrorHistory_
     // Write the column of source information.
     if (Pstream::master())
     {
-        if (statisticsOn_)
+        if (writeError_)
         {
             if (runTime_.timeIndex() % statisticsFreq_ == 0)
             {
@@ -392,6 +392,10 @@ void Foam::DrivingForce<Type>::readInputData_()
 
         // Initialize controller
         initializeController_(nSourceHeights);
+
+        // Write out error profile? 
+        bool writeError(sourceDict.lookupOrDefault<bool>("writeError",false));
+        writeError_ = writeError;
     }
 
 
@@ -612,22 +616,25 @@ void Foam::DrivingForce<Type>::openFiles_()
         }
 
         sourceHistoryFile_() << "Time(s)" << " " << "dt (s)" << " " << "source term " << bodyForce_.dimensions() << endl;
-
-        //File for saving the error
-        word errorFileName = ("Error" & name_) & "History";
-        errorHistoryFile_.reset(new OFstream(outputPath/errorFileName));
         
-        if (sourceHeightsSpecified_.size() > 1)
+        //File for saving the error
+        if (writeError_)
         {
-            errorHistoryFile_() << "Heights (m) ";
-            forAllPlanes(zPlanes_,planeI)
+            word errorFileName = ("Error" & name_) & "History";
+            errorHistoryFile_.reset(new OFstream(outputPath/errorFileName));
+            
+            if (sourceHeightsSpecified_.size() > 1)
             {
-                errorHistoryFile_() << zPlanes_.planeLocationValues()[planeI] << " ";
+                errorHistoryFile_() << "Heights (m) ";
+                forAllPlanes(zPlanes_,planeI)
+                {
+                    errorHistoryFile_() << zPlanes_.planeLocationValues()[planeI] << " ";
+                }
+                errorHistoryFile_() << endl;
             }
-            errorHistoryFile_() << endl;
-        }
 
-        errorHistoryFile_() << "Time(s)" << " " << "dt (s)" << " " << "error term " << endl;
+            errorHistoryFile_() << "Time(s)" << " " << "dt (s)" << " " << "error term " << endl;
+        }
     }
 }
 

@@ -128,6 +128,9 @@ class DrivingForce
         scalarRectangularMatrix Areg_;
         scalarRectangularMatrix betaInt_;
 
+        //- Write error profile?
+        bool writeError_;
+
         //- Gather/write statistics?
         bool statisticsOn_;
 
