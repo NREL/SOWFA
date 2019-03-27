@@ -37,16 +37,21 @@ momentumSource
 {
     // General input parameters
     type        "computed";                         // Type of source to use
-    inputType   "component";                        // Specific for momentum: "component" means the x, y and z components are specified,
-                                                    // "speedAndDirection" means wind speed, wind direction and vertical component are specified.
-    gain        0.0168;                             // Controller gain.
+    inputType   "component";                        // Specific for momentum and only used when type is "computed":
+                                                    // - "component" means the x, y and z components are specified,
+                                                    // - "speedAndDirection" means wind speed, wind direction and vertical component are specified.
+    gain        0.0168;                             // Controller gain (only used when type is "computed")
+    
+    // Source Table
+    #include "../forcing/fieldTable"
 
     // The following properties are only used
-    // when multiple source heights are specified
+    // when type is "computed" and when multiple
+    // source heights are specified
     regOrder    3;                                  // Order of regression polynomial
     alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
     timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
-    writeError  true;                               // Write out error between horizontal averaged profile and given input profile.
+    writeError  false;                              // Write out error between horizontal averaged profile and given input profile.
     weightsTable
     (
         //  z   weight
@@ -54,23 +59,24 @@ momentumSource
         (1000.0     1.0)
         (4000.0     1.0)
     );
-    
-    // Source Table
-    #include "../forcing/fieldTable"
 }
 
 temperatureSource
 {
     // General input parameters
     type        "computed";                         // Type of source to use
-    gain        0.0168;                             // Controller gain.
+    gain        0.0168;                             // Controller gain (only used when type is "computed")
+
+    // Source Table
+    #include "../forcing/fieldTable"
 
     // The following properties are only used
-    // when multiple source heights are specified
+    // when type is "computed" and when multiple
+    // source heights are specified
     regOrder    3;                                  // Order of regression polynomial
     alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
     timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
-    writeError  true;                               // Write out error between horizontal averaged profile and given input profile.
+    writeError  false;                              // Write out error between horizontal averaged profile and given input profile.
     weightsTable
     (
         //  z   weight
@@ -78,9 +84,6 @@ temperatureSource
         (1000.0     1.0)
         (4000.0     1.0)
     );
-
-    // Source Table
-    #include "../forcing/fieldTable"
 }
 
 
