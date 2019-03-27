@@ -1,0 +1,16 @@
+      planarAverages
+      {
+          type                 planarAveraging;
+          functionObjectLibs   ("libSOWFAfieldFunctionObjects.so");
+          enabled              true;
+          outputControl        adjustableTime;
+          writeInterval        2.5;
+          fields
+          (
+              U
+              T
+              UU
+              wUU
+              TU
+          );
+      }

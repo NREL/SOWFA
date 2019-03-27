@@ -55,6 +55,7 @@ FoamFile
 
   functions
   {
+      #include "sampling/planarAverages"
       #include "sampling/probeData1"
       #include "sampling/probeData1S"
       #include "sampling/probeData2"
