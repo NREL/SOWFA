@@ -52,6 +52,10 @@ autoPtr<incompressible::turbulenceModel> turbulence
     incompressible::turbulenceModel::New(U, phi, laminarTransport)
 );
 
+// Create Coriolis force object
+label upIndex = 2;
+CoriolisForce Coriolis(U,upIndex);
+
 // Create external source term objects
 DrivingForce<scalar> temperatureSourceTerm("temperature",T);
 DrivingForce<vector> momentumSourceTerm("momentum",U);

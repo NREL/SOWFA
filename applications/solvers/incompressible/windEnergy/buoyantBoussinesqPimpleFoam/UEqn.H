@@ -1,4 +1,7 @@
     // Solve the momentum equation
+    
+    // Update Coriolis forcing
+    Coriolis.update();
 
     MRF.correctBoundaryVelocity(U);
 
@@ -8,6 +11,7 @@
       + MRF.DDt(U)
       + turbulence->divDevReff(U)
       - momentumSourceTerm.force()
+      - Coriolis.force()
      ==
         fvOptions(U)
     );
