@@ -335,7 +335,7 @@ void Foam::DrivingForce<Type>::readInputData_()
     // direction, and vertical component.
     if (name_ == "momentum")
     {
-        word velocityInputType(sourceDict.lookup("inputType"));
+        word velocityInputType(sourceDict.lookupOrDefault<word>("inputType","component"));
         velocityInputType_ = velocityInputType;
     }
     else
