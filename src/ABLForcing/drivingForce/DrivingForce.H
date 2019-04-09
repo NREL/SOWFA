@@ -82,6 +82,14 @@ class DrivingForce
         //- Driving force field
         volFieldType bodyForce_;
 
+        //- Height level indices for forcing at one height
+        label hLevels1I;
+        label hLevels2I;
+
+        //- Height levels for forcing at one height
+        scalar hLevels1;
+        scalar hLevels2;
+        
         //- Output file pointer
         autoPtr<OFstream> sourceHistoryFile_;
 
@@ -99,14 +107,6 @@ class DrivingForce
 
         //- Source interpolation table
         List<List<Type> > sourceSpecified_;
-
-        //- Height level indices for forcing at one height
-        label hLevels1I;
-        label hLevels2I;
-
-        //- Height levels for forcing at one height
-        scalar hLevels1;
-        scalar hLevels2;
 
         //- Relaxation coefficient
         scalar alpha_;

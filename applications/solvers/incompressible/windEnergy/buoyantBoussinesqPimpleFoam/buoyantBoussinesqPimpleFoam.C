@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,9 +23,6 @@ License
 
 Application
     buoyantBoussinesqPimpleFoam
-
-Group
-    grpHeatTransferSolvers
 
 Description
     Transient solver for buoyant, turbulent flow of incompressible fluids.
@@ -51,7 +48,7 @@ Description
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
 #include "turbulentTransportModel.H"
-#include "radiationModel.H"
+#include "noRadiation.H"
 #include "fvOptions.H"
 #include "pimpleControl.H"
 #include "ABL.H"
@@ -60,16 +57,8 @@ Description
 
 int main(int argc, char *argv[])
 {
-    argList::addNote
-    (
-        "Transient solver for buoyant, turbulent flow"
-        " of incompressible fluids.\n"
-        "Uses the Boussinesq approximation."
-    );
-
     #include "postProcess.H"
 
-    #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
@@ -92,7 +81,7 @@ int main(int argc, char *argv[])
         #include "CourantNo.H"
         #include "setDeltaT.H"
 
-        ++runTime;
+        runTime++;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
@@ -121,7 +110,9 @@ int main(int argc, char *argv[])
 
         runTime.write();
 
-        runTime.printExecutionTime(Info);
+        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+            << nl << endl;
     }
 
     Info<< "End\n" << endl;

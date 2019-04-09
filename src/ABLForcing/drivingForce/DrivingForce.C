@@ -570,9 +570,6 @@ Foam::DrivingForce<Type>::DrivingForce
         dimensioned<Type>("source" & name_,dimensionSet(field_.dimensions()/dimTime),zeroTensor_())
     ),
 
-    // Initialize output file pointer
-    sourceHistoryFile_(NULL),
-
     // Initialize height levels and indices for forcing at one height
     hLevels1I(0.0),
     hLevels2I(0.0),
