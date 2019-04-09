@@ -63,9 +63,6 @@ class CoriolisForce
             //- Velocity field pointer
             const volVectorField& U_;
 
-            //- upIndex
-            const label upIndex_;
-
         //- Planetary rotation vector field
         uniformDimensionedVectorField Omega_;
 
@@ -82,8 +79,7 @@ public:
     // Constructors
     CoriolisForce
     (
-        const volVectorField& U,
-        const label upIndex
+        const volVectorField& U
     );
 
 
