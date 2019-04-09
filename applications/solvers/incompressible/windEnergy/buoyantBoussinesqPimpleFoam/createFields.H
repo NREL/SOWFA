@@ -53,8 +53,7 @@ autoPtr<incompressible::turbulenceModel> turbulence
 );
 
 // Create Coriolis force object
-label upIndex = 2;
-CoriolisForce Coriolis(U,upIndex);
+CoriolisForce Coriolis(U);
 
 // Create external source term objects
 DrivingForce<scalar> temperatureSourceTerm("temperature",T);

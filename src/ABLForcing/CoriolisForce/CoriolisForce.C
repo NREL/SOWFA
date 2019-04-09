@@ -40,26 +40,9 @@ void Foam::CoriolisForce::update()
 {
     // Compute the Coriolis force (neglect the component in the vertical direction).
     bodyForce_ = -2.0*(Omega_^U_);
-    if (upIndex_ == 0)
+    forAll(bodyForce_,cellI)
     {
-        forAll(bodyForce_,cellI)
-        {
-            bodyForce_[cellI].x() = 0.0;
-        }
-    }
-    else if (upIndex_ == 1)
-    {
-        forAll(bodyForce_,cellI)
-        {
-            bodyForce_[cellI].y() = 0.0;
-        }
-    }
-    else if (upIndex_ == 2)
-    {
-        forAll(bodyForce_,cellI)
-        {
-            bodyForce_[cellI].z() = 0.0;
-        }
+        bodyForce_[cellI].z() = 0.0;
     }
 }
 
@@ -67,8 +50,7 @@ void Foam::CoriolisForce::update()
 
 Foam::CoriolisForce::CoriolisForce
 (
-    const volVectorField& U,
-    const label upIndex
+    const volVectorField& U
 )
 :
     // Set the pointer to runTime
@@ -79,9 +61,6 @@ Foam::CoriolisForce::CoriolisForce
 
     // Set the pointer to the velocity field
     U_(U),
-
-    // Set upIndex
-    upIndex_(upIndex),
 
     // Initialize the reference velocity field
     Omega_
