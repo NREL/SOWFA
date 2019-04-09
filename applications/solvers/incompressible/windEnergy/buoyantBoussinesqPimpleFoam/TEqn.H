@@ -1,14 +1,15 @@
 {
-    alphat = turbulence->nut()/Prt;
-    alphat.correctBoundaryConditions();
+    kappat = turbulence->nut()/Prt;
+    kappat.correctBoundaryConditions();
 
-    volScalarField alphaEff("alphaEff", turbulence->nu()/Pr + alphat);
+    volScalarField kappaEff("alphaEff", turbulence->nu()/Pr + kappat);
 
     fvScalarMatrix TEqn
     (
         fvm::ddt(T)
       + fvm::div(phi, T)
-      - fvm::laplacian(alphaEff, T)
+      - fvm::laplacian(kappaEff, T)
+      - fvc::div(qwall)
       - temperatureSourceTerm.force()
      ==
         radiation->ST(rhoCpRef, T)

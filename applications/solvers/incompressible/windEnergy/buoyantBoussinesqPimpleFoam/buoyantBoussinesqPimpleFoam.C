@@ -75,6 +75,14 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
+    // Update boundary conditions before starting in case anything needs
+    // updating, for example after using mapFields to interpolate initial
+    // field.
+    U.correctBoundaryConditions();
+    phi = linearInterpolate(U) & mesh.Sf();
+    #include "turbulenceCorrect.H"
+    T.correctBoundaryConditions();
+
     while (runTime.run())
     {
         #include "readTimeControls.H"
@@ -89,18 +97,15 @@ int main(int argc, char *argv[])
         while (pimple.loop())
         {
             #include "UEqn.H"
+            #include "turbulenceCorrect.H"
             #include "TEqn.H"
 
             // --- Pressure corrector loop
             while (pimple.correct())
             {
                 #include "pEqn.H"
-            }
-
-            if (pimple.turbCorr())
-            {
-                laminarTransport.correct();
-                turbulence->correct();
+                #include "turbulenceCorrect.H"
+                #include "TEqn.H"
             }
 
             // --- Update the source terms

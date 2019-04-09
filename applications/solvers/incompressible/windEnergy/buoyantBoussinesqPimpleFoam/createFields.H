@@ -69,12 +69,42 @@ volScalarField rhok
 );
 
 // kinematic turbulent thermal thermal conductivity m2/s
-Info<< "Reading field alphat\n" << endl;
-volScalarField alphat
+Info<< "Reading field kappat\n" << endl;
+volScalarField kappat
 (
     IOobject
     (
-        "alphat",
+        "kappat",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+// Create the wall shear stress field
+Info << "Reading and creating the wall shear stress field, Rwall..." << endl;
+volSymmTensorField Rwall
+(
+    IOobject
+    (
+        "Rwall",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+// Create the wall temperature flux field
+Info << "Reading and creating the wall temperature flux field, qwall..." << endl;
+volVectorField qwall
+(
+    IOobject
+    (
+        "qwall",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
