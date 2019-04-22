@@ -118,6 +118,12 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
     // Compute the source term
     Type ds = (fldMeanDesired - fldMean) / dt;
 
+    // Subtract off any vertical part
+    if (setVerticalCompZero_)
+    {
+        ds = subtractVerticalPart_(ds);
+    }
+
     // Apply the relaxation
     ds *= gain_;
 
@@ -156,6 +162,15 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
 
     // Compute the controller action
     List<Type> source = updateController_(fldError);
+
+    // Subtract off any vertical part
+    if (setVerticalCompZero_)
+    {
+        forAllPlanes(zPlanes_,planeI)
+        {
+            source[planeI] = subtractVerticalPart_(source[planeI]);
+        }
+    }
 
     // Now go by cell levels and apply the source term
     forAllPlanes(zPlanes_,planeI)
@@ -268,7 +283,9 @@ void Foam::DrivingForce<Type>::writeErrorHistory_
 }
 
 
-// In general, input type speedAndDirection is not supported
+// In general:
+// - input type speedAndDirection is not supported
+// - subtractVerticalPart does nothing
 template<class Type>
 Type Foam::DrivingForce<Type>::speedDirToComp_
 (
@@ -284,7 +301,20 @@ Type Foam::DrivingForce<Type>::speedDirToComp_
 }
 
 
-// Specialization for Type vector where input type speedAndDirection is supported
+template<class Type>
+Type Foam::DrivingForce<Type>::subtractVerticalPart_
+(
+    Type source
+)
+{
+    //Do nothing, just return input
+    return source;
+}
+
+
+// Specialization for Type vector
+// - input type speedAndDirection is supported
+// - subtractVerticalPart is supported
 namespace Foam
 {
     template<>
@@ -296,6 +326,19 @@ namespace Foam
         vector fldMeanDesired = windRoseToCartesian(desiredField.x(),desiredField.y());
         fldMeanDesired.z() = desiredField.z();
         return fldMeanDesired;
+    }
+
+
+    template<>
+    vector Foam::DrivingForce<vector>::subtractVerticalPart_
+    (
+        vector source
+    )
+    {
+        vector nUp(vector::zero);
+        nUp.z() = 1.0;
+        source -= (source & nUp) * nUp;
+        return source;
     }
 }
 
@@ -337,10 +380,14 @@ void Foam::DrivingForce<Type>::readInputData_()
     {
         word velocityInputType(sourceDict.lookupOrDefault<word>("inputType","component"));
         velocityInputType_ = velocityInputType;
+
+        bool setVerticalCompZero(sourceDict.lookupOrDefault<bool>("setVerticalCompZero",true));
+        setVerticalCompZero_ = setVerticalCompZero;
     }
     else
     {
         velocityInputType_ = "component";
+        setVerticalCompZero_ = false;
     }
     
 

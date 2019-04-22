@@ -36,11 +36,12 @@ FoamFile
 momentumSource
 {
     // General input parameters
-    type        "computed";                         // Type of source to use
-    inputType   "component";                        // Specific for momentum and only used when type is "computed":
+    type                "computed";                 // Type of source to use
+    inputType           "component";                // Specific for momentum and only used when type is "computed":
                                                     // - "component" means the x, y and z components are specified,
                                                     // - "speedAndDirection" means wind speed, wind direction and vertical component are specified.
-    gain        0.0168;                             // Controller gain (only used when type is "computed")
+    setVerticalCompZero true;                       // Specific for momentum and only used when type is "computed": subtract off any vertical part (Default to True)
+    gain                0.0168;                     // Controller gain (only used when type is "computed")
     
     // Source Table
     #include "../forcing/fieldTable"

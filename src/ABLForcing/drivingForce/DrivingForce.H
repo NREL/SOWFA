@@ -96,6 +96,9 @@ class DrivingForce
         //- Velocity input type (only used when name_ == "momentum")
         word velocityInputType_;
 
+        //- Set vertical component to zero (only for Type vector)
+        bool setVerticalCompZero_;
+
         //- Heights at which the sources are given
         List<scalar> sourceHeightsSpecified_;
 
@@ -218,6 +221,9 @@ class DrivingForce
         (
             Type desiredField
         );
+
+        //- Subtract off vertical part (only for Type vector)
+        Type subtractVerticalPart_(Type source);
 
 public:
 
