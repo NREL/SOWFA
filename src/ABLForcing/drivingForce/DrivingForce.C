@@ -415,7 +415,7 @@ void Foam::DrivingForce<Type>::readInputData_()
         scalar alpha(sourceDict.lookupOrDefault<scalar>("alpha",1.0));
         alpha_ = alpha;
 
-        scalar timeWindow(sourceDict.lookupOrDefault<scalar>("timeWindow",1.0));
+        scalar timeWindow(sourceDict.lookupOrDefault<scalar>("timeWindow",3600.0));
         timeWindow_ = timeWindow;
         
         // Read in weights from table
