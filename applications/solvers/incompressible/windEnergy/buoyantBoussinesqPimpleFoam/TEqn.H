@@ -2,7 +2,7 @@
     kappat = turbulence->nut()/Prt;
     kappat.correctBoundaryConditions();
 
-    volScalarField kappaEff("alphaEff", turbulence->nu()/Pr + kappat);
+    volScalarField kappaEff("kappaEff", turbulence->nu()/Pr + kappat);
 
     fvScalarMatrix TEqn
     (
@@ -26,5 +26,5 @@
 
     fvOptions.correct(T);
 
-    rhok = 1.0 - beta*(T - TRef);
+    Boussinesq.updateDensityField();
 }

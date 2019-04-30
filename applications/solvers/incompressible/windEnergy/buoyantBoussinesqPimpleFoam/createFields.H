@@ -59,18 +59,6 @@ CoriolisForce Coriolis(U);
 DrivingForce<scalar> temperatureSourceTerm("temperature",T);
 DrivingForce<vector> momentumSourceTerm("momentum",U);
 
-// Kinematic density for buoyancy force
-volScalarField rhok
-(
-    IOobject
-    (
-        "rhok",
-        runTime.timeName(),
-        mesh
-    ),
-    1.0 - beta*(T - TRef)
-);
-
 // kinematic turbulent thermal thermal conductivity m2/s
 Info<< "Reading field kappat\n" << endl;
 volScalarField kappat
@@ -118,8 +106,6 @@ volVectorField qwall
 
 
 #include "readGravitationalAcceleration.H"
-#include "readhRef.H"
-#include "gh.H"
 
 
 volScalarField p
@@ -132,7 +118,7 @@ volScalarField p
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    p_rgh + rhok*gh
+    p_rgh
 );
 
 label pRefCell = 0;
@@ -146,15 +132,18 @@ setRefCell
     pRefValue
 );
 
-if (p_rgh.needReference())
+// Create buoyancy model
+vector hRef_ = vector::zero;
+if (pRefCell != -1)
 {
-    p += dimensionedScalar
-    (
-        "p",
-        p.dimensions(),
-        pRefValue - getRefCellValue(p, pRefCell)
-    );
+    hRef_ = mesh.C()[pRefCell];
 }
+reduce(hRef_,sumOp<vector>());
+dimensionedVector hRef("hRef",dimLength,hRef_);
+    
+buoyancyModel Boussinesq(T, TRef, hRef);
+
+#include "adjustPressureLevel.H"
 
 mesh.setFluxRequired(p_rgh.name());
 
