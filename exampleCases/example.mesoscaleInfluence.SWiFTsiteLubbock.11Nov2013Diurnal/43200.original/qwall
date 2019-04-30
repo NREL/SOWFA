@@ -27,9 +27,9 @@ boundaryField
     {
         type            specifiedSurfaceTemperature;
         TSurface        table
-                        (
-                           #include "../forcing/surfaceSkinPotentialTemperatureTable"
-                        );
+        (
+            #include "../forcing/surfaceSkinPotentialTemperatureTable"
+        );
         kappa           $kappa;
         z0              uniform $z0;
         betaM           $betaM;
@@ -38,7 +38,7 @@ boundaryField
         gammaH          $gammaH;
         alphaH          $alphaH;
         averageType     "planarAverage";
-        value           $internalField;
+        value           uniform $qwall;
     }
     upper
     {

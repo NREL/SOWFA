@@ -27,7 +27,7 @@ FoamFile
 
   endTime           129600.0;
 
-  deltaT            1.0;
+  deltaT            0.5;
 
   writeControl      adjustableRunTime;
 
@@ -55,17 +55,17 @@ FoamFile
 
   functions
   {
-      #include "sampling/probeData1"
-      #include "sampling/probeData1S"
-      #include "sampling/probeData2"
-      #include "sampling/probeData2S"
-      #include "sampling/probeData3"
-      #include "sampling/probeData3S"
-      #include "sampling/probeData4"
-      #include "sampling/probeData4S"
-      #include "sampling/probeData5"
-      #include "sampling/probeData5S"
-      #include "sampling/sliceDataInstantaneous"
+     #include "sampling/probeData1"
+     #include "sampling/probeData2"
+     #include "sampling/probeData3"
+     #include "sampling/probeData4"
+     #include "sampling/probeData5"
+     #include "sampling/probeData1S"
+     #include "sampling/probeData2S"
+     #include "sampling/probeData3S"
+     #include "sampling/probeData4S"
+     #include "sampling/probeData5S"
+     #include "sampling/sliceDataInstantaneous"
   }
 
 // ************************************************************************* //

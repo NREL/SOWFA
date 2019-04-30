@@ -34,7 +34,8 @@ velocityInputType        "speedAndDirection";
 
 
 // Use the source table in the file listed below.
-#include        "../forcing/forcingTable"
+#include "../forcing/forcingTable"
+
 
 // Relaxation factors applied when computing sources given desired
 // velocity and temperature.
@@ -45,6 +46,7 @@ alphaTemperature   0.7;
 // Properties of the Coriolis force
 planetaryRotationPeriod   $EarthPeriod;
 latitude                  $latitude;
+
 
 // Statistics gathering input
 statisticsOn              $statisticsOn;
