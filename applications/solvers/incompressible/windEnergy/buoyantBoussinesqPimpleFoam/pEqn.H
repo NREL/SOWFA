@@ -3,7 +3,8 @@
     surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
     volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p_rgh));
 
-    surfaceScalarField phig(-rAUf*ghf*fvc::snGrad(rhok)*mesh.magSf());
+    Boussinesq.updateBuoyancyTerm();
+    surfaceScalarField phig(rAUf * Boussinesq.buoyancyTerm() * mesh.magSf());
 
     surfaceScalarField phiHbyA
     (
@@ -47,16 +48,5 @@
 
     #include "continuityErrs.H"
 
-    p = p_rgh + rhok*gh;
-
-    if (p_rgh.needReference())
-    {
-        p += dimensionedScalar
-        (
-            "p",
-            p.dimensions(),
-            pRefValue - getRefCellValue(p, pRefCell)
-        );
-        p_rgh = p - rhok*gh;
-    }
+    #include "adjustPressureLevel.H"
 }

@@ -3,6 +3,9 @@
     // Update Coriolis forcing
     Coriolis.update();
 
+    // Update buoyancy term
+    Boussinesq.updateBuoyancyTerm();
+
     MRF.correctBoundaryVelocity(U);
 
     fvVectorMatrix UEqn
@@ -30,8 +33,8 @@
             fvc::reconstruct
             (
                 (
-                  - ghf*fvc::snGrad(rhok)
                   - fvc::snGrad(p_rgh)
+                  + Boussinesq.buoyancyTerm()
                 )*mesh.magSf()
             )
         );
