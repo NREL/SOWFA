@@ -1,0 +1,9 @@
+/* Surface Shear Stress Models */
+surfaceStressModels = ./surfaceStressModels
+$(surfaceStressModels)/SchumannGrotzbach/SchumannGrotzbachFvPatchField.C
+
+surfaceVelocityModels = ./surfaceVelocityModels
+$(surfaceVelocityModels)/velocityABLWallFunction/velocityABLWallFunctionFvPatchField.C
+
+
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAboundaryConditions
