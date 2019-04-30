@@ -77,10 +77,10 @@ TPrimeScale               0.0;
 dTdz                      $TGradUpper;
 
 // Geostrophic wind speed magnitude.
-Ug                        $U0Mag;
+Ug                        10.0;
 
 // Geostrophic wind speed direction.
-UgDir                     $dir;
+UgDir                     270.0;
 
 // Aerodynamic roughness height of surface.
 z0                        $z0;
@@ -91,7 +91,7 @@ kappa                     $kappa;
 // Vertical profile table.
 profileTable
 (
-    #include    "../forcing/initialValues"
+    #include "../forcing/initialValues"
 );
 
 // Update internal field.

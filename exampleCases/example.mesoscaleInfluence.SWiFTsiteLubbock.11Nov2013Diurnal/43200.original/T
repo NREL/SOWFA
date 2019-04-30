@@ -20,7 +20,7 @@ FoamFile
  
 dimensions      [0 0 0 1 0 0 0];
  
-internalField   uniform $TBottom;
+internalField   uniform $T0;
 
 boundaryField
 {

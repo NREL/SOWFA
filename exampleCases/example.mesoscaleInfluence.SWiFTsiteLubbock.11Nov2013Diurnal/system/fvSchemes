@@ -91,10 +91,10 @@ schemeBlending
 
     // Height above which blending factor begins to transition
     // from heightBlendingFactor_z1 to heightBlendingFactor_z2.
-    heightBlending_z1            800.0;
+    heightBlending_z1            1700.0;
 
     // Height above which blending factor is heightBlendingFactor_z2.
-    heightBlending_z2            1000.0;
+    heightBlending_z2            1800.0;
 
 
     heightBlendingFactorU_z1     1.0;

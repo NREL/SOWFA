@@ -17,7 +17,7 @@
               slice_horizontal_1
               {
                   type         plane;
-                  basePoint    (1500.01 1500.01 32.6);
+                  basePoint    (1500.01 1500.01 20.01);
                   normalVector (0 0 1);
                   triangulate  false;
               }
@@ -29,6 +29,13 @@
                   triangulate  false;
               }
               slice_horizontal_3
+              {
+                  type         plane;
+                  basePoint    (1500.01 1500.01 100.01);
+                  normalVector (0 0 1);
+                  triangulate  false;
+              }
+              slice_horizontal_4
               {
                   type         plane;
                   basePoint    (1500.01 1500.01 200.01);
