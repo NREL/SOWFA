@@ -2,8 +2,13 @@
 surfaceStressModels = ./surfaceStressModels
 $(surfaceStressModels)/SchumannGrotzbach/SchumannGrotzbachFvPatchField.C
 
+/* Surface Shear Stress Compatible Velocity Boundary Condition */
 surfaceVelocityModels = ./surfaceVelocityModels
 $(surfaceVelocityModels)/velocityABLWallFunction/velocityABLWallFunctionFvPatchField.C
+
+/* Surface Heat Flux Model */
+surfaceHeatFluxModels = ./surfaceHeatFluxModels
+$(surfaceHeatFluxModels)/specifiedSurfaceTemperature/specifiedSurfaceTemperatureFvPatchField.C
 
 
 LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAboundaryConditions
