@@ -1,0 +1,3 @@
+superDeliciousVanilla.C
+
+EXE = $(SOWFA_DIR)/applications/bin/$(WM_OPTIONS)/superDeliciousVanilla

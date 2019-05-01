@@ -1,3 +1,0 @@
-windPlantSolver.C
-
-EXE = $(SOWFA_DIR)/applications/bin/$(WM_OPTIONS)/windPlantSolver.ALMAdvancedOpenFAST

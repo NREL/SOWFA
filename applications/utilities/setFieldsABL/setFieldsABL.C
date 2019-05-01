@@ -222,7 +222,7 @@ if (useWallDistZ)
 {
     Info << "Calculating wall distance..." << endl;
     wallDist dWall(mesh);
-    d = dWall;
+    d = dWall.y();
 }
 
 // Now calculate the field quantities.
@@ -322,10 +322,10 @@ if (updateInternalFields)
 
     // Potential temperature.
     Info << "Updating internal T field..." << endl;
-    Random TRandom(1);
+    Random TRandom(label(0));
     forAll(T,cellI)
     {
-        scalar TPrime = TPrimeScale * (TRandom.scalar01() - 0.5);
+        scalar TPrime = TPrimeScale * (TRandom.sample01<scalar>() - 0.5);
         scalar z = 0.0;
         if (useWallDistZ)
         {
