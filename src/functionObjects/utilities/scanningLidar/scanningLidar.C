@@ -184,7 +184,7 @@ void Foam::scanningLidar::createBeams()
             perturbVectors.append(List<vector>(nSamplePoints,vector::zero));
             for(int j = 0; j < nSamplePoints; j++)
             {
-                perturbVectors[i][j] = perturb*(2.0*rndGen.vector01()-vector::one);
+                perturbVectors[i][j] = perturb*(2.0*rndGen.sample01<vector>()-vector::one);
             }
         }
     }

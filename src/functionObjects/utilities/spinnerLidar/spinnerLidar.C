@@ -130,7 +130,7 @@ Foam::spinnerLidar::spinnerLidar
             perturbVectors.append(List<vector>(nBeamPoints,vector::zero));
             for(int j = 0; j < nBeamPoints; j++)
             {
-                perturbVectors[i][j] = perturb*(2.0*rndGen.vector01()-vector::one);
+                perturbVectors[i][j] = perturb*(2.0*rndGen.sample01<vector>()-vector::one);
             }
         }
     }
