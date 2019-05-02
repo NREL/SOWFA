@@ -1,1 +1,1 @@
-LIB = $(FOAM_USER_LIBBIN)/libSOWFAturbulenceModels
+LIB = $(SOWFA_DIR)/lib/$(WM_OPTIONS)/libSOWFAturbulenceModels
