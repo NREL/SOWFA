@@ -22,26 +22,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    buoyantBoussinesqPimpleFoam
+    superDeliciousVanilla (the code name for the new unified solver)
 
 Description
-    Transient solver for buoyant, turbulent flow of incompressible fluids.
+    Transient solver for wind-energy and atmospheric boundary layer flows.
+    The incompressible equations are solved along with a Boussinesq buoyancy
+    term. There is flexibility in turbulence modeling. Although the solver
+    is primarily meant for and tested for large-eddy simulations, it could
+    also be used with a RANS turbulence model.
 
-    Uses the Boussinesq approximation:
-    \f[
-        rho_{k} = 1 - beta(T - T_{ref})
-    \f]
-
-    where:
-        \f$ rho_{k} \f$ = the effective (driving) kinematic density
-        beta = thermal expansion coefficient [1/K]
-        T = temperature [K]
-        \f$ T_{ref} \f$ = reference temperature [K]
-
-    Valid when:
-    \f[
-        \frac{beta(T - T_{ref})}{rho_{ref}} << 1
-    \f]
+    The code includes planetary Coriolis forces, pressure gradient forces
+    driving the wind, ability to use mesoscale forcings, coupling with
+    atmospheric-style lower rough-wall boundary conditions, and coupling
+    with actuator turbine models.
 
 \*---------------------------------------------------------------------------*/
 
@@ -86,6 +79,7 @@ int main(int argc, char *argv[])
     #include "turbulenceCorrect.H"
     T.correctBoundaryConditions();
 
+    // Time stepping loop.
     while (runTime.run())
     {
         #include "readTimeControls.H"
@@ -98,41 +92,52 @@ int main(int argc, char *argv[])
         Info << "Time = " << runTime.timeName() << tab;
         Info << "Time Step = " << runTime.timeIndex() << endl;
 
-        // --- Pressure-velocity PIMPLE corrector loop
+        // Outer-iteration loop.
+        int outerIter = 0;
         while (pimple.loop())
         {
+            Info << "   Outer Iteration " << outerIter << "..." << endl;
+
+            // Update the source terms.
+            momentumSourceTerm.update();
+            temperatureSourceTerm.update();
+
+            // Predictor step.
             Info << "   Predictor..." << endl;
+
             #include "UEqn.H"
             #include "turbulenceCorrect.H"
             #include "TEqn.H"
 
-            // --- Pressure corrector loop
-            int pressureCorr = 0;
+            // Corrector steps.
+            int corrIter = 0;
             while (pimple.correct())
             {
-                Info << "   Corrector Step " << pressureCorr << "..." << endl;
+                Info << "   Corrector Step " << corrIter << "..." << endl;
+
                 #include "pEqn.H"
                 #include "turbulenceCorrect.H"
                 #include "TEqn.H"
-                pressureCorr++;
+
+                corrIter++;
             }
 
-            // --- Update the source terms
-            momentumSourceTerm.update();
-            temperatureSourceTerm.update();
-
-            // --- Compute the continuity errors.
+            // Compute the continuity errors.
             #include "computeDivergence.H"
+
+            outerIter++;
         }
 
+        // Write the solution if at write time.
         runTime.write();
 
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-            << nl << endl;
+        // Report timing.
+        Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+             << nl << endl;
     }
 
-    Info << "End" << endl;
+    Info << "Ending the simulation..." << endl;
 
     return 0;
 }
