@@ -248,13 +248,10 @@ Foam::planarAveraging::planarAveraging
     includewUU_(false),
     includeTU_(false)
 {
-    Info << "Start initializing planarAveraging based on time" << endl;
     // Read the dictionary.
     read(dict);
 
     prepare();
-
-    Info << "End initializing planarAveraging" << endl;
 
 }
 
@@ -277,13 +274,10 @@ Foam::planarAveraging::planarAveraging
     includewUU_(false),
     includeTU_(false)
 {
-    Info << "Start initializing planarAveraging based on objectregistry" << endl;
     // Read the dictionary.
     read(dict);
 
     prepare();
-
-    Info << "End initializing planarAveraging" << endl;
 
 }
 
