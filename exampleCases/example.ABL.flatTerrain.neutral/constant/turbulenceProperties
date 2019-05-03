@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.6                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -15,8 +15,61 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-//  simulationType  RASModel;
-    simulationType  LESModel;
-//  simulationType  laminar;
+#include        "../setUp"
+
+// Indicate the type of turbulence model to be used (laminar, LES, RAS).
+simulationType  LES;
+
+LES
+{
+    // Name of the LES turbulence model.
+    LESModel        $LESModel;
+
+
+    // Switch to turn turbulence model on or off. 
+    turbulence      on;
+
+
+    // Switch for printing the coefficients to the log file.
+    printCoeffs     on;
+
+ 
+    // Method for determining the LES turbulence model length scale from
+    // the mesh.
+    delta           smooth;
+
+
+    // ABL-specific one-equation SGS turbulent kinetic energy model coefficients.
+    kEqnABLCoeffs
+    {
+        ce              $ce;
+        ck              $ck;
+        TName           "T";
+        kappatName      "kappat";
+    }
+
+
+    // Methods for setting the length scale.
+    // - Simple cube-root of the volume scaled by 'deltaCoeff'.
+    cubeRootVolCoeffs
+    {
+        deltaCoeff      1;
+    }
+
+    // - Smoothly varying length scale for multi-resolution LES.  This example
+    // - begins with cube-root of the cell volume, but then assures that the
+    // - length scale in neighboring cells does not change by a factor of more
+    // - than 1.1.
+    smoothCoeffs
+    {
+        delta           cubeRootVol;
+        cubeRootVolCoeffs
+        {
+            deltaCoeff      1;
+        }
+        maxDeltaRatio   1.1;
+    }
+}
+
 
 // ************************************************************************* //

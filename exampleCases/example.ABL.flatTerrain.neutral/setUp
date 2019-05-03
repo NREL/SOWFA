@@ -1,49 +1,87 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.4.x                                 |
+|  \\    /   O peration     | Version:  6.x                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
+
+
 // Domain size and number of cells.
+// * Used by blockMesh in 'constant/polyMesh/blockMeshDict'
+//
+// - This creates a simple uniform hexahedral mesh
+
 xMin                 0.0;                         // Minimum x-extent of domain (m).
 yMin                 0.0;                         // Minimum y-extent of domain (m).
 zMin                 0.0;                         // Minimum z-extent of domain (m).
-xMax                 3000.0;                      // Maximum x-extent of domain (m).
-yMax                 3000.0;                      // Maximum y-extent of domain (m).
-zMax                 1020.0;                      // Maximum z-extent of domain (m).
-nx                   300;                         // Number of cells in x-direction.
-ny                   300;                         // Number of cells in y-direction.
-nz                   102;                         // Number of cells in z-direction.
+xMax                 5000.0;                      // Maximum x-extent of domain (m).
+yMax                 5000.0;                      // Maximum y-extent of domain (m).
+zMax                 1000.0;                      // Maximum z-extent of domain (m).
+nx                   500;                         // Number of cells in x-direction.
+ny                   500;                         // Number of cells in y-direction.
+nz                   100;                         // Number of cells in z-direction.
+
+
 
 
 
 
 // Number of cores and domain decomposition information.
-nCores               216;                         // Number of cores on which to run this case.
-decompType           simple;                      // Decomposition algorithm.  "simple" and "scotch" are good choices.
-decompOrder          (6 6 6);                   // Order of the decomposition number of partitions in (x y z)-directions.
+// * Used by decomposePar in 'system/decomposeParDict'
+//
+// - The common decomposistion algorithms are simple and scotch.
+//   Simple scales better for large problems on nice regular meshes,
+//   but scotch is geometrically general.
+
+nCores               504;                         // Number of cores on which to run this case.
+decompType           scotch;                      // Decomposition algorithm.  "simple" and "scotch" are good choices.
+decompOrder          (6 6 6);                     // Order of the decomposition number of partitions in (x y z)-directions (only for simple).
+
+
 
 
 
 
 // Planar averaging and source term statistics options.
-statisticsOn         true;                        // Gather planar-averaged flow statistics.
+// * Used by the planarAveraging function object in 'system/sampling/planarAveraging'
+
 statisticsFrequency  5;                           // Frequency in time steps of statistics gathering.
 
 
 
 
+
+
+// Wind driving conditions.
+// * Used by the solver in 'constant/ABLProperties'
+//
+// - This is all for simple, single height, time-invariant, P-control.
+// - For more complex configurations, see constant/ABLProperties.
+
+windControlHeight    100.0;                       // The height at which the mean wind is specified (m).
+windSpeed            12.0;                        // The specified mean wind speed at that height (m/s).
+windDir              250.0;                       // The specified mean wind direction at that height (degrees).
+
+
+
+
+
+
 // Initial values for the variables.
-// Note that U and T get overwritten if setFieldsABL is called.
-U0Mag                8.0;                         // Initial condition for wind speed (m/s).
-dir                  270.0;                       // Initial condition for wind direction (deg).
-windHeight           99.27;                       // Height at which to drive mean wind to U0Mag/dir (m).
+// * Used by setFieldsABL in 'system/setFieldsABLDict'
+// * Used in the initial fields in '0'
+//
+// - Note that U and T get overwritten if setFieldsABL is called.
+
+U0                  (12.0 0.0 0.0);               // Initial condition for wind speed (m/s).
+T0                   300.0;                       // Initial condition for potential temperature (K).
 p_rgh0               0.0;                         // Initial pressure (minus the hydrostatic variation and normalized by density) (m^2/s^2).
-nuSgs0               0.0;                         // Initial SGS viscosity (m^2/s).
+nut0                 0.0;                         // Initial SGS viscosity (m^2/s).
 k0                   0.1;                         // Initial SGS turbulent kinetic energy (m^2/s^2).
 kappat0              0.0;                         // Initial SGS temperature diffusivity (m^2/s).
+
 TGradUpper           0.003;                       // Potential temperature gradient above the strong inversion (K/m).
 zInversion           750.0;                       // Height of the middle of the initial strong capping inversion (m).
 inversionWidth       100.0;                       // Vertical width of the intial strong capping inversion (m).
@@ -53,7 +91,12 @@ TTop                 305.0;                       // Initial potential temperatu
 
 
 
+
+
 // General conditions and parameters.
+// * Used by solver in 'constant/ABLProperties'
+// * Used by solver in 'constant/transportProperties'
+
 Pr                   0.7;                         // Molecular Prandtl number.
 Prt                  0.33333333;                  // Turbulent Prandtl number.
 nu                   1.0E-5;                      // Molecular viscosity (m^2/s).
@@ -64,15 +107,23 @@ EarthPeriod          24.0;                        // Earth's rotation period (hr
 
 
 
+
+
 // SGS model inputs.
-LESModel             oneEqEddyABL;                // SGS model selection.
+// * Used by solver in 'constant/LESProperties'
+
+LESModel             kEqnABL;                     // SGS model selection.
 ce                   0.93;                        // SGS model constant.
 ck                   0.0673;                      // SGS model constant.
 
 
 
 
+
+
 // Surface conditions.
+// * Used by solver in '0/Rwall' and '0/qwall'
+
 qwall               (0.0 0.0 0.0);                // Temperature flux at wall (modify the z-value).  A negative value is flux into domain (K-m/s).
 Rwall               (0.0 0.0 0.0 0.0 0.0 0.0);    // Initial wall shear stress (m^2/s^2).
 kappa                0.4;                         // von Karman constant.
@@ -84,6 +135,8 @@ betaH                9.0;                         // Monin-Obukhov wall temperat
 gammaH               7.8;                         // Monin-Obukhov wall temperature flux model constant.
 alphaH               1.0;                         // Monin-Obukhov wall temperature flux model constant.
 heatingRate          0.0;                         // Surface temperature change rate (when not directly setting temperature flux) (K/s).
+
+
 
 
 

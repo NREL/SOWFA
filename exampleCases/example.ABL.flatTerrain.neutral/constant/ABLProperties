@@ -1,9 +1,9 @@
-/*---------------------------------------------------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.6                                   |
-|   \\  /    A nd           | Web:      http://www.openfoam.org               |
-|    \\/     M anipulation  |                                                 |
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
@@ -26,31 +26,28 @@ FoamFile
 
 
 
-// Properties of the mesoscale source terms
+// Properties of the background forcing source terms
 momentumSourceType       "computed";
 temperatureSourceType    "given";
 
 velocityInputType        "speedAndDirection";
 
-
-//#include "forcingTable"
-
 // Use the source table in the file listed below.
 sourceHeightsMomentum
 (
-    $windHeight
+    $windControlHeight
 );
 
 sourceTableMomentumX
 (
-    (    0.0 $U0Mag)
-    (90000.0 $U0Mag)
+    (    0.0 $windSpeed)
+    (90000.0 $windSpeed)
 );
 
 sourceTableMomentumY
 (
-    (    0.0 $dir)
-    (90000.0 $dir)
+    (    0.0 $windDir)
+    (90000.0 $windDir)
 );
 
 sourceTableMomentumZ
@@ -61,7 +58,7 @@ sourceTableMomentumZ
 
 sourceHeightsTemperature
 (
-    $windHeight
+    $windControlHeight
 );
 
 sourceTableTemperature
@@ -80,9 +77,5 @@ alphaTemperature   0.7;
 // Properties of the Coriolis force
 planetaryRotationPeriod   $EarthPeriod;
 latitude                  $latitude;
-
-// Statistics gathering input
-statisticsOn              $statisticsOn;
-statisticsFrequency       $statisticsFrequency;
 
 // ************************************************************************* //

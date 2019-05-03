@@ -1,10 +1,11 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.6                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
+
 FoamFile
 {
     version     2.0;
@@ -13,6 +14,7 @@ FoamFile
     location    "system";
     object      fvSchemes;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 ddtSchemes
@@ -30,10 +32,10 @@ gradSchemes
 divSchemes
 {
     default                        Gauss linear;
-    div(phi,U)                     Gauss linear;
-    div(phi,T)                     Gauss linear;
-  //div(phi,U)                     Gauss localBlended linear upwind;
-  //div(phi,T)                     Gauss localBlended linear upwind;
+  //div(phi,U)                     Gauss linear;
+  //div(phi,T)                     Gauss linear;
+    div(phi,U)                     Gauss localBlended linear upwind;
+    div(phi,T)                     Gauss localBlended linear upwind;
     div(R)                         Gauss linear;
     div(U)                         Gauss linear;
     div((nuEff*dev(grad(U).T())))  Gauss linear;

@@ -1,0 +1,18 @@
+
+      planarAveraging
+      {
+          #include            "../../setUp"
+          type                 planarAveraging;
+          functionObjectLibs   ("libSOWFAfieldFunctionObjects.so");
+          enabled              true;
+          writeInterval        timeStep;
+          writeInterval        $statisticsFrequency;
+          fields
+          (
+              U
+              T
+              UU
+              wUU
+              TU
+          );
+      }

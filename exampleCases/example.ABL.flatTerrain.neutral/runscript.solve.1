@@ -1,35 +1,44 @@
 #!/bin/bash
-#PBS -l walltime=48:00:00
-#PBS -l nodes=25:ppn=24
-#PBS -l feature=24core
-#PBS -A windsim
-#PBS -q batch
+#SBATCH --partition=standard
+#SBATCH --nodes=14
+#SBATCH --ntasks=504
+#SBATCH --time=48:00:00
+#SBATCH --account=mmc
 
 source $HOME/.bash_profile
-OpenFOAM-2.4.x-central
-module list
+OpenFOAM-6-dev
 
-cd $PBS_O_WORKDIR
-
-cores=600
+cores=504
 
 initializer=setFieldsABL
-solver=ABLSolver
+solver=superDeliciousVanilla
 runNumber=1
 startTime=0
 
-cp system/controlDict.$runNumber system/controlDict
+
+
+
 
 echo "Starting OpenFOAM job at: " $(date)
 echo "using " $cores " cores"
+echo "with modules:"
+module list
+
+
+
+
+cp system/controlDict.$runNumber system/controlDict
 
 # Run the flow field initializer (parallel)
-if [ $runNumber -eq 1 ] 
+if [ $runNumber -eq 1 ]
    then
-   mpirun -np $cores $initializer -parallel > log.$runNumber.$initializer 2>&1
+   srun -n $cores --cpu_bind=cores $initializer -parallel > log.$runNumber.$initializer 2>&1
 fi
 
 # Run the solver (parallel)
-mpirun -np $cores $solver -parallel > log.$runNumber.$solver 2>&1
+srun -n $cores --cpu_bind=cores $solver -parallel > log.$runNumber.$solver 2>&1
+
+
+
 
 echo "Ending OpenFOAM job at: " $(date)

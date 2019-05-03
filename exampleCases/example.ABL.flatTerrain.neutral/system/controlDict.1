@@ -1,10 +1,11 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.6                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
+
 FoamFile
 {
     version     2.0;
@@ -13,11 +14,12 @@ FoamFile
     location    "system";
     object      controlDict;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
   application       ABLSolver;
 
-  libs              ("libuserfiniteVolume.so" "libuserincompressibleLESModels.so");
+  libs              ("libSOWFAboundaryConditions.so" "libSOWFAincompressibleTurbulenceModels.so");
 
   startFrom         startTime;
 
@@ -39,7 +41,7 @@ FoamFile
 
   writePrecision    12;
 
-  writeCompression  compressed;
+  writeCompression  uncompressed;
 
   timeFormat        general;
 
@@ -55,6 +57,7 @@ FoamFile
 
   functions
   {
+      #include "sampling/planarAveraging"
   }
 
 // ************************************************************************* //
