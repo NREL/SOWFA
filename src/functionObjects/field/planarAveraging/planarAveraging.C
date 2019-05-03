@@ -225,6 +225,43 @@ void Foam::planarAveraging::prepare()
 Foam::planarAveraging::planarAveraging
 (
     const word& name,
+    const Time& t,
+    const dictionary& dict
+)
+:
+    functionObject(name),
+    mesh_
+    (
+        refCast<const fvMesh>
+        (
+            t.lookupObject<objectRegistry>
+            (
+                dict.lookupOrDefault("region", polyMesh::defaultRegion)
+            )
+        )
+    ),
+    zPlanes_(mesh_),
+    loadFromFiles_(false),
+    outputPath_(fileName::null),
+    fieldSelection_(),
+    includeUU_(false),
+    includewUU_(false),
+    includeTU_(false)
+{
+    Info << "Start initializing planarAveraging based on time" << endl;
+    // Read the dictionary.
+    read(dict);
+
+    prepare();
+
+    Info << "End initializing planarAveraging" << endl;
+
+}
+
+
+Foam::planarAveraging::planarAveraging
+(
+    const word& name,
     const objectRegistry& obr,
     const dictionary& dict,
     const bool loadFromFiles
@@ -240,10 +277,13 @@ Foam::planarAveraging::planarAveraging
     includewUU_(false),
     includeTU_(false)
 {
+    Info << "Start initializing planarAveraging based on objectregistry" << endl;
     // Read the dictionary.
     read(dict);
 
     prepare();
+
+    Info << "End initializing planarAveraging" << endl;
 
 }
 

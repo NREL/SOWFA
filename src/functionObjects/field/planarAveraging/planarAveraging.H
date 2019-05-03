@@ -139,13 +139,21 @@ public:
 
     // Constructors
 
+        //- Construct from Time and dictionary.
+        planarAveraging
+        (
+            const word& name,
+            const Time& time,
+            const dictionary& dict
+        );
+
         //- Construct for given objectRegistry and dictionary.
         //  Allow the possibility to load fields from files
         planarAveraging
         (
             const word& name,
-            const objectRegistry&,
-            const dictionary&,
+            const objectRegistry& obr,
+            const dictionary& dict,
             const bool loadFromFiles = false
         );
 
