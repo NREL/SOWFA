@@ -89,7 +89,18 @@ LESeddyViscosityABL<BasicTurbulenceModel>::LESeddyViscosityABL
 
     T_(U.db().lookupObject<volScalarField>(TName_)),
 
-    g_(U.db().lookupObject<uniformDimensionedVectorField>("g")),
+  //g_(U.db().lookupObject<uniformDimensionedVectorField>("g")),
+    g_
+    (
+        IOobject
+        (
+            "g",
+            this->runTime_.constant(),
+            this->mesh_,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
 
     transportProperties_
     (

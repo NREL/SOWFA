@@ -35,7 +35,7 @@
 
 
         // Write a message to the log file.
-        Info << "Updating scheme blending factor field..." << endl;
+        Info << "Updating scheme blending factor field" << endl;
 
 
         // Update the old value of these quantities for checking for updated files.
@@ -57,7 +57,7 @@
         surfaceScalarField dFace = mesh.Cf() & up;
         if (useWallDistZ)
         {
-            Info << "Calculating wall distance..." << endl;
+            Info << "Calculating wall distance" << endl;
             wallDist d(mesh);
             dFace = fvc::interpolate(d.y());
         }

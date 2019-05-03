@@ -91,7 +91,7 @@ protected:
 
         const volScalarField& T_;
 
-        const uniformDimensionedVectorField& g_;
+        const uniformDimensionedVectorField g_;
 
         IOdictionary transportProperties_;
 

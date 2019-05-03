@@ -96,14 +96,14 @@ int main(int argc, char *argv[])
         int outerIter = 0;
         while (pimple.loop())
         {
-            Info << "   Outer Iteration " << outerIter << "..." << endl;
+            Info << "   Outer Iteration " << outerIter << endl;
 
             // Update the source terms.
             momentumSourceTerm.update();
             temperatureSourceTerm.update();
 
             // Predictor step.
-            Info << "   Predictor..." << endl;
+            Info << "   Predictor" << endl;
 
             #include "UEqn.H"
             #include "turbulenceCorrect.H"
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
             int corrIter = 0;
             while (pimple.correct())
             {
-                Info << "   Corrector Step " << corrIter << "..." << endl;
+                Info << "   Corrector Step " << corrIter << endl;
 
                 #include "pEqn.H"
                 #include "turbulenceCorrect.H"
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
              << nl << endl;
     }
 
-    Info << "Ending the simulation..." << endl;
+    Info << "Ending the simulation" << endl;
 
     return 0;
 }

@@ -1,5 +1,5 @@
     // Create the blending factor fields.
-    Info << "Creating divergence scheme blending factor field, UBlendingFactor..." << endl;
+    Info << "Creating divergence scheme blending factor field, UBlendingFactor" << endl;
     surfaceScalarField UBlendingFactor
     (
         IOobject
@@ -14,7 +14,7 @@
         1.0
     );
 
-    Info << "Creating divergence scheme blending factor field, TBlendingFactor..." << endl;
+    Info << "Creating divergence scheme blending factor field, TBlendingFactor" << endl;
     surfaceScalarField TBlendingFactor
     (
         IOobject
@@ -77,7 +77,7 @@
     surfaceScalarField dFace = mesh.Cf() & up;
     if (useWallDistZ)
     {
-        Info << "Calculating wall distance..." << endl;
+        Info << "Calculating wall distance" << endl;
         wallDist d(mesh);
         dFace = fvc::interpolate(d.y());
     }

@@ -68,7 +68,7 @@ class buoyancyModel
             const dimensionedScalar TRef_;
 
             //- Gravitational acceleration field
-            const uniformDimensionedVectorField& g_;
+            const uniformDimensionedVectorField g_;
 
         //- Boussinesq density field
         volScalarField rhok_;

@@ -1,5 +1,5 @@
 // Create and read the potential temperature field [K].
-Info << "Creating and reading potential temperature field, T..." << endl;
+Info << "Creating and reading potential temperature field, T" << endl;
 volScalarField T
 (
     IOobject
@@ -15,7 +15,7 @@ volScalarField T
 
 
 // Create and read the modified pressure field [m^2/s^2].
-Info << "Creating and reading the density-normalized modified pressure field, p_rgh..." << endl;
+Info << "Creating and reading the density-normalized modified pressure field, p_rgh" << endl;
 volScalarField p_rgh
 (
     IOobject
@@ -31,7 +31,7 @@ volScalarField p_rgh
 
 
 // Create and read the velocity field [m/s].
-Info << "Creating and reading velocity field, U..." << endl;
+Info << "Creating and reading velocity field, U" << endl;
 volVectorField U
 (
     IOobject
@@ -47,12 +47,12 @@ volVectorField U
 
 
 // Create and calculate the velocity flux [m^3/s].
-Info << "Creating and calculating velocity flux field, phi..." << endl;
+Info << "Creating and calculating velocity flux field, phi" << endl;
 #include "createPhi.H"
 
 
 // Set up the laminar (molecular) transport model.
-Info << "Creating and reading laminar transport properties..." << endl;
+Info << "Creating and reading laminar transport properties" << endl;
 singlePhaseTransportModel laminarTransport(U, phi);
 
 
@@ -65,7 +65,7 @@ dimensionedScalar Prt("Prt", dimless, laminarTransport);
 
 
 // Create the turbulence model.
-Info << "Creating and reading turbulent transport properties..." << endl;
+Info << "Creating and reading turbulent transport properties" << endl;
 autoPtr<incompressible::turbulenceModel> turbulence
 (
     incompressible::turbulenceModel::New(U, phi, laminarTransport)
@@ -73,18 +73,18 @@ autoPtr<incompressible::turbulenceModel> turbulence
 
 
 // Create Coriolis force object [m/s^2].
-Info << "Creating Coriolis force..." << endl;
+Info << "Creating Coriolis force" << endl;
 CoriolisForce Coriolis(U);
 
 
 // Create external source term objects [m/s^2 and K/s].
-Info << "Creating volumetric source terms for momentum and temperature..." << endl;
+Info << "Creating and reading volumetric source terms for momentum and temperature" << endl;
 DrivingForce<vector> momentumSourceTerm("momentum",U);
 DrivingForce<scalar> temperatureSourceTerm("temperature",T);
 
 
 // Create and read the kinematic turbulent thermal conductivity [m2/s].
-Info << "Creating and reading turbulent thermal conductivity field, kappat." << endl;
+Info << "Creating and reading turbulent thermal conductivity field, kappat" << endl;
 volScalarField kappat
 (
     IOobject
@@ -98,8 +98,9 @@ volScalarField kappat
     mesh
 );
 
+
 // Create and read the wall shear stress field [m^2/s^2].
-Info << "Creating and reading the wall shear stress field, Rwall..." << endl;
+Info << "Creating and reading the wall shear stress field, Rwall" << endl;
 volSymmTensorField Rwall
 (
     IOobject
@@ -113,8 +114,9 @@ volSymmTensorField Rwall
     mesh
 );
 
+
 // Create and read the wall temperature flux field [K-m/s].
-Info << "Creating and reading the wall temperature flux field, qwall..." << endl;
+Info << "Creating and reading the wall temperature flux field, qwall" << endl;
 volVectorField qwall
 (
     IOobject
@@ -129,23 +131,8 @@ volVectorField qwall
 );
 
 
-// Create and read the gravitational acceleration [m/s^2].
-Info << "Creating and reading the gravitational acceleration, g..." << endl;
-uniformDimensionedVectorField g
-(
-    IOobject
-    (
-        "g",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::NO_WRITE
-    )
-);
-
-
 // Create and read the density-normalied pressure field [m^2/s^2].
-Info << "Creating and reading the density-normalized pressure field, p..." << endl;
+Info << "Creating and reading the density-normalized pressure field, p" << endl;
 volScalarField p
 (
     IOobject
@@ -161,7 +148,7 @@ volScalarField p
 
 
 // Deal with reference pressure level.
-Info << "Setting reference pressure level..." << endl;
+Info << "Setting reference pressure level" << endl;
 label pRefCell = 0;
 scalar pRefValue = 0.0;
 setRefCell
@@ -176,7 +163,7 @@ setRefCell
 
 // Create buoyancy model, which requires a reference height, which is the height of
 // the pressure reference cell.
-Info << "Creating the Boussinesq buoyancy model..." << endl;
+Info << "Creating the Boussinesq buoyancy model" << endl;
 vector hRef_ = vector::zero;
 if (pRefCell != -1)
 {
@@ -190,6 +177,7 @@ buoyancyModel Boussinesq(T, TRef, hRef);
 
 // Adjust the background pressure level to agree with the reference pressure specified
 // at a certain location.
+Info << "Adjusting the background pressure level to agree with reference level" << endl;
 #include "adjustPressureLevel.H"
 
 

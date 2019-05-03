@@ -97,8 +97,21 @@ Foam::buoyancyModel::buoyancyModel
     // Set the reference temperature
     TRef_(TRef),
 
+    // Read the gravitational acceleration
+    g_
+    (
+        IOobject
+        (
+            "g",
+            runTime_.constant(),
+            mesh_,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
+
     // Initialize the gravitational acceleration field
-    g_(T.db().lookupObject<uniformDimensionedVectorField>("g")),
+  //g_(T.db().lookupObject<uniformDimensionedVectorField>("g")),
 
     // Initialize the Boussinesq density field
     rhok_
