@@ -5,7 +5,7 @@
           type                 planarAveraging;
           functionObjectLibs   ("libSOWFAfieldFunctionObjects.so");
           enabled              true;
-          writeInterval        timeStep;
+          writeControl         timeStep;
           writeInterval        $statisticsFrequency;
           fields
           (
