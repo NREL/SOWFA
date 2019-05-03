@@ -53,11 +53,14 @@ Description
         - \c setVerticalCompZero: set vertical part of source term to zero
 
     - when multiple source heights are specified:
-        - \c regOrder: Order of regression polynomial
+        - \c writeError: Write out error between horizontal averaged profile and given input profile
         - \c alpha: Weights of proportional and integral actions are alpha and (1-alpha), respectively
         - \c timeWindow: Time window of exponential time filter in integral action (s)
-        - \c writeError: Write out error between horizontal averaged profile and given input profile
-        - \c weightsTable: Table with weights versus height
+        - \c regSmoothing: smooth error by fitting a regression curve
+
+        - when \c regSmoothing is set to true
+            - \c regOrder: Order of regression polynomial
+            - \c weightsTable: Table with weights versus height
 
 Usage
     \table
@@ -68,10 +71,11 @@ Usage
         gain                        | Controller gain           | no        | 1.0
         inputType                   | How velocity is specified | no        | "component"
         setVerticalCompZero         | Set vertical part to zero | no        | true
-        regOrder                    | Regression order          | no        | 1
+        writeError                  | Write out error profile   | no        | false
         alpha                       | Ratio of P to I action    | no        | 1.0
         timeWindow                  | Time filter window        | no        | 3600.0
-        writeError                  | Write out error profile   | no        | false
+        regSmoothing                | Regression smoothing      | no        | true
+        regOrder                    | Regression order          | no        | 1
         weightsTable                | Table with weights        | no        |
         statisticsOn                | Write out source profile  | no        | false
         statisticsFrequency         | Writing frequency         | yes       |
@@ -165,20 +169,23 @@ class DrivingForce
         scalar hLevels1;
         scalar hLevels2;
 
-        //- Relaxation coefficient (1=P control, 0=I control)
-        scalar alpha_;
-
         //- Gain of PI controller
         scalar gain_;
+
+        //- Relaxation coefficient (1=P control, 0=I control)
+        scalar alpha_;
 
         //- Time scale of PI controller weighting function
         scalar timeWindow_;
 
+        //- Integrated error
+        List<Type> errorInt_;
+
         //- Weighted regression
+        bool regSmoothing_;
         label Nreg_;
         List<scalar> weights_;
         scalarRectangularMatrix Areg_;
-        scalarRectangularMatrix betaInt_;
 
         //- Write error profile?
         bool writeError_;
@@ -246,7 +253,7 @@ class DrivingForce
         void updateComputedTimeHeightDepSource_();
 
         //- Initialize controller
-        void initializeController_(label nSourceHeights);
+        void initializeController_();
 
         //- Update controller
         List<Type> updateController_(List<Type>& error);

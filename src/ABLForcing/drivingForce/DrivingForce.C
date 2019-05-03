@@ -408,41 +408,47 @@ void Foam::DrivingForce<Type>::readInputData_()
     // Profile assimilation
     if ((sourceType_ == "computed") && (nSourceHeights > 1))
     {
-        // Read in the controller parameters
-        label Nreg(sourceDict.lookupOrDefault<label>("regOrder",1));
-        Nreg_ = Nreg;
-
-        scalar alpha(sourceDict.lookupOrDefault<scalar>("alpha",1.0));
-        alpha_ = alpha;
-
-        scalar timeWindow(sourceDict.lookupOrDefault<scalar>("timeWindow",3600.0));
-        timeWindow_ = timeWindow;
-        
-        // Read in weights from table
-        List<List<scalar> > weightsTable(sourceDict.lookup("weightsTable"));
-        // Change from scalar lists to scalar fields
-        scalarField heights(weightsTable.size(),0.0);
-        scalarField weights(weightsTable.size(),0.0);
-        forAll(heights,i)
-        {
-           heights[i] = weightsTable[i][0];
-           weights[i] = weightsTable[i][1];
-        }
-        // Interpolate to planes
-        forAllPlanes(zPlanes_,planeI)
-        {
-            weights_.append(
-                    interpolateXY(zPlanes_.planeLocationValues()[planeI],heights,weights)
-                            );
-        }
-
-
-        // Initialize controller
-        initializeController_(nSourceHeights);
-
         // Write out error profile? 
         bool writeError(sourceDict.lookupOrDefault<bool>("writeError",false));
         writeError_ = writeError;
+
+        // Read in the controller parameters
+        scalar alpha(sourceDict.lookupOrDefault<scalar>("alpha",1.0));
+        alpha_ = alpha;
+    
+        scalar timeWindow(sourceDict.lookupOrDefault<scalar>("timeWindow",3600.0));
+        timeWindow_ = timeWindow;
+
+        // Smoothing by means of regression curve fitting
+        bool regSmoothing(sourceDict.lookupOrDefault<bool>("regSmoothing",true));
+        regSmoothing_ = regSmoothing;
+    
+        if (regSmoothing_)
+        {
+            label Nreg(sourceDict.lookupOrDefault<label>("regOrder",1));
+            Nreg_ = Nreg;
+            
+            // Read in weights from table
+            List<List<scalar> > weightsTable(sourceDict.lookup("weightsTable"));
+            // Change from scalar lists to scalar fields
+            scalarField heights(weightsTable.size(),0.0);
+            scalarField weights(weightsTable.size(),0.0);
+            forAll(heights,i)
+            {
+               heights[i] = weightsTable[i][0];
+               weights[i] = weightsTable[i][1];
+            }
+            // Interpolate to planes
+            forAllPlanes(zPlanes_,planeI)
+            {
+                weights_.append(
+                        interpolateXY(zPlanes_.planeLocationValues()[planeI],heights,weights)
+                                );
+            } 
+        }
+
+        // Initialize controller
+        initializeController_();
     }
 
 

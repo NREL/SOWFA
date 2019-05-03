@@ -29,61 +29,62 @@ License
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::initializeController_
-(
-    label nSourceHeights
-)
+void Foam::DrivingForce<Type>::initializeController_()
 {
-    //Initialize weighted regression
-    
     label Nz = zPlanes_.numberOfPlanes();
-    // Regression order
-    betaInt_ = scalarRectangularMatrix(Nreg_+1,nComponents_(),0.0);
-    // Matrix X
-    scalarRectangularMatrix X(Nz,Nreg_+1);
-    forAllPlanes(zPlanes_,planeI)
+
+    // Initialize integrated error
+    errorInt_ = List<Type>(Nz,zeroTensor_());
+
+    //Initialize weighted regression
+    if (regSmoothing_)
     {
+        // Matrix X
+        scalarRectangularMatrix X(Nz,Nreg_+1);
+        forAllPlanes(zPlanes_,planeI)
+        {
+            for (label i = 0; i < Nreg_+1; i++)
+            {
+                X[planeI][i] = Foam::pow(zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()),i);
+            }
+        }
+    
+        scalarDiagonalMatrix W(Nz,0.0);
+        forAllPlanes(zPlanes_,i)
+        {
+            W[i] = weights_[i];
+        }
+    
+        //Compute regression matrix
+        //- XtWX = X.T W X
+        scalarRectangularMatrix XtWX(Nreg_+1,Nreg_+1);
+        multiply(XtWX,X.T(),W,X);
+    
+        //- compute inverse of XtWX by
+        //  converting to symmetricSquareMatrix.
+        //  SVDinv could also be used but is less accurate
+        //  scalarRectangularMatrix XtWXinv = SVDinv(XtWX);
+        scalarSymmetricSquareMatrix Z(Nreg_+1);
         for (label i = 0; i < Nreg_+1; i++)
         {
-            X[planeI][i] = Foam::pow(zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()),i);
+            for (label j=0; j < Nreg_+1; j++)
+            {
+                Z[i][j] = XtWX[i][j];
+            }
         }
-    }
-
-    scalarDiagonalMatrix W(Nz,0.0);
-    forAllPlanes(zPlanes_,i)
-    {
-        W[i] = weights_[i];
-    }
-
-    //Compute regression matrix
-    //- XtWX = X.T W X
-    scalarRectangularMatrix XtWX(Nreg_+1,Nreg_+1);
-    multiply(XtWX,X.T(),W,X);
-
-    //- compute inverse of XtWX by
-    //  converting to symmetricSquareMatrix.
-    //  SVDinv could also be used but is less accurate
-    //  scalarRectangularMatrix XtWXinv = SVDinv(XtWX);
-    scalarSymmetricSquareMatrix Z(Nreg_+1);
-    for (label i = 0; i < Nreg_+1; i++)
-    {
-        for (label j=0; j < Nreg_+1; j++)
+        scalarSymmetricSquareMatrix Zinv=inv(Z);
+        scalarRectangularMatrix XtWXinv(Nreg_+1,Nreg_+1);
+        for (label i = 0; i < Nreg_+1; i++)
         {
-            Z[i][j] = XtWX[i][j];
+            for (label j=0; j < Nreg_+1; j++)
+            {
+                XtWXinv[i][j] = Zinv[i][j];
+            }
         }
+        
+        //- Areg = (X.T W X)^-1 X.T
+        multiply(Areg_,XtWXinv,X.T());
     }
-    scalarSymmetricSquareMatrix Zinv=inv(Z);
-    scalarRectangularMatrix XtWXinv(Nreg_+1,Nreg_+1);
-    for (label i = 0; i < Nreg_+1; i++)
-    {
-        for (label j=0; j < Nreg_+1; j++)
-        {
-            XtWXinv[i][j] = Zinv[i][j];
-        }
-    }
-    
-    //- Areg = (X.T W X)^-1 X.T
-    multiply(Areg_,XtWXinv,X.T());
 }
 
 
@@ -95,18 +96,29 @@ List<Type> Foam::DrivingForce<Type>::updateController_
 {
     // Get the current time step size.
     scalar dt = runTime_.deltaT().value();
-    
-    // Compute controller action
+
+    // Initialize auxiliary arrays
+    List<Type> smoothError(error.size(),zeroTensor_());
+    List<Type> effectiveError(error.size(),zeroTensor_());
     List<Type> source(error.size(),zeroTensor_());
-    scalarRectangularMatrix beta = computeRegressionCoeff_(error);
-    scalarRectangularMatrix beta_eff(Nreg_+1,nComponents_());
 
-    betaInt_ = Foam::exp(-dt/timeWindow_) * betaInt_ + dt/timeWindow_*beta;
-    beta_eff = alpha_*beta + (1.0-alpha_) * betaInt_;
+    // Apply regression smoothing
+    if (regSmoothing_)
+    {
+        scalarRectangularMatrix beta = computeRegressionCoeff_(error);
+        smoothError = constructRegressionCurve_(beta);
+    }
+    else
+    {
+        smoothError = error;
+    }
 
-    List<Type> regressionCurve = constructRegressionCurve_(beta_eff);
+    // PI control
+    errorInt_ = Foam::exp(-dt/timeWindow_) * errorInt_ + dt/timeWindow_*smoothError;
+    effectiveError  = alpha_*smoothError + (1.0-alpha_) * errorInt_;
 
-    source = gain_ * regressionCurve;
+    source = gain_ * effectiveError;
+
     return source;
 }
 

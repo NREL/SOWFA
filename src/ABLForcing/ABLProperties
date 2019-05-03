@@ -49,11 +49,12 @@ momentumSource
     // The following properties are only used
     // when type is "computed" and when multiple
     // source heights are specified
-    regOrder    3;                                  // Order of regression polynomial
-    alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
-    timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
-    writeError  false;                              // Write out error between horizontal averaged profile and given input profile.
-    weightsTable
+    writeError      false;                          // Write out error between horizontal averaged profile and given input profile.
+    alpha           0.2;                            // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow      3600.0;                         // Time window of exponential time filter in integral action (s).
+    regSmoothing    true;                           // Smooth error profile by fitting a regression curve
+    regOrder        3;                              // Order of regression polynomial (only used when regSmoothing is true)
+    weightsTable                                    // Table with weights (only used when regSmoothing is true)
     (
         //  z   weight
         (0.0        0.0)
@@ -74,11 +75,12 @@ temperatureSource
     // The following properties are only used
     // when type is "computed" and when multiple
     // source heights are specified
-    regOrder    3;                                  // Order of regression polynomial
-    alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
-    timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
-    writeError  false;                              // Write out error between horizontal averaged profile and given input profile.
-    weightsTable
+    writeError      false;                          // Write out error between horizontal averaged profile and given input profile.
+    alpha           0.2;                            // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow      3600.0;                         // Time window of exponential time filter in integral action (s).
+    regSmoothing    true;                           // Smooth error profile by fitting a regression curve
+    regOrder        3;                              // Order of regression polynomial (only used when regSmoothing is true)
+    weightsTable                                    // Table with weights (only used when regSmoothing is true)
     (
         //  z   weight
         (0.0        0.0)
