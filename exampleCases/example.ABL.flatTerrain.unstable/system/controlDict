@@ -17,7 +17,7 @@ FoamFile
 
   application       ABLSolver;
 
-  libs              ("libuserfiniteVolume.so" "libuserincompressibleLESModels.so");
+  libs              ("libSOWFAfiniteVolume.so" "libSOWFAincompressibleLESModels.so");
 
   startFrom         startTime;
 
@@ -25,13 +25,13 @@ FoamFile
 
   stopAt            endTime;
 
-  endTime           16000.0;
+  endTime           20000.0;
 
   deltaT            0.5;
 
   writeControl      adjustableRunTime;
 
-  writeInterval     1800.0; 
+  writeInterval     1000.0; 
 
   purgeWrite        0;
 
@@ -55,17 +55,7 @@ FoamFile
 
   functions
   {
-     #include "sampling/probeData1"
-     #include "sampling/probeData2"
-     #include "sampling/probeData3"
-     #include "sampling/probeData4"
-     #include "sampling/probeData5"
-     #include "sampling/probeData1S"
-     #include "sampling/probeData2S"
-     #include "sampling/probeData3S"
-     #include "sampling/probeData4S"
-     #include "sampling/probeData5S"
-     #include "sampling/sliceDataInstantaneous"
+     #include "sampling/planarAverages"
   }
 
 // ************************************************************************* //

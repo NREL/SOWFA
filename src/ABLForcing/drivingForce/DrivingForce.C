@@ -118,8 +118,14 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
     // Compute the source term
     Type ds = (fldMeanDesired - fldMean) / dt;
 
+    // Subtract off any vertical part
+    if (setVerticalCompZero_)
+    {
+        ds = subtractVerticalPart_(ds);
+    }
+
     // Apply the relaxation
-    ds *= alpha_;
+    ds *= gain_;
 
     // Update the source term
     forAll(bodyForce_,cellI)
@@ -151,8 +157,20 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
     // Compute the error at each cell level
     List<Type> fldError = fldMeanDesired - fldMean;
 
+    // Write the error
+    writeErrorHistory_(fldError);
+
     // Compute the controller action
     List<Type> source = updateController_(fldError);
+
+    // Subtract off any vertical part
+    if (setVerticalCompZero_)
+    {
+        forAllPlanes(zPlanes_,planeI)
+        {
+            source[planeI] = subtractVerticalPart_(source[planeI]);
+        }
+    }
 
     // Now go by cell levels and apply the source term
     forAllPlanes(zPlanes_,planeI)
@@ -192,6 +210,26 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
 
 
 template<class Type>
+void Foam::DrivingForce<Type>::writeErrorHistory_
+(
+    Type& error
+)
+{
+    // Write the error information.
+    if (Pstream::master())
+    {
+        if (statisticsOn_)
+        {
+            if (runTime_.timeIndex() % statisticsFreq_ == 0)
+            {
+                errorHistoryFile_() << runTime_.timeName() << " " << runTime_.deltaT().value() << " " << error << endl;
+            }
+        }
+    }
+}
+
+
+template<class Type>
 void Foam::DrivingForce<Type>::writeSourceHistory_
 (
     List<Type>& source
@@ -218,7 +256,36 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
 }
 
 
-// In general, input type speedAndDirection is not supported
+template<class Type>
+void Foam::DrivingForce<Type>::writeErrorHistory_
+(
+    List<Type>& error
+)
+{
+    // Write the column of source information.
+    if (Pstream::master())
+    {
+        if (writeError_)
+        {
+            if (runTime_.timeIndex() % statisticsFreq_ == 0)
+            {
+                errorHistoryFile_() << runTime_.timeName() << " " << runTime_.deltaT().value();
+
+                forAllPlanes(zPlanes_,planeI)
+                {
+                   errorHistoryFile_() << " " << error[planeI];
+                }
+
+                errorHistoryFile_() << endl;
+            }
+        }
+    }
+}
+
+
+// In general:
+// - input type speedAndDirection is not supported
+// - subtractVerticalPart does nothing
 template<class Type>
 Type Foam::DrivingForce<Type>::speedDirToComp_
 (
@@ -234,7 +301,20 @@ Type Foam::DrivingForce<Type>::speedDirToComp_
 }
 
 
-// Specialization for Type vector where input type speedAndDirection is supported
+template<class Type>
+Type Foam::DrivingForce<Type>::subtractVerticalPart_
+(
+    Type source
+)
+{
+    //Do nothing, just return input
+    return source;
+}
+
+
+// Specialization for Type vector
+// - input type speedAndDirection is supported
+// - subtractVerticalPart is supported
 namespace Foam
 {
     template<>
@@ -246,6 +326,19 @@ namespace Foam
         vector fldMeanDesired = windRoseToCartesian(desiredField.x(),desiredField.y());
         fldMeanDesired.z() = desiredField.z();
         return fldMeanDesired;
+    }
+
+
+    template<>
+    vector Foam::DrivingForce<vector>::subtractVerticalPart_
+    (
+        vector source
+    )
+    {
+        vector nUp(vector::zero);
+        nUp.z() = 1.0;
+        source -= (source & nUp) * nUp;
+        return source;
     }
 }
 
@@ -266,7 +359,8 @@ void Foam::DrivingForce<Type>::readInputData_()
         )
     );
 
-    // PROPERTIES CONCERNING THE SOURCE TERMS.
+    // PROPERTIES CONCERNING THE SOURCE TERM.
+    const dictionary& sourceDict(ABLProperties.subOrEmptyDict(name_ & "Source"));
 
     // Specify the type of source to use.  The
     // possible types are "given" and "computed".  
@@ -274,7 +368,7 @@ void Foam::DrivingForce<Type>::readInputData_()
     //   and the momentum and temperature fields will react accordingly.  
     // - The "computed" type means that the mean velocity and temperature
     //   are given and the source terms that maintain them are computed. 
-    word sourceType(ABLProperties.lookup(name_ & "SourceType"));
+    word sourceType(sourceDict.lookup("type"));
     sourceType_ = sourceType;
     
 
@@ -284,31 +378,80 @@ void Foam::DrivingForce<Type>::readInputData_()
     // direction, and vertical component.
     if (name_ == "momentum")
     {
-        word velocityInputType(ABLProperties.lookup("velocityInputType"));
+        word velocityInputType(sourceDict.lookupOrDefault<word>("inputType","component"));
         velocityInputType_ = velocityInputType;
+
+        bool setVerticalCompZero(sourceDict.lookupOrDefault<bool>("setVerticalCompZero",true));
+        setVerticalCompZero_ = setVerticalCompZero;
     }
     else
     {
         velocityInputType_ = "component";
+        setVerticalCompZero_ = false;
     }
     
 
     // Read in the heights at which the sources are given.
-    List<scalar> sourceHeightsSpecified = ABLProperties.lookup("sourceHeights" & name_);
+    List<scalar> sourceHeightsSpecified = sourceDict.lookup("sourceHeights" & name_);
     sourceHeightsSpecified_ = sourceHeightsSpecified;
     label nSourceHeights = sourceHeightsSpecified_.size();
 
 
     // Read in the source table(s) vs. time and height
-    readSourceTables_(ABLProperties,nSourceHeights);
+    readSourceTables_(sourceDict,nSourceHeights);
 
 
-    // Read in controller properties.
-    scalar alpha(ABLProperties.lookupOrDefault<scalar>("alpha" & name_,1.0));
-    alpha_ = alpha;
+    // Read in the controller gain
+    scalar gain(sourceDict.lookupOrDefault<scalar>("gain",1.0));
+    gain_ = gain;
+
+
+    // Profile assimilation
+    if ((sourceType_ == "computed") && (nSourceHeights > 1))
+    {
+        // Write out error profile? 
+        bool writeError(sourceDict.lookupOrDefault<bool>("writeError",false));
+        writeError_ = writeError;
+
+        // Read in the controller parameters
+        scalar alpha(sourceDict.lookupOrDefault<scalar>("alpha",1.0));
+        alpha_ = alpha;
     
-    // Initialize controller
-    initializeController_(nSourceHeights);
+        scalar timeWindow(sourceDict.lookupOrDefault<scalar>("timeWindow",3600.0));
+        timeWindow_ = timeWindow;
+
+        // Smoothing by means of regression curve fitting
+        bool regSmoothing(sourceDict.lookupOrDefault<bool>("regSmoothing",true));
+        regSmoothing_ = regSmoothing;
+    
+        if (regSmoothing_)
+        {
+            label Nreg(sourceDict.lookupOrDefault<label>("regOrder",1));
+            Nreg_ = Nreg;
+            
+            // Read in weights from table
+            List<List<scalar> > weightsTable(sourceDict.lookup("weightsTable"));
+            // Change from scalar lists to scalar fields
+            scalarField heights(weightsTable.size(),0.0);
+            scalarField weights(weightsTable.size(),0.0);
+            forAll(heights,i)
+            {
+               heights[i] = weightsTable[i][0];
+               weights[i] = weightsTable[i][1];
+            }
+            // Interpolate to planes
+            forAllPlanes(zPlanes_,planeI)
+            {
+                weights_.append(
+                        interpolateXY(zPlanes_.planeLocationValues()[planeI],heights,weights)
+                                );
+            } 
+        }
+
+        // Initialize controller
+        initializeController_();
+    }
+
 
     // If the desired mean wind or temperature is given at only one height, then revert to
     // the old way of specifying the source term.  Find the two grid levels that bracket
@@ -335,7 +478,7 @@ void Foam::DrivingForce<Type>::readInputData_()
 template<class Type>
 void Foam::DrivingForce<Type>::readSourceTables_
 (
-    IOdictionary& ABLProperties,
+    const dictionary& sourceDict,
     label& nSourceHeights
 )
 {
@@ -346,7 +489,7 @@ void Foam::DrivingForce<Type>::readSourceTables_
         word sourceTableName = ("sourceTable" & name_) & Type::componentNames[i];
 
         Info << "Reading " << sourceTableName << endl;
-        List<List<scalar> > sourceTable( ABLProperties.lookup(sourceTableName) );
+        List<List<scalar> > sourceTable( sourceDict.lookup(sourceTableName) );
 
         checkSourceTableSize_( sourceTableName, sourceTable, nSourceHeights);
 
@@ -383,14 +526,14 @@ namespace Foam
     template<>
     void DrivingForce<scalar>::readSourceTables_
     (
-        IOdictionary& ABLProperties,
+        const dictionary& sourceDict,
         label& nSourceHeights
     )
     {
         word sourceTableName = "sourceTable" & name_;
 
         Info << "Reading " << sourceTableName << endl;
-        List<List<scalar> > sourceTable( ABLProperties.lookup(sourceTableName) );
+        List<List<scalar> > sourceTable( sourceDict.lookup(sourceTableName) );
 
         checkSourceTableSize_( sourceTableName, sourceTable, nSourceHeights);
     
@@ -527,6 +670,25 @@ void Foam::DrivingForce<Type>::openFiles_()
         }
 
         sourceHistoryFile_() << "Time(s)" << " " << "dt (s)" << " " << "source term " << bodyForce_.dimensions() << endl;
+        
+        //File for saving the error
+        if (writeError_)
+        {
+            word errorFileName = ("Error" & name_) & "History";
+            errorHistoryFile_.reset(new OFstream(outputPath/errorFileName));
+            
+            if (sourceHeightsSpecified_.size() > 1)
+            {
+                errorHistoryFile_() << "Heights (m) ";
+                forAllPlanes(zPlanes_,planeI)
+                {
+                    errorHistoryFile_() << zPlanes_.planeLocationValues()[planeI] << " ";
+                }
+                errorHistoryFile_() << endl;
+            }
+
+            errorHistoryFile_() << "Time(s)" << " " << "dt (s)" << " " << "error term " << endl;
+        }
     }
 }
 
@@ -576,7 +738,7 @@ Foam::DrivingForce<Type>::DrivingForce
     hLevels1(0.0),
     hLevels2(0.0)
 {
-    Info << "Creating driving force object with for " << name_ << endl;
+    Info << "Creating driving force object for " << name_ << endl;
 
     readInputData_();
     openFiles_();

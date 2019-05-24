@@ -25,7 +25,60 @@ Class
     Foam::DrivingForce<Type>
 
 Description
-    Driving force
+    Determine the driving force
+
+    There are two possible types of source terms:
+    - "given": the source values are directly given
+      and the flow field will react accordingly.
+    - "computed": the mean profiles
+      are given and the source terms that maintain them are computed.
+
+    Each object of this class has a name. The name is used to identify
+    input parameters. Some special feature are available when name
+    equals "momentum"
+
+    General input besides \c type include:
+    - \c sourceHeights<name>: heights at which the sources are given
+    - \c sourceTable<name>[<componentName>]: source table versus
+            time and height (componentwise)
+
+    Additional input when type is \c computed:
+    - \c gain: controller gain
+
+    - when name equals "momentum:
+        - \c inputType: specify how the velocity is given
+                        - "component" means the x, y and z components are specified,
+                        - "speedAndDirection" means horizontal wind speed and cardinal direction,
+                          and vertical component are specified
+        - \c setVerticalCompZero: set vertical part of source term to zero
+
+    - when multiple source heights are specified:
+        - \c writeError: Write out error between horizontal averaged profile and given input profile
+        - \c alpha: Weights of proportional and integral actions are alpha and (1-alpha), respectively
+        - \c timeWindow: Time window of exponential time filter in integral action (s)
+        - \c regSmoothing: smooth error by fitting a regression curve
+
+        - when \c regSmoothing is set to true
+            - \c regOrder: Order of regression polynomial
+            - \c weightsTable: Table with weights versus height
+
+Usage
+    \table
+        Property                    | Description               | Required  | Default
+        type                        | Type of source to use     | yes       |
+        sourceHeights<name>         | Source heights            | yes       |
+        sourceTable<name>[<...>]    | Source table              | yes       |
+        gain                        | Controller gain           | no        | 1.0
+        inputType                   | How velocity is specified | no        | "component"
+        setVerticalCompZero         | Set vertical part to zero | no        | true
+        writeError                  | Write out error profile   | no        | false
+        alpha                       | Ratio of P to I action    | no        | 1.0
+        timeWindow                  | Time filter window        | no        | 3600.0
+        regSmoothing                | Regression smoothing      | no        | true
+        regOrder                    | Regression order          | no        | 1
+        weightsTable                | Table with weights        | no        |
+        statisticsOn                | Write out source profile  | no        | false
+        statisticsFrequency         | Writing frequency         | yes       |
 
 SourceFiles
     DrivingForce.C
@@ -39,7 +92,9 @@ SourceFiles
 #include "IOdictionary.H"
 #include "meshPlanes.H"
 #include "interpolate2D.H"
+#include "interpolateXY.H"
 #include "windRoseToCartesian.H"
+#include "scalarMatrices.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -93,11 +148,17 @@ class DrivingForce
         //- Output file pointer
         autoPtr<OFstream> sourceHistoryFile_;
 
+        //- Output file pointer
+        autoPtr<OFstream> errorHistoryFile_;
+
         //- Type of source
         word sourceType_;
 
         //- Velocity input type (only used when name_ == "momentum")
         word velocityInputType_;
+
+        //- Set vertical component to zero (only for Type vector)
+        bool setVerticalCompZero_;
 
         //- Heights at which the sources are given
         List<scalar> sourceHeightsSpecified_;
@@ -108,8 +169,26 @@ class DrivingForce
         //- Source interpolation table
         List<List<Type> > sourceSpecified_;
 
-        //- Relaxation coefficient
+        //- Gain of PI controller
+        scalar gain_;
+
+        //- Relaxation coefficient (1=P control, 0=I control)
         scalar alpha_;
+
+        //- Time scale of PI controller weighting function
+        scalar timeWindow_;
+
+        //- Integrated error
+        List<Type> errorInt_;
+
+        //- Weighted regression
+        bool regSmoothing_;
+        label Nreg_;
+        List<scalar> weights_;
+        scalarRectangularMatrix Areg_;
+
+        //- Write error profile?
+        bool writeError_;
 
         //- Gather/write statistics?
         bool statisticsOn_;
@@ -128,6 +207,13 @@ class DrivingForce
         }
 
 
+        //- Return number of components
+        label nComponents_()
+        {
+            return Type::nComponents;
+        }
+
+
         //- Read input data from ABLProperties dictionary
         void readInputData_();
 
@@ -135,7 +221,7 @@ class DrivingForce
         //- Read source tables (componentwise)
         void readSourceTables_
         (
-            IOdictionary& ABLProperties,
+            const dictionary& sourceDict,
             label& nSourceHeights
         );
             
@@ -167,20 +253,33 @@ class DrivingForce
         void updateComputedTimeHeightDepSource_();
 
         //- Initialize controller
-        void initializeController_(label nSourceHeights);
+        void initializeController_();
 
         //- Update controller
         List<Type> updateController_(List<Type>& error);
 
+        //- Compute regression coefficients
+        scalarRectangularMatrix computeRegressionCoeff_(List<Type>& y);
+
+        //- Construct regression curve
+        List<Type> constructRegressionCurve_(scalarRectangularMatrix& beta);
+
         //- Write source history to file (single value or column of values)
         void writeSourceHistory_(Type& source);
         void writeSourceHistory_(List<Type>& source);
+
+        //- Write error history to file (single value or column of values)
+        void writeErrorHistory_(Type& error);
+        void writeErrorHistory_(List<Type>& error);
 
         //- Convert speedAndDirection input to components (only for Type vector)
         Type speedDirToComp_
         (
             Type desiredField
         );
+
+        //- Subtract off vertical part (only for Type vector)
+        Type subtractVerticalPart_(Type source);
 
 public:
 
@@ -221,6 +320,13 @@ template<>
 scalar DrivingForce<scalar>::zeroTensor_()
 {
     return 0.0;
+}
+
+
+template<>
+label DrivingForce<scalar>::nComponents_()
+{
+    return 1;
 }
 
 

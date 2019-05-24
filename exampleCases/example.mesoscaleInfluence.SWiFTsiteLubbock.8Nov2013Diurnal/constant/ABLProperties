@@ -1,0 +1,98 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.4.x                                 |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          ABLProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "../setUp"
+
+
+// Properties of the mesoscale source terms
+momentumSource
+{
+    // General input parameters
+    type        "given";                            // Type of source to use
+    //type        "computed";
+    inputType   "component";                        // Specific for momentum and only used when type is "computed":
+                                                    // - "component" means the x, y and z components are specified,
+                                                    // - "speedAndDirection" means wind speed, wind direction and vertical component are specified.
+    gain        0.0168;                             // Controller gain (only used when type is "computed")
+    
+    // Source Table
+    #include "../forcing/forcingTable"              // Use with type "given"
+    //#include "../forcing/fieldTable"              // Use with type "computed"
+
+    // The following properties are only used
+    // when type is "computed" and when multiple
+    // source heights are specified
+    regOrder    3;                                  // Order of regression polynomial
+    alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
+    writeError  false;                              // Write out error between horizontal averaged profile and given input profile.
+    weightsTable
+    (
+        //  z   weight
+        (0.0        0.0)
+        (1000.0     1.0)
+        (4000.0     1.0)
+    );
+}
+
+
+temperatureSource
+{
+    // General input parameters
+    type        "given";                            // Type of source to use
+    //type        "computed";
+    gain        0.0168;                             // Controller gain (only used when type is "computed")
+
+    // Source Table
+    #include "../forcing/forcingTable"              // Use with type "given"
+    //#include "../forcing/fieldTable"              // Use with type "computed"
+
+    // The following properties are only used
+    // when type is "computed" and when multiple
+    // source heights are specified
+    regOrder    3;                                  // Order of regression polynomial
+    alpha       0.2;                                // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow  3600.0;                             // Time window of exponential time filter in integral action (s).
+    writeError  false;                              // Write out error between horizontal averaged profile and given input profile.
+    weightsTable
+    (
+        //  z   weight
+        (0.0        0.0)
+        (1000.0     1.0)
+        (4000.0     1.0)
+    );
+}
+
+
+// Properties of the Coriolis force
+planetaryRotationPeriod   $EarthPeriod;             // Latitude on the Earth of the site (deg).
+latitude                  $latitude;                // Earth's rotation period (hr).
+
+
+// Statistics gathering input
+statisticsOn              $statisticsOn;
+statisticsFrequency       $statisticsFrequency;
+
+
+// ************************************************************************* //
