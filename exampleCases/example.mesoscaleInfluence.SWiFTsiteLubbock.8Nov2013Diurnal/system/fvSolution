@@ -34,7 +34,7 @@ solvers
             agglomerator    faceAreaPair;
             mergeLevels     2;
         }
-        tolerance       1e-05;
+        tolerance       1e-06;
         relTol          0.01;
         maxIter         1000;
     }

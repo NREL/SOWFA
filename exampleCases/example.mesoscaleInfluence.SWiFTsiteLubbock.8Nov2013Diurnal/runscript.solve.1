@@ -1,21 +1,24 @@
 #!/bin/bash
-#PBS -l walltime=24:00:00
-#PBS -l nodes=42:ppn=24
-#PBS -l feature=haswell
-#PBS -A windFlowModeling
-#PBS -q large
-#PBS -l qos=high
+#SBATCH --job-name=SWiFT8Nov2013                # Job name
+#SBATCH --time=4-00:00:00                       # Walltime
+#SBATCH --nodes=28                              # Number of nodes
+#SBATCH --ntasks-per-node=36                    # Number of processors per node
+#SBATCH --account=??                            # Allocation
+#SBATCH --mail-user firstname.lastname@nrel.gov # E-mail adres
+#SBATCH --mail-type BEGIN,END,FAIL              # Send e-mail when job begins, ends or fails
 
 source $HOME/.bash_profile
-OpenFOAM-2.4.x
+OpenFOAM-2.4.x-central
 module list
 
-cd $PBS_O_WORKDIR
+cd $SLURM_SUBMIT_DIR
 
 cores=1000
 
 initializer=setFieldsABL
 solver=ABLSolver
+which $solver
+
 runNumber=1
 startTime=43200
 
@@ -27,10 +30,10 @@ echo "using " $cores " cores"
 # Run the flow field initializer (parallel)
 if [ $runNumber -eq 1 ] 
    then
-   mpirun -np $cores $initializer -parallel > log.$runNumber.$initializer 2>&1
+   srun -n $cores $initializer -parallel > log.$runNumber.$initializer 2>&1
 fi
 
 # Run the solver (parallel)
-mpirun -np $cores $solver -parallel > log.$runNumber.$solver 2>&1
+srun -n $cores $solver -parallel > log.$runNumber.$solver 2>&1
 
 echo "Ending OpenFOAM job at: " $(date)
