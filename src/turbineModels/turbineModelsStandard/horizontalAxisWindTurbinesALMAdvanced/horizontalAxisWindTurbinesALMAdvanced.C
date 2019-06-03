@@ -1696,17 +1696,25 @@ void horizontalAxisWindTurbinesALMAdvanced::controlNacYaw()
         }
 
       //Info << "nacYaw = " << nacYaw << endl;
-        if (((nacYawCommanded - nacYaw[i]) / degRad) <= -180.0)
+        deltaNacYaw[i] = nacYawCommanded - nacYaw[i]; // Standard calculation of delta yaw
+        // Ensure deltaNacYaw lies within [-360, 360] deg 
+        if ((deltaNacYaw[i] / degRad) <= - 360.0)
         {
-            deltaNacYaw[i] = nacYawCommanded - nacYaw[i] + (360.0*degRad);
+            deltaNacYaw[i] = deltaNacYaw[i] + (360.0*degRad);
         }
-        else if (((nacYawCommanded - nacYaw[i]) / degRad) <= 180.0)
+        else if ((deltaNacYaw[i] / degRad) >= 360.0)
         {
-            deltaNacYaw[i] = nacYawCommanded - nacYaw[i];
+            deltaNacYaw[i] = deltaNacYaw[i] - (360.0*degRad);
+        }        
+        
+        // Now find the shortest distance to the setpoint
+        if ((deltaNacYaw[i] / degRad) <= - 180.0)
+        {
+            deltaNacYaw[i] = deltaNacYaw[i] + (360.0*degRad);
         }
-        else
+        else if ((deltaNacYaw[i] / degRad) >= 180.0)
         {
-            deltaNacYaw[i] = nacYawCommanded - nacYaw[i] - (360.0*degRad);
+            deltaNacYaw[i] = deltaNacYaw[i] - (360.0*degRad);
         }
       //Info << "deltaNacYaw = " << deltaNacYaw / degRad << endl;
    
