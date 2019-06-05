@@ -31,7 +31,7 @@ License
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateGivenTimeDepSource_()
+void Foam::DrivingForce<Type>::updateGivenTimeDepSource_(bool writeIter)
 {
     // Interpolate specified source to current time
     Type source = interpolate2D(runTime_.value(),
@@ -49,12 +49,12 @@ void Foam::DrivingForce<Type>::updateGivenTimeDepSource_()
 
 
     // Write the source information.
-    writeSourceHistory_(source);
+    writeSourceHistory_(source,writeIter);
 }
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_()
+void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_(bool writeIter)
 {
     // Interpolate specified source values in time and height
     List<Type> source = interpolate2D(runTime_.value(),
@@ -76,12 +76,12 @@ void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_()
 
 
     // Write the column of source information.
-    writeSourceHistory_(source);
+    writeSourceHistory_(source,writeIter);
 }
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
+void Foam::DrivingForce<Type>::updateComputedTimeDepSource_(bool writeIter)
 {
     // Get the current time step size.
     scalar dt = runTime_.deltaT().value();
@@ -130,12 +130,12 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
     bodyForce_.correctBoundaryConditions();
     
     // Write the source information
-    writeSourceHistory_(ds);
+    writeSourceHistory_(ds,writeIter);
 }
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
+void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_(bool writeIter)
 {
     // Interpolate specified source values in time and height
     List<Type> fldMeanDesired = interpolate2D(runTime_.value(),
@@ -167,20 +167,21 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
 
 
     // Write the column of source information.
-    writeSourceHistory_(source);
+    writeSourceHistory_(source,writeIter);
 }
 
 
 template<class Type>
 void Foam::DrivingForce<Type>::writeSourceHistory_
 (
-    Type& source
+    Type& source,
+    bool writeIter
 )
 {
     // Write the source information.
-    if (Pstream::master())
+    if (writeIter)
     {
-        if (statisticsOn_)
+        if (Pstream::master())
         {
             if (runTime_.timeIndex() % statisticsFreq_ == 0)
             {
@@ -194,13 +195,14 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
 template<class Type>
 void Foam::DrivingForce<Type>::writeSourceHistory_
 (
-    List<Type>& source
+    List<Type>& source,
+    bool writeIter
 )
 {
     // Write the column of source information.
-    if (Pstream::master())
+    if (writeIter)
     {
-        if (statisticsOn_)
+        if (Pstream::master())
         {
             if (runTime_.timeIndex() % statisticsFreq_ == 0)
             {
@@ -208,7 +210,7 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
 
                 forAllPlanes(zPlanes_,planeI)
                 {
-                   sourceHistoryFile_() << " " << source[planeI];
+                    sourceHistoryFile_() << " " << source[planeI];
                 }
 
                 sourceHistoryFile_() << endl;
@@ -318,13 +320,6 @@ void Foam::DrivingForce<Type>::readInputData_()
     {
         findSingleForcingHeight_();
     }
-
-
-    // PROPERTIES CONCERNING GATHERING STATISTICS
-
-    // Gather/write statistics?
-    bool statisticsOn(ABLProperties.lookupOrDefault<bool>("statisticsOn",false));
-    statisticsOn_ = statisticsOn;
 
     // Statistics gathering/writing frequency?
     int statisticsFreq(int(readScalar(ABLProperties.lookup("statisticsFrequency"))));
@@ -593,7 +588,7 @@ Foam::DrivingForce<Type>::~DrivingForce()
 // * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * //
 
 template<class Type>
-void Foam::DrivingForce<Type>::update()
+void Foam::DrivingForce<Type>::update(bool writeIter)
 {
     // Source terms are applied directly as given
     if (sourceType_ == "given")
@@ -603,13 +598,13 @@ void Foam::DrivingForce<Type>::update()
         // given value as a function of time only.
         if (sourceHeightsSpecified_.size() == 1)
         {
-            updateGivenTimeDepSource_();
+            updateGivenTimeDepSource_(writeIter);
         }
 
         // Otherwise, set the source as a function of height and time
         else
         {
-            updateGivenTimeHeightDepSource_();
+            updateGivenTimeHeightDepSource_(writeIter);
         }
     }
 
@@ -621,13 +616,13 @@ void Foam::DrivingForce<Type>::update()
         // dimensions, the same as in the original ABLSolver.
         if (sourceHeightsSpecified_.size() == 1)
         {
-            updateComputedTimeDepSource_();
+            updateComputedTimeDepSource_(writeIter);
         }
 
         // Otherwise, set the source as a function of height and time
         else
         {
-            updateComputedTimeHeightDepSource_();
+            updateComputedTimeHeightDepSource_(writeIter);
         }
     }
 }

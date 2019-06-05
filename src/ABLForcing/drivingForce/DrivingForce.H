@@ -111,9 +111,6 @@ class DrivingForce
         //- Relaxation coefficient
         scalar alpha_;
 
-        //- Gather/write statistics?
-        bool statisticsOn_;
-
         //- Statistics gathering/writing frequency?
         int statisticsFreq_;
 
@@ -155,16 +152,16 @@ class DrivingForce
         void openFiles_();
 
         //- Update given time-dependent source term
-        void updateGivenTimeDepSource_();
+        void updateGivenTimeDepSource_(bool writeIter);
 
         //- Update given time-height-dependent source term
-        void updateGivenTimeHeightDepSource_();
+        void updateGivenTimeHeightDepSource_(bool writeIter);
 
         //- Update computed time-dependent source term
-        void updateComputedTimeDepSource_();
+        void updateComputedTimeDepSource_(bool writeIter);
 
         //- Update computed time-height-dependent source term
-        void updateComputedTimeHeightDepSource_();
+        void updateComputedTimeHeightDepSource_(bool writeIter);
 
         //- Initialize controller
         void initializeController_(label nSourceHeights);
@@ -173,8 +170,8 @@ class DrivingForce
         List<Type> updateController_(List<Type>& error);
 
         //- Write source history to file (single value or column of values)
-        void writeSourceHistory_(Type& source);
-        void writeSourceHistory_(List<Type>& source);
+        void writeSourceHistory_(Type& source, bool writeIter);
+        void writeSourceHistory_(List<Type>& source, bool writeIter);
 
         //- Convert speedAndDirection input to components (only for Type vector)
         Type speedDirToComp_
@@ -203,7 +200,7 @@ public:
     // Public Member functions
 
         //- Update source term
-        void update();
+        void update(bool writeIter);
 
         //- Return bodyforce
         volFieldType& force()
