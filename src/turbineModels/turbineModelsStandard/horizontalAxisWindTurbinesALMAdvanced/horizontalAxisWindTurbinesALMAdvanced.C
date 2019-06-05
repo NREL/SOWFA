@@ -697,6 +697,9 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
     totNacellePoints = 0;
     totTowerPoints = 0;
     Random rndGen(123456);
+
+    bladePointAirfoil.setSize(numTurbines);
+    towerPointAirfoil.setSize(numTurbines);
     for(int i = 0; i < numTurbines; i++)
     {
         int j = turbineTypeID[i];
@@ -741,9 +744,12 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         bladePointTwist.append(List<List<scalar> >(NumBl[j], List<scalar>(numBladePoints[i],0.0)));
         bladePointThickness.append(List<List<scalar> >(NumBl[j], List<scalar>(numBladePoints[i],0.0)));
         bladePointUserDef.append(List<List<scalar> >(NumBl[j], List<scalar>(numBladePoints[i],0.0)));
-        bladePointAirfoil.append(List<List<label> >(NumBl[j], List<label>(numBladePoints[i],0)));
+        bladePointAirfoil[i].setSize(NumBl[j]);
+      //bladePointAirfoil.append(List<List<label> >(NumBl[j], List<label>(numBladePoints[i],0)));
         for(int k = 0; k < NumBl[j]; k++)
         {
+
+            bladePointAirfoil[i][k].setSize(numBladePoints[i]);
             vector root = rotorApex[i];
             scalar beta = PreCone[j][k] - ShftTilt[j];
             root.x() = root.x() + HubRad[j]*Foam::sin(beta);
@@ -808,7 +814,8 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         towerPointTwist.append(List<scalar>(numTowerPoints[i],0.0));
         towerPointThickness.append(List<scalar>(numTowerPoints[i],0.0));
         towerPointUserDef.append(List<scalar>(numTowerPoints[i],0.0));
-        towerPointAirfoil.append(List<label>(numTowerPoints[i],0));
+      //towerPointAirfoil.append(List<label>(numTowerPoints[i],0));
+        towerPointAirfoil[i].setSize(numTowerPoints[i]);
         {
            towerPoints[i][0] = baseLocation[i];
          //towerPoints[i][0].z() += 0.5*towerDs[i][0];
@@ -880,7 +887,7 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
             {
                 for(int m = 0; m < numBladePoints[i]; m++)
                 {
-                    bladePointsPerturbVector[i][k][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
+                    bladePointsPerturbVector[i][k][m] = perturb*(2.0*rndGen.sample01<vector>()-vector::one); 
                 }
             }
         }
@@ -890,14 +897,14 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         {
             for(int m = 0; m < numTowerPoints[i]; m++)
             {
-                towerPointsPerturbVector[i][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
+                towerPointsPerturbVector[i][m] = perturb*(2.0*rndGen.sample01<vector>()-vector::one); 
             }
         }
 
         nacellePointPerturbVector.append(vector::zero);
         if(Pstream::myProcNo() == 0)
         {
-            nacellePointPerturbVector[i] = perturb*(2.0*rndGen.vector01()-vector::one);
+            nacellePointPerturbVector[i] = perturb*(2.0*rndGen.sample01<vector>()-vector::one);
         }
 
 
@@ -988,9 +995,9 @@ horizontalAxisWindTurbinesALMAdvanced::horizontalAxisWindTurbinesALMAdvanced
         generatorPower.append(0.0);
 
         // Define the size of the cell-containing-actuator-point-sampling ID list and set to -1.
-        bladeMinDisCellID.append(List<List<label> >(NumBl[j], List<label>(numBladePoints[i],-1)));
+        bladeMinDisCellID.append(List<List<int> >(NumBl[j], List<int>(numBladePoints[i],-1)));
         nacelleMinDisCellID.append(-1);
-        towerMinDisCellID.append(List<label>(numTowerPoints[i],-1));
+        towerMinDisCellID.append(List<int>(numTowerPoints[i],-1));
 
         DynamicList<label> influenceCellsI;
         bladeInfluenceCells.append(influenceCellsI);
