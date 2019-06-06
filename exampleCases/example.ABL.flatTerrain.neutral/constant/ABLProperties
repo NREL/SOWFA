@@ -25,54 +25,57 @@ FoamFile
 #include        "../setUp"
 
 
+// Properties of the background forcing source term
+momentumSource
+{
+    type        "computed";
+    inputType   "speedAndDirection";
 
-// Properties of the background forcing source terms
-momentumSourceType       "computed";
-temperatureSourceType    "given";
+    //Relaxation factor (only used when type is "computed")
+    gain        0.7;
 
-velocityInputType        "speedAndDirection";
+    sourceHeightsMomentum
+    (
+        $windControlHeight
+    );
+    
+    sourceTableMomentumX
+    (
+        (    0.0 $windSpeed)
+        (90000.0 $windSpeed)
+    );
+    
+    sourceTableMomentumY
+    (
+        (    0.0 $windDir)
+        (90000.0 $windDir)
+    );
+    
+    sourceTableMomentumZ
+    (
+        (    0.0 0.0)
+        (90000.0 0.0)
+    );
+}
 
-// Use the source table in the file listed below.
-sourceHeightsMomentum
-(
-    $windControlHeight
-);
+temperatureSource
+{
+    type        "given";
 
-sourceTableMomentumX
-(
-    (    0.0 $windSpeed)
-    (90000.0 $windSpeed)
-);
+    //Relaxation factor (only used when type is "computed")
+    gain        0.7;
 
-sourceTableMomentumY
-(
-    (    0.0 $windDir)
-    (90000.0 $windDir)
-);
-
-sourceTableMomentumZ
-(
-    (    0.0 0.0)
-    (90000.0 0.0)
-);
-
-sourceHeightsTemperature
-(
-    $windControlHeight
-);
-
-sourceTableTemperature
-(
-    (    0.0 0.0)
-    (90000.0 0.0)
-);
-
-
-// Relaxation factors applied when computing sources given desired
-// velocity and temperature.
-alphaMomentum      0.7;
-alphaTemperature   0.7;
-
+    sourceHeightsTemperature
+    (
+        $windControlHeight
+    );
+    
+    sourceTableTemperature
+    (
+        (    0.0 0.0)
+        (90000.0 0.0)
+    );
+}
 
 // Properties of the Coriolis force
 planetaryRotationPeriod   $EarthPeriod;

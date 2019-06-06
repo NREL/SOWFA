@@ -29,12 +29,62 @@ License
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::initializeController_
-(
-    label nSourceHeights
-)
+void Foam::DrivingForce<Type>::initializeController_()
 {
-    //Nothing to be initialized for now
+    label Nz = zPlanes_.numberOfPlanes();
+
+    // Initialize integrated error
+    errorInt_ = List<Type>(Nz,zeroTensor_());
+
+    //Initialize weighted regression
+    if (regSmoothing_)
+    {
+        // Matrix X
+        scalarRectangularMatrix X(Nz,Nreg_+1);
+        forAllPlanes(zPlanes_,planeI)
+        {
+            for (label i = 0; i < Nreg_+1; i++)
+            {
+                X[planeI][i] = Foam::pow(zPlanes_.planeLocationValues()[planeI]/max(zPlanes_.planeLocationValues()),i);
+            }
+        }
+    
+        scalarDiagonalMatrix W(Nz,0.0);
+        forAllPlanes(zPlanes_,i)
+        {
+            W[i] = weights_[i];
+        }
+    
+        //Compute regression matrix
+        //- XtWX = X.T W X
+        scalarRectangularMatrix XtWX(Nreg_+1,Nreg_+1);
+        multiply(XtWX,X.T(),W,X);
+    
+        //- compute inverse of XtWX by
+        //  converting to symmetricSquareMatrix.
+        //  SVDinv could also be used but is less accurate
+        //  scalarRectangularMatrix XtWXinv = SVDinv(XtWX);
+        scalarSymmetricSquareMatrix Z(Nreg_+1);
+        for (label i = 0; i < Nreg_+1; i++)
+        {
+            for (label j=0; j < Nreg_+1; j++)
+            {
+                Z[i][j] = XtWX[i][j];
+            }
+        }
+        scalarSymmetricSquareMatrix Zinv=inv(Z);
+        scalarRectangularMatrix XtWXinv(Nreg_+1,Nreg_+1);
+        for (label i = 0; i < Nreg_+1; i++)
+        {
+            for (label j=0; j < Nreg_+1; j++)
+            {
+                XtWXinv[i][j] = Zinv[i][j];
+            }
+        }
+        
+        //- Areg = (X.T W X)^-1 X.T
+        multiply(Areg_,XtWXinv,X.T());
+    }
 }
 
 
@@ -46,11 +96,126 @@ List<Type> Foam::DrivingForce<Type>::updateController_
 {
     // Get the current time step size.
     scalar dt = runTime_.deltaT().value();
-    
-    // Compute controller action
-    List<Type> source = alpha_/dt * error;
+
+    // Initialize auxiliary arrays
+    List<Type> smoothError(error.size(),zeroTensor_());
+    List<Type> effectiveError(error.size(),zeroTensor_());
+    List<Type> source(error.size(),zeroTensor_());
+
+    // Apply regression smoothing
+    if (regSmoothing_)
+    {
+        scalarRectangularMatrix beta = computeRegressionCoeff_(error);
+        smoothError = constructRegressionCurve_(beta);
+    }
+    else
+    {
+        smoothError = error;
+    }
+
+    // PI control
+    errorInt_ = Foam::exp(-dt/timeWindow_) * errorInt_ + dt/timeWindow_*smoothError;
+    effectiveError  = alpha_*smoothError + (1.0-alpha_) * errorInt_;
+
+    source = gain_ * effectiveError;
 
     return source;
+}
+
+
+template<class Type>
+scalarRectangularMatrix Foam::DrivingForce<Type>::computeRegressionCoeff_
+(
+    List<Type>& y
+)
+{
+    label Nz = zPlanes_.numberOfPlanes();
+
+    scalarRectangularMatrix Wy(Nz,Type::nComponents);
+    for (label i = 0; i < Nz; i++)
+    {
+        for (label j = 0; j < Type::nComponents; j++)
+        {
+            Wy[i][j] = weights_[i] * y[i][j];
+        }
+    }
+
+    //Compute coefficients
+    scalarRectangularMatrix beta(Nreg_+1,Type::nComponents);
+    multiply(beta,Areg_,Wy);
+    return beta;
+}
+
+
+template<class Type>
+List<Type> Foam::DrivingForce<Type>::constructRegressionCurve_
+(
+    scalarRectangularMatrix& beta
+)
+{
+    label Nz = zPlanes_.numberOfPlanes();
+
+    //Compute regression line
+    List<Type> y(Nz,zeroTensor_());
+    for (label i = 0; i < Nz; i++)
+    {
+        for (label j = 0; j < Nreg_+1; j++)
+        {
+            for (label k = 0; k < Type::nComponents; k++)
+            {
+                y[i][k] += beta[j][k] * Foam::pow(
+                    zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
+            }
+        }
+    }
+    return y;
+}
+
+
+// Specialization for scalar
+// Type scalar does not have nComponent nor componentNames
+namespace Foam
+{
+    template<>
+    scalarRectangularMatrix DrivingForce<scalar>::computeRegressionCoeff_
+    (
+        List<scalar>& y
+    )
+    {
+        label Nz = zPlanes_.numberOfPlanes();
+    
+        scalarRectangularMatrix Wy(Nz,1);
+        for (label i = 0; i < Nz; i++)
+        {
+            Wy[i][0] = weights_[i] * y[i];
+        }
+    
+        //Compute coefficients
+        scalarRectangularMatrix beta(Nreg_+1,1);
+        multiply(beta,Areg_,Wy);
+        return beta;
+    }
+
+    template<>
+    List<scalar> DrivingForce<scalar>::constructRegressionCurve_
+    (
+        scalarRectangularMatrix& beta
+    )
+    {
+        label Nz = zPlanes_.numberOfPlanes();
+
+        //Compute regression line
+        List<scalar> y(Nz,zeroTensor_());
+        for (label i = 0; i < Nz; i++)
+        {
+            for (label j = 0; j < Nreg_+1; j++)
+            {
+                y[i] += beta[j][0] * pow(
+                    zPlanes_.planeLocationValues()[i]/max(zPlanes_.planeLocationValues()),j);
+            }
+        }
+        return y;
+    }
 }
 
 

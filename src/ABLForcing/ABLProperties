@@ -1,0 +1,128 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.4.x                                 |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          ABLProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "../setUp"
+
+
+// Properties of the mesoscale source terms
+// ----------------------------------------
+// There are two possible types of source terms:
+// - The "given" type means that the source values are directly given
+//   and the flow field will react accordingly.  
+// - The "computed" type means that the mean profiles
+//   are given and the source terms that maintain them are computed. 
+
+momentumSource
+{
+    // General input parameters
+    type                "computed";                 // Type of source to use
+    inputType           "component";                // Specific for momentum and only used when type is "computed":
+                                                    // - "component" means the x, y and z components are specified,
+                                                    // - "speedAndDirection" means wind speed, wind direction and vertical component are specified.
+    setVerticalCompZero true;                       // Specific for momentum and only used when type is "computed": subtract off any vertical part (Default to True)
+    gain                0.0168;                     // Controller gain (only used when type is "computed")
+    
+    // Source Table
+    #include "../forcing/fieldTable"
+
+    // The following properties are only used
+    // when type is "computed" and when multiple
+    // source heights are specified
+    writeError      false;                          // Write out error between horizontal averaged profile and given input profile.
+    alpha           0.2;                            // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow      3600.0;                         // Time window of exponential time filter in integral action (s).
+    regSmoothing    true;                           // Smooth error profile by fitting a regression curve
+    regOrder        3;                              // Order of regression polynomial (only used when regSmoothing is true)
+    weightsTable                                    // Table with weights (only used when regSmoothing is true)
+    (
+        //  z   weight
+        (0.0        0.0)
+        (1000.0     1.0)
+        (4000.0     1.0)
+    );
+}
+
+temperatureSource
+{
+    // General input parameters
+    type        "computed";                         // Type of source to use
+    gain        0.0168;                             // Controller gain (only used when type is "computed")
+
+    // Source Table
+    #include "../forcing/fieldTable"
+
+    // The following properties are only used
+    // when type is "computed" and when multiple
+    // source heights are specified
+    writeError      false;                          // Write out error between horizontal averaged profile and given input profile.
+    alpha           0.2;                            // Weights of proportional and integral action are alpha and (1-alpha), respectively
+    timeWindow      3600.0;                         // Time window of exponential time filter in integral action (s).
+    regSmoothing    true;                           // Smooth error profile by fitting a regression curve
+    regOrder        3;                              // Order of regression polynomial (only used when regSmoothing is true)
+    weightsTable                                    // Table with weights (only used when regSmoothing is true)
+    (
+        //  z   weight
+        (0.0        0.0)
+        (1000.0     1.0)
+        (4000.0     1.0)
+    );
+}
+
+
+// Properties of the Coriolis force
+planetaryRotationPeriod   $EarthPeriod;             // Latitude on the Earth of the site (deg).
+latitude                  $latitude;                // Earth's rotation period (hr).
+
+
+// Pressure handling.
+activatePressureRefCell   true;                     // Switch to set the pressure reference cell explicitly in the p_rgh solve.
+perturbationPressureType  "rhokSplit";              // Options for defining the background pressure:
+                                                    // - noSplit:   do not split out hydrostatic part; pressure is then perturbation pressure.
+                                                    // - rho0Split: split out the hydrostatic part; define hydrostatic as rho_0 * g * z.
+                                                    // - rhokSplit: split out the hydrostatic part; define hydrostatic as rho_k * g * z.
+
+
+// Sponge layer parameters.
+upperSponge
+{
+    type             "Rayleigh";                    // Type of sponge layer: "none" (Default), "Rayleigh" or "viscous".
+    startLocation    10000.0;                       // Start location of the sponge layer (m).
+    width            5000.0;                        // Width of the sponge layer (m).
+    Ux               10.0;                          // Sponge layer reference velocity (only for Rayleigh) in x direction (m/s).
+    Uy               0.0;                           // Sponge layer reference velocity (only for Rayleigh) in y direction (m/s).
+    viscosityMax     0.01;                          // Maximum viscosity, dimensions depend on type of damping:
+                                                    // Rayleigh (1/s)
+                                                    // viscous  (m^2/s)
+    coordIndex       2;                             // Coordinate index: 0, 1 or 2 corresponding to yz, xz or xy slab.
+    direction        "stepUp";                      // Shape of damping function: "stepUp" increases smoothly from 0 to 1 in the
+                                                    // specified coordinate direction, "stepDown" decreases in the coordinate direction.
+}
+
+
+// Statistics gathering input
+statisticsOn              $statisticsOn;
+statisticsFrequency       $statisticsFrequency;
+
+
+// ************************************************************************* //
