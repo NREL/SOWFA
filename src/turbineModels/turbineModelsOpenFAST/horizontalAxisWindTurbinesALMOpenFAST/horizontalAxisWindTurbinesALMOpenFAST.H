@@ -65,6 +65,7 @@ SourceFiles
 #include "OFstream.H"
 #include "fvCFD.H"
 #include "Random.H"
+#include "scalarMatrices.H"
 #include "OpenFAST.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -426,6 +427,7 @@ private:
 
             //- Actuator line point locations with respect to origin.
             DynamicList<List<List<vector> > > bladePoints;
+            DynamicList<List<List<vector> > > bladePointsOld;
             DynamicList<List<List<vector> > > bladeSamplePoints;
 
             //- Actuator line point locations with respect to origin.
@@ -442,6 +444,10 @@ private:
             DynamicList<List<List<vector> > > bladePointsPerturbVector;
             DynamicList<List<vector> > towerPointsPerturbVector;
             DynamicList<vector> nacellePointPerturbVector;
+
+            //- Stores a list of coefficients for a periodic cosine function describing
+            //  rotor distortion at each radial location.
+            DynamicList<List<List<scalar> > > rotorSurfaceCoeffs;
 
             //- Total actuator line points in blade, nacelle, and tower arrays.
             int totBladePoints;
@@ -734,26 +740,36 @@ private:
         void updateNacelleBodyForce(int turbineNumber);
         void updateTowerBodyForce(int turbineNumber);
 
-        //- Various rojection functions.
-        scalar computeBladeProjectionFunction(vector disVector, int turbineNumber, int bladeNumber, int elementNumber);
+        //- Various projection functions.
+        scalar computeBladeProjectionFunction(vector disVector, scalar r0, int turbineNumber, int bladeNumber, int elementNumber);
         scalar uniformGaussian3D(scalar epsilon, scalar d);
         scalar generalizedGaussian3D(vector epsilon, vector d, vector dir0, vector dir1, vector dir2);
         scalar generalizedGaussian2D(vector epsilon, vector d, vector dir0, vector dir1);
         scalar diskGaussian(scalar rEpsilon, scalar xEpsilon, vector u, scalar r0, vector d);
         scalar ringGaussian(scalar rEpsilon, scalar xEpsilon, vector u, scalar r0, vector d);
+        scalar lineToDiskGaussian3D(vector epsilon, scalar r0, scalar n, vector d);
         scalar gaussian1D(scalar x, scalar x0, scalar epsilon, scalar coeff);
+
+        //- If using the actuator disk projection function, the shape of the disk must be
+        //  computed.  It is done by fitting a periodic function through the blade points.
+        void computeRotorSurfaceCoeffs(int turbineNumber);
+        scalar getPointOnRotorSurface(int turbineNumber, scalar r, scalar theta);
 
         //- Rotates a point/vector about a rotation axis and rotation point by the specified
         //  angle in radians.
         vector rotateVector(vector v, vector translation, vector axis, scalar angle);
 
         //- Transform a vector from one coordinate system to another.
-        vector transformVectorCartToLocal(vector v,  vector xP, vector yP, vector zP);
-        vector transformVectorLocalToCart(vector vP, vector xP, vector yP, vector zP);
+        vector transformGlobalCartToLocalCart(vector v,  vector xP, vector yP, vector zP);
+        vector transformLocalCartToGlobalCart(vector vP, vector xP, vector yP, vector zP);
+        vector transformCartToCyl(vector v);
+        vector transformCylToCart(vector c);
+        vector transformGlobalCartToRotorLocalCyl(vector v, int turbineNumber);
 
         //- Perform interpolation.
-        scalar interpolate(scalar xNew, DynamicList<scalar>& xOld, DynamicList<scalar>& yOld);
-        label  interpolate(scalar xNew, DynamicList<scalar>& xOld, DynamicList<label>& yOld);
+        void findBoundingIndices(scalar x, DynamicList<scalar>& xList, label& indexM, label& indexP);
+        scalar interpolate(scalar x, DynamicList<scalar>& xList, DynamicList<scalar>& yList);
+        label  interpolate(scalar x, DynamicList<scalar>& xList, DynamicList<label>& yList);
 
         //- Change a degree angle measurement from compass to standard.
         scalar compassToStandard(scalar dir);

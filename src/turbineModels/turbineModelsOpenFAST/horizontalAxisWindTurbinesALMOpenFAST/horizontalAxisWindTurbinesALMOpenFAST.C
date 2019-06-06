@@ -457,7 +457,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::sendInput()
 void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
 {
     // Get the number of blades, blade points, tower points, and shaft vectors all in order and onto all cores. 
-    forAll(turbineName,i)
+    for (int i = 0; i < numTurbines; i++)
     {
        numBl.append(0);
        numBladeSamplePoints.append(0);
@@ -486,10 +486,13 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
     totNacellePoints = 0;
     totTowerPoints = 0;
     totTowerSamplePoints = 0;
-    
+
     Random rndGen(123456);
 
-    for(int i = 0; i < numTurbines; i++)
+    bladeMinDisCellID.setSize(numTurbines);
+    nacelleMinDisCellID.setSize(numTurbines);
+    towerMinDisCellID.setSize(numTurbines);
+    for (int i = 0; i < numTurbines; i++)
     {
         // Blade points.
         bladeDs.append(DynamicList<scalar>(0));
@@ -499,6 +502,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
         }
         totBladePoints += numBladePoints[i];
         totBladeSamplePoints += numBladeSamplePoints[i]*numBl[i];
+        bladePointsOld.append(List<List<vector> >(numBl[i], List<vector>(numBladePoints[i],vector::zero)));
         bladePoints.append(List<List<vector> >(numBl[i], List<vector>(numBladePoints[i],vector::zero)));
         bladeSamplePoints.append(List<List<vector> >(numBl[i], List<vector>(numBladeSamplePoints[i],vector::zero)));
         bladePointRadius.append(List<List<scalar> >(numBl[i], List<scalar>(numBladePoints[i],0.0)));
@@ -538,6 +542,10 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
 
 
 
+        
+        // Rotor distortion coefficients.
+        rotorSurfaceCoeffs.append(List<List<scalar> >(numBladePoints[i],List<scalar>(2*numBl[i]+2,0.0)));
+
 
 
 
@@ -552,7 +560,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
             {
                 for (int m = 0; m < numBladeSamplePoints[i]; m++)
                 {
-                    bladePointsPerturbVector[i][k][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
+                    bladePointsPerturbVector[i][k][m] = perturb*(2.0*rndGen.sample01<vector>()-vector::one); 
                 }
             }
         }
@@ -562,14 +570,14 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
         {
             for (int m = 0; m < numTowerSamplePoints[i]; m++)
             {
-                towerPointsPerturbVector[i][m] = perturb*(2.0*rndGen.vector01()-vector::one); 
+                towerPointsPerturbVector[i][m] = perturb*(2.0*rndGen.sample01<vector>()-vector::one); 
             }
         }
 
         nacellePointPerturbVector.append(vector::zero);
         if (p == 0)
         {
-            nacellePointPerturbVector[i] = perturb*(2.0*rndGen.vector01()-vector::one);
+            nacellePointPerturbVector[i] = perturb*(2.0*rndGen.sample01<vector>()-vector::one);
         }
 
         
@@ -660,9 +668,23 @@ void horizontalAxisWindTurbinesALMOpenFAST::initializeArrays()
         generatorPower.append(0.0);
 
         // Define the size of the cell-containing-actuator-point-sampling ID list and set to -1.
-        bladeMinDisCellID.append(List<List<label> >(numBl[i], List<label>(numBladeSamplePoints[i],-1)));
-        nacelleMinDisCellID.append(-1);
-        towerMinDisCellID.append(List<label>(numTowerSamplePoints[i],-1));
+        bladeMinDisCellID[i].setSize(numBl[i]);
+        for (int j = 0; j < numBl[i]; j++)
+        {
+            bladeMinDisCellID[i][j].setSize(numBladeSamplePoints[i]);
+            for (int k = 0; k < numBladeSamplePoints[i]; k++)
+            {
+                bladeMinDisCellID[i][j][k] = -1;
+            }
+        }
+        
+        nacelleMinDisCellID[i] = -1;
+
+        towerMinDisCellID[i].setSize(numTowerSamplePoints[i]);
+        for (int k = 0; k < numTowerSamplePoints[i]; k++)
+        {
+            towerMinDisCellID[i][k] = -1;
+        }
 
         DynamicList<label> influenceCellsI;
         bladeInfluenceCells.append(influenceCellsI);
@@ -854,7 +876,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateRotorSearchCells(int turbineNu
             yP /= mag(yP);
             zP = xP ^ yP;
             zP /= mag(zP);
-            vP = transformVectorCartToLocal(v,xP,yP,zP);
+            vP = transformGlobalCartToLocalCart(v,xP,yP,zP);
             r = Foam::sqrt(Foam::sqr(vP.y()) + Foam::sqr(vP.z()));
             xBladeMin = -r * Foam::sin(preConeMax);
             xBladeMax =  r * Foam::sin(preConeMax);
@@ -922,7 +944,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateNacelleSearchCells(int turbine
             yP /= mag(yP);
             zP = xP ^ yP;
             zP /= mag(zP);
-            vP = transformVectorCartToLocal(v1,xP,yP,zP);
+            vP = transformGlobalCartToLocalCart(v1,xP,yP,zP);
                 
             // Searching for cells around the nacelle points.
             if (vP.x() < 0.0)
@@ -1320,7 +1342,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateRadius(int turbineNumber)
         yP /= mag(yP);
         zP = xP ^ yP;
         zP /= mag(zP);
-        vP = transformVectorCartToLocal(v,xP,yP,zP);
+        vP = transformGlobalCartToLocalCart(v,xP,yP,zP);
         rFromShaft[cellI] = Foam::sqrt(Foam::sqr(vP.y()) + Foam::sqr(vP.z()));
     }
 }
@@ -1524,6 +1546,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::getPositions()
 
    // Put the local points vector entries into the nice ordered
    // list of points.
+   bladePointsOld = bladePoints;
    startIndex = 0;
    forAll(bladePoints,i)
    {
@@ -2023,6 +2046,8 @@ void horizontalAxisWindTurbinesALMOpenFAST::sampleBladePointWindVectors()
             {
                 vector velocity(vector::zero);
                 vector point = bladeSamplePoints[i][j][k];
+                vector pointCyl = transformGlobalCartToRotorLocalCyl(point, i);
+                scalar r0 = pointCyl.x();
                 label cellID = bladeMinDisCellID[i][j][k];
 
                 // Cell-center or linear interpolated velocity require velocity and
@@ -2319,6 +2344,14 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateBladeBodyForce(int turbineNumb
 {
     int i = turbineNumber;
 
+
+    // If this uses the actuator disk body force spreading, then first compute the
+    // shape of the rotor disk.
+    if (bladeForceProjectionType[i] == "lineToDiskGaussian3D")
+    {
+        computeRotorSurfaceCoeffs(i);
+    }
+
     
     // Initialize variables that are integrated forces.
     scalar rotorAxialForceBodySum = 0.0;
@@ -2363,12 +2396,35 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateBladeBodyForce(int turbineNumb
                     // For each influence cell.
                     forAll(bladeInfluenceCells[i], m)
                     {
+                        // Compute the distance between the actuator point and blade point.
+                        // - Cartesian coordinates
                         vector disVector = (mesh_.C()[bladeInfluenceCells[i][m]] - bladePoints[i][j][k]);
                         scalar dis = mag(disVector);
+
+                        // - local cylindrical coordinates.  Distance in r and theta should be from the blade point, but in x should
+                        //   be from the distorted disk surface.
+                        vector cellPointCyl = transformGlobalCartToRotorLocalCyl(mesh_.C()[bladeInfluenceCells[i][m]], turbineNumber);
+                        vector bladePointCyl = transformGlobalCartToRotorLocalCyl(bladePoints[i][j][k], turbineNumber);
+                        scalar rotorSurfaceX = getPointOnRotorSurface(turbineNumber, cellPointCyl.x(), cellPointCyl.y());
+                        vector disVectorCyl = cellPointCyl - bladePointCyl;
+                        disVectorCyl.z() = cellPointCyl.z() - rotorSurfaceX;
+
+                        // - some projection functions need radius along blade.
+                        scalar r0 = rotorSurfaceCoeffs[i][j][0];
+
                         if (dis <= bladeProjectionRadius[i])
                         {
                             // Compute the blade force projection at this point.
-                            scalar spreading = computeBladeProjectionFunction(disVector,i,j,k);
+                            vector d = vector::zero;
+                            scalar spreading = 1.0;
+                            if (bladeForceProjectionType[i] == "lineToDiskGaussian3D")
+                            {
+                                spreading = computeBladeProjectionFunction(disVector,r0,i,j,k);
+                            }
+                            else
+                            {
+                                spreading = computeBladeProjectionFunction(disVectorCyl,r0,i,j,k);
+                            }
 
                             // Add this spreading to the overall force projection field.
                             gBlade[bladeInfluenceCells[i][m]] += spreading;
@@ -2537,7 +2593,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateBladeBodyForce(int turbineNumb
                                 vector liftVector = dragVector^bladeAlignedVectors[i][j][2];
                                 liftVector = liftVector/mag(liftVector);
 
-                                vector forceP = transformVectorCartToLocal(force,liftVector,dragVector,ez);
+                                vector forceP = transformGlobalCartToLocalCart(force,liftVector,dragVector,ez);
 
                                 // Scale the lift and drag forces.
                                 forceP.x() *= -d;
@@ -2551,7 +2607,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateBladeBodyForce(int turbineNumb
                                 }
 
                                 // Transform back to the Cartesian system.
-                                force = transformVectorLocalToCart(forceP,liftVector,dragVector,ez);
+                                force = transformLocalCartToGlobalCart(forceP,liftVector,dragVector,ez);
 
                                 forceLift = (force & liftVector) * mesh_.V()[bladeInfluenceCells[i][m]];
                                 forceDrag = (force & dragVector) * mesh_.V()[bladeInfluenceCells[i][m]];
@@ -2782,7 +2838,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateNacelleBodyForce(int turbineNu
                             zP = xP ^ yP;
                             zP /= mag(zP);
 
-                            vP = transformVectorCartToLocal(v, xP, yP, zP);
+                            vP = transformGlobalCartToLocalCart(v, xP, yP, zP);
 
                             if ((vP.x() > 0.0) && (vP.x() < nacelleLength[i]))
                             {
@@ -2877,7 +2933,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateNacelleBodyForce(int turbineNu
                                 }
                             }
 
-                            nacelleNormal = transformVectorLocalToCart(nacelleNormal, xP, yP, zP);
+                            nacelleNormal = transformLocalCartToGlobalCart(nacelleNormal, xP, yP, zP);
                             forceBase /= c;
 
                             //bodyForceContrib = vector::zero;
@@ -2908,7 +2964,7 @@ void horizontalAxisWindTurbinesALMOpenFAST::updateNacelleBodyForce(int turbineNu
 
 
 
-scalar horizontalAxisWindTurbinesALMOpenFAST::computeBladeProjectionFunction(vector disVector, int turbineNumber, int bladeNumber, int elementNumber)
+scalar horizontalAxisWindTurbinesALMOpenFAST::computeBladeProjectionFunction(vector disVector, scalar r0, int turbineNumber, int bladeNumber, int elementNumber)
 {
     int i = turbineNumber;
     int j = bladeNumber;
@@ -2929,6 +2985,10 @@ scalar horizontalAxisWindTurbinesALMOpenFAST::computeBladeProjectionFunction(vec
         scalar epsilonMax = bladeEpsilon[i][2];
         scalar epsilon = max(min((epsilonScalar * bladePointChord[i][j][k]), epsilonMax), epsilonMin);
         spreading = uniformGaussian3D(epsilon, dis);
+    }
+    else if (bladeForceProjectionType[i] == "lineToDiskGaussian3D")
+    {
+        spreading = lineToDiskGaussian3D(bladeEpsilon[i], r0, numBl[i], disVector);
     }
     /*
     else if (bladeForceProjectionType[i] == "variableUniformGaussianUserDef")
@@ -3094,6 +3154,20 @@ scalar horizontalAxisWindTurbinesALMOpenFAST::ringGaussian(scalar rEpsilon, scal
     return f;
 }
 
+scalar horizontalAxisWindTurbinesALMOpenFAST::lineToDiskGaussian3D(vector epsilon, scalar r0, scalar n, vector disVector)
+{
+    // Compute a spreading function that projects line forces to a rotor disk of force.
+    // allows us to keep the actuator line framework while applying an actuator disk.
+
+    // Compute the spreading function.
+    scalar epsR = epsilon[0];
+    scalar epsX = epsilon[1];
+    scalar coeff = Foam::sqr(Foam::constant::mathematical::pi) * r0 * epsX * epsR;
+    scalar f = coeff * (Foam::cos(0.5*n*disVector.y()) + 1.0) * Foam::exp(-Foam::sqr(disVector.z()/epsX)) * Foam::exp(-Foam::sqr(disVector.x()/epsR));
+
+    return f;
+}
+
 scalar horizontalAxisWindTurbinesALMOpenFAST::gaussian1D(scalar x, scalar x0, scalar epsilon, scalar coeff)
 {
     // Compute a 1D Gaussian function centered about x0 with width epsilon and scaled by coeff.
@@ -3102,7 +3176,120 @@ scalar horizontalAxisWindTurbinesALMOpenFAST::gaussian1D(scalar x, scalar x0, sc
     return f;
 }
 
+void horizontalAxisWindTurbinesALMOpenFAST::computeRotorSurfaceCoeffs(int turbineNumber)
+{
+    // Given the position and velocity of the blade points, a cosine/sine function is fit
+    // to them that will give the actuator disk its shape.
+  
+    int i = turbineNumber;
+    forAll(bladePointForce[i][0],k)
+    {
+        // Get the current point locations in shaft-aligned cylindrical coordinates.
+        List<vector> pCylLocal;
+        List<vector> pCylLocalOld;
+        List<scalar> dxdtheta;
+        for (int j = 0; j < numBl[i]; j++)
+        {
+           pCylLocal.append(transformGlobalCartToRotorLocalCyl(bladePoints[i][j][k], turbineNumber));
+        }
 
+        // Get the previous point locations in shaft-aligned cylindrical coordinates.
+        for (int j = 0; j < numBl[i]; j++)
+        {
+           pCylLocalOld.append(transformGlobalCartToRotorLocalCyl(bladePointsOld[i][j][k], turbineNumber));
+        }
+
+        // Compute dx/dtheta.
+        for (int j = 0; j < numBl[i]; j++)
+        {
+           scalar dx = pCylLocal[j].z() - pCylLocalOld[j].z();
+           scalar dtheta = pCylLocal[j].y() - pCylLocalOld[j].y();
+           dxdtheta.append(dx/dtheta);
+        }
+
+        // The first entry in the rotorSurfaceCoeff list is the radius, and then
+        // the coefficients follw.
+        // Compute the mean displacement, which becomes the constant coefficient, C0,
+        // of the sin/cos series.
+        rotorSurfaceCoeffs[i][k][0] = 0.0;
+        rotorSurfaceCoeffs[i][k][1] = 0.0;
+        for (int j = 0; j < numBl[i]; j++)
+        {
+            rotorSurfaceCoeffs[i][k][0] += pCylLocal[j].x();
+            rotorSurfaceCoeffs[i][k][1] += pCylLocal[j].z();
+        }
+        rotorSurfaceCoeffs[i][k][0] /= numBl[i];
+        rotorSurfaceCoeffs[i][k][1] /= numBl[i];
+
+        // Assemble the LHS matrix.
+        scalarSquareMatrix L(2*numBl[i], 0.0);
+        for (int m = 0; m < numBl[i]; m++)
+        {
+            for (int n = 0; n < numBl[i]; n++)
+            {
+                L(m,n) = Foam::cos((n+1)*pCylLocal[m].y());
+                L(m,n+numBl[i]) = Foam::sin((n+1)*pCylLocal[m].y());
+                L(m+numBl[i],n) = -(n+1)*Foam::sin((k+1)*pCylLocal[m].y());
+                L(m+numBl[i],n+numBl[i]) = (n+1)*Foam::cos((k+1)*pCylLocal[m].y());
+            }
+        }
+
+        // Assemble the RHS vector.
+        List<scalar> R(2*numBl[i], 0.0);
+        for (int j = 0; j < numBl[i]; j++)
+        {
+            R[j] = pCylLocal[j].z() - rotorSurfaceCoeffs[i][k][0];
+            R[j+numBl[i]] = dxdtheta[j];
+        }
+
+        // Solve the coefficients.
+        LUsolve(L,R);
+        for (int j = 0; j < numBl[i]; j++)
+        {
+            rotorSurfaceCoeffs[i][k][j+2] = R[j];
+            rotorSurfaceCoeffs[i][k][numBl[i]+j+2] = R[numBl[i]+j];
+        }
+    }
+}
+
+scalar horizontalAxisWindTurbinesALMOpenFAST::getPointOnRotorSurface(int turbineNumber, scalar r, scalar theta)
+{
+    // Given r and theta, find the x value of the rotor distorted surface.
+
+    // Find the bounding radii of the stored surface data.
+    label indexM = 0;
+    label indexP = 0;
+    DynamicList<scalar> rList(numBladePoints[turbineNumber]);
+    forAll(rList,i)
+    {
+        rList[i] = rotorSurfaceCoeffs[turbineNumber][i][0];
+    }
+    findBoundingIndices(r, rList, indexM, indexP);
+    DynamicList<scalar> rBound(2);
+    rBound[0] = rList[indexM];
+    rBound[1] = rList[indexP];
+
+    // At these radii, compute the surface x values.
+    DynamicList<scalar> xSurface(2);
+    xSurface[0] = rotorSurfaceCoeffs[turbineNumber][indexM][1];
+    xSurface[1] = rotorSurfaceCoeffs[turbineNumber][indexP][1];
+
+    for (int j = 0; j < numBl[turbineNumber] ; j++)
+    {
+        xSurface[0] += rotorSurfaceCoeffs[turbineNumber][indexM][j+2] * Foam::cos((j+1)*theta)
+                     + rotorSurfaceCoeffs[turbineNumber][indexM][j+numBl[turbineNumber]+2] * Foam::sin((j+1)*theta);
+    }
+    for (int j = 0; j < numBl[turbineNumber] ; j++)
+    {
+        xSurface[1] += rotorSurfaceCoeffs[turbineNumber][indexP][j+2] * Foam::cos((j+1)*theta)
+                     + rotorSurfaceCoeffs[turbineNumber][indexP][j+numBl[turbineNumber]+2] * Foam::sin((j+1)*theta);
+    }
+
+    // Interpolate to the given radius.
+    scalar x = interpolate(r,rBound,xSurface);
+    
+    return x;
+}
 
 vector horizontalAxisWindTurbinesALMOpenFAST::rotateVector(vector v, vector translation, vector axis, scalar angle)
 {
@@ -3133,10 +3320,10 @@ vector horizontalAxisWindTurbinesALMOpenFAST::rotateVector(vector v, vector tran
 
 
 
-vector horizontalAxisWindTurbinesALMOpenFAST::transformVectorCartToLocal(vector v, vector xP, vector yP, vector zP)
+vector horizontalAxisWindTurbinesALMOpenFAST::transformGlobalCartToLocalCart(vector v, vector xP, vector yP, vector zP)
 {
-    // Transform from the Cartesian (x,y,z) system into the local (x',y',z')
-    // system using v' = T'v
+    // Transform from the global Cartesian (x,y,z) system into the local 
+    // Cartesian (x',y',z') system using v' = T'v
     //
     //    x' is aligned with the flow
     //    y' is the cross product of z' and x'
@@ -3178,10 +3365,10 @@ vector horizontalAxisWindTurbinesALMOpenFAST::transformVectorCartToLocal(vector 
 
 
 
-vector horizontalAxisWindTurbinesALMOpenFAST::transformVectorLocalToCart(vector vP, vector xP, vector yP, vector zP)
+vector horizontalAxisWindTurbinesALMOpenFAST::transformLocalCartToGlobalCart(vector vP, vector xP, vector yP, vector zP)
 {
-    // Transform from the local (x',y',z') system to the Cartesian (x,y,z) system 
-    // using v = Tv'
+    // Transform from the local Cartesian (x',y',z') system to the global 
+    // Cartesian (x,y,z) system using v = Tv'
     //
     //    x' is aligned with the flow
     //    y' is the cross product of z' and x'
@@ -3228,112 +3415,126 @@ vector horizontalAxisWindTurbinesALMOpenFAST::transformVectorLocalToCart(vector 
 
 
 
-
-scalar horizontalAxisWindTurbinesALMOpenFAST::interpolate(scalar xNew, DynamicList<scalar>& xOld, DynamicList<scalar>& yOld)
+vector horizontalAxisWindTurbinesALMOpenFAST::transformCartToCyl(vector v)
 {
-    label index = 0;
-    label indexP = 0;
-    label indexM = 0;
-    scalar error = 1.0E30;
-    forAll(xOld, i)
-    {
-        scalar diff = mag(xNew - xOld[i]);
-        if(diff < error)
-        {
-            index = i;
-            error = diff;
-        }
-    }
-    if (xNew < xOld[index])
-    {
-        if (index == 0)
-        {
-            indexP = 1;
-            indexM = indexP - 1;
-        }
-        else
-        {
-            indexP = index;
-            indexM = indexP - 1;
-        }
-        return yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]);
-    }
-    else if (xNew > xOld[index])
-    {
-        if (index == xOld.size() - 1)
-        {
-            indexP = xOld.size() - 1;
-            indexM = indexP - 1;
-        }
-        else
-        {
-            indexP = index + 1;
-            indexM = indexP - 1;
-        }
-        return yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]);
-    }
-    else if (xNew == xOld[index])
-    {
-        return yOld[index];
-    }
-    else
-    {
-        return 0.0;
-    }
+    // Transform from the Cartesian (x,y,z) system to the cylindrical 
+    // (r,theta,x) system.
+
+    // Convert to cylindrical coordinates.
+    vector c = vector::zero;
+    c.x() = Foam::sqrt(Foam::sqr(v.y()) + Foam::sqr(v.z()));
+    c.y() = Foam::atan2(v.z(),v.y());
+    c.z() = v.x();
+
+    return c;
 }
 
 
-label horizontalAxisWindTurbinesALMOpenFAST::interpolate(scalar xNew, DynamicList<scalar>& xOld, DynamicList<label>& yOld)
+vector horizontalAxisWindTurbinesALMOpenFAST::transformCylToCart(vector c)
+{
+    // Transform from the cylindrical (r,theta,x) system to the Cartesian
+    // (x,y,z) system.
+
+    // Convert to Cartesian coordinates.
+    vector v = vector::zero;
+    v.x() = c.z();
+    v.y() = c.x()*Foam::cos(c.y());
+    v.z() = c.x()*Foam::sin(c.y());
+
+    return v;
+}
+
+
+
+vector horizontalAxisWindTurbinesALMOpenFAST::transformGlobalCartToRotorLocalCyl(vector v, int turbineNumber)
+{
+    // Transform a point from global Cartesian coordinates to rotor local cyclindrical coordinates.
+
+    // Get the vector relative to the rotor apex.
+    vector pCartGlobal = v - rotorApex[turbineNumber];
+
+    // Define the orientation of the local Cartesian coordinate system such that x is along the shaft,
+    // z is up, but normal to the shaft, and y is orthogonal to x and z.
+    vector xP = mainShaftOrientation[turbineNumber];
+    xP /= mag(xP);
+
+    vector zP = vector::zero;
+    zP.z() = 1.0;
+
+    vector yP = -(xP ^ zP);
+    yP /= mag(yP);
+
+    zP = xP ^ yP;
+
+    // Transform to the local Cartesian system.
+    vector pCartLocal = transformGlobalCartToLocalCart(pCartGlobal,xP,yP,zP);
+
+    // Transform to the local cylindrical system.
+    vector pCylLocal = transformCartToCyl(pCartLocal);
+
+    return pCylLocal;
+}
+
+void horizontalAxisWindTurbinesALMOpenFAST::findBoundingIndices(scalar x, DynamicList<scalar>& xList, label& indexM, label& indexP)
 {
     label index = 0;
-    label indexP = 0;
-    label indexM = 0;
+    indexP = 0;
+    indexM = 0;
     scalar error = 1.0E30;
-    forAll(xOld, i)
+
+    // Go through all the values in the list and find which one the given value is closest to.
+    forAll(xList, i)
     {
-        scalar diff = mag(xNew - xOld[i]);
+        scalar diff = mag(x - xList[i]);
         if(diff < error)
         {
             index = i;
             error = diff;
         }
     }
-    if (xNew < xOld[index])
+
+    if (x < xList[index])
     {
         if (index == 0)
         {
             indexP = 1;
-            indexM = indexP - 1;
         }
         else
         {
             indexP = index;
-            indexM = indexP - 1;
         }
-        return round(yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]));
+        indexM = indexP - 1;
     }
-    else if (xNew > xOld[index])
+    else if (x > xList[index])
     {
-        if (index == xOld.size() - 1)
+        if (index == xList.size() - 1)
         {
-            indexP = xOld.size() - 1;
-            indexM = indexP - 1;
+            indexP = xList.size() - 1;
         }
         else
         {
             indexP = index + 1;
-            indexM = indexP - 1;
         }
-        return round(yOld[indexM] + ((yOld[indexP] - yOld[indexM])/(xOld[indexP] - xOld[indexM]))*(xNew - xOld[indexM]));
+        indexM = indexP - 1;
     }
-    else if (xNew == xOld[index])
-    {
-        return yOld[index];
-    }
-    else
-    {
-        return 0.0;
-    }
+}
+
+scalar horizontalAxisWindTurbinesALMOpenFAST::interpolate(scalar x, DynamicList<scalar>& xList, DynamicList<scalar>& yList)
+{
+    label indexP = 0;
+    label indexM = 0;
+    findBoundingIndices(x, xList, indexM, indexP);
+
+    return yList[indexM] + ((yList[indexP] - yList[indexM])/(xList[indexP] - xList[indexM]))*(x - xList[indexM]);
+}
+
+label horizontalAxisWindTurbinesALMOpenFAST::interpolate(scalar x, DynamicList<scalar>& xList, DynamicList<label>& yList)
+{
+    label indexP = 0;
+    label indexM = 0;
+    findBoundingIndices(x, xList, indexM, indexP);
+    
+    return round(yList[indexM] + ((yList[indexP] - yList[indexM])/(xList[indexP] - xList[indexM]))*(x - xList[indexM]));
 }
 
 scalar horizontalAxisWindTurbinesALMOpenFAST::compassToStandard(scalar dir)

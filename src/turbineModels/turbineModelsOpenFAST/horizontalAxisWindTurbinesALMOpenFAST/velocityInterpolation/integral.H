@@ -7,7 +7,7 @@ forAll(bladeInfluenceCells[i], m)
     if (dis <= bladeProjectionRadius[i])
     {
         // Compute the body force projection.
-        scalar spreading = computeBladeProjectionFunction(disVector,i,j,k);
+        scalar spreading = computeBladeProjectionFunction(disVector,r0,i,j,k);
 
         // Sum up this mesh cell's contribution to the integrated velocity, 
         // weighted by the projection function.

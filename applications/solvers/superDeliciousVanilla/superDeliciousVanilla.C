@@ -93,14 +93,11 @@ int main(int argc, char *argv[])
         Info << "Time Step = " << runTime.timeIndex() << endl;
 
         // Outer-iteration loop.
-        int outerIter = 0;
         while (pimple.loop())
         {
-            Info << "   Outer Iteration " << outerIter << endl;
-
             // Update the source terms.
-            momentumSourceTerm.update();
-            temperatureSourceTerm.update();
+            momentumSourceTerm.update(pimple.finalPimpleIter());
+            temperatureSourceTerm.update(pimple.finalPimpleIter());
 
             // Predictor step.
             Info << "   Predictor" << endl;
@@ -110,7 +107,7 @@ int main(int argc, char *argv[])
             #include "TEqn.H"
 
             // Corrector steps.
-            int corrIter = 0;
+            int corrIter = 1;
             while (pimple.correct())
             {
                 Info << "   Corrector Step " << corrIter << endl;
@@ -124,8 +121,6 @@ int main(int argc, char *argv[])
 
             // Compute the continuity errors.
             #include "computeDivergence.H"
-
-            outerIter++;
         }
 
         // Write the solution if at write time.
