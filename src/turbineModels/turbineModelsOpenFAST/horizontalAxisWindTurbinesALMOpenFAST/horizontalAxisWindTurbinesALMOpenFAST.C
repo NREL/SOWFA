@@ -3162,8 +3162,13 @@ scalar horizontalAxisWindTurbinesALMOpenFAST::lineToDiskGaussian3D(vector epsilo
     // Compute the spreading function.
     scalar epsR = epsilon[0];
     scalar epsX = epsilon[1];
-    scalar coeff = Foam::sqr(Foam::constant::mathematical::pi) * r0 * epsX * epsR;
-    scalar f = coeff * (Foam::cos(0.5*n*disVector.y()) + 1.0) * Foam::exp(-Foam::sqr(disVector.z()/epsX)) * Foam::exp(-Foam::sqr(disVector.x()/epsR));
+    scalar coeff = (4.0 / n) * Foam::sqr(Foam::constant::mathematical::pi) * r0 * epsX * epsR;
+    scalar cosineComponent = 0.0;
+    if (abs(disVector.y()) < (2.0 / n) * Foam::constant::mathematical::pi)
+    {
+       cosineComponent = (Foam::cos(0.5*n*disVector.y()) + 1.0);
+    }
+    scalar f = coeff * cosineComponent * Foam::exp(-Foam::sqr(disVector.z()/epsX)) * Foam::exp(-Foam::sqr(disVector.x()/epsR));
 
     return f;
 }
