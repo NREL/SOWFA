@@ -13,6 +13,12 @@ wclean
 cd ../../../
 
 
+# Custom boundary conditions.
+cd src/boundaryConditions
+wclean
+cd ../../
+
+
 # OpenFAST coupled turbine models.
 if [ -z ${OPENFAST_DIR+x} ]
 then

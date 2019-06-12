@@ -13,6 +13,12 @@ wmake
 cd ../../../
 
 
+# Custom boundary conditions.
+cd src/boundaryConditions
+wmake
+cd ../../
+
+
 # OpenFAST coupled turbine models.
 if [ -z ${OPENFAST_DIR+x} ]
 then
