@@ -7,11 +7,6 @@ cd src/TurbulenceModels
 cd ../../
 
 
-# Actuator turbine models.
-cd src/turbineModels/turbineModelsStandard
-wmake
-cd ../../../
-
 
 # Custom boundary conditions.
 cd src/boundaryConditions
@@ -19,7 +14,13 @@ wmake
 cd ../../
 
 
-# OpenFAST coupled turbine models.
+# Standard actuator turbine models.
+#cd src/turbineModels/turbineModelsStandard
+#wmake
+#cd ../../../
+
+
+# OpenFAST-coupled actuator turbine models.
 if [ -z ${OPENFAST_DIR+x} ]
 then
     echo "OPENFAST_DIR is not set. Not compiling OpenFAST interface."
