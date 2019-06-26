@@ -73,11 +73,14 @@ class meshPlanes
         //- List of plane locations
         List<scalar> planeLocationValues_;
 
+        //- Initialization flag
+        bool initialized_;
+
 
     // Private Member Functions
 
         //- Find cells per plane 
-        void findPlanes();
+        void findPlanes_();
 
 
 public:
@@ -113,6 +116,9 @@ public:
 
 
     // Member functions
+
+        //- Initialize
+        void initialize();
 
         //- Compute planar average
         template<class Type>
