@@ -31,7 +31,7 @@ License
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateGivenTimeDepSource_()
+void Foam::DrivingForce<Type>::updateGivenTimeDepSource_(bool writeIter)
 {
     // Interpolate specified source to current time
     Type source = interpolate2D(runTime_.value(),
@@ -49,12 +49,15 @@ void Foam::DrivingForce<Type>::updateGivenTimeDepSource_()
 
 
     // Write the source information.
-    writeSourceHistory_(source);
+    if (writeIter)
+    {
+        writeSourceHistory_(source);
+    }
 }
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_()
+void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_(bool writeIter)
 {
     // Interpolate specified source values in time and height
     List<Type> source = interpolate2D(runTime_.value(),
@@ -76,12 +79,15 @@ void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_()
 
 
     // Write the column of source information.
-    writeSourceHistory_(source);
+    if (writeIter)
+    {
+        writeSourceHistory_(source);
+    }
 }
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
+void Foam::DrivingForce<Type>::updateComputedTimeDepSource_(bool writeIter)
 {
     // Get the current time step size.
     scalar dt = runTime_.deltaT().value();
@@ -136,12 +142,15 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_()
     bodyForce_.correctBoundaryConditions();
     
     // Write the source information
-    writeSourceHistory_(ds);
+    if (writeIter)
+    {
+        writeSourceHistory_(ds);
+    }
 }
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
+void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_(bool writeIter)
 {
     // Interpolate specified source values in time and height
     List<Type> fldMeanDesired = interpolate2D(runTime_.value(),
@@ -158,7 +167,10 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
     List<Type> fldError = fldMeanDesired - fldMean;
 
     // Write the error
-    writeErrorHistory_(fldError);
+    if (writeIter)
+    {
+        writeErrorHistory_(fldError);
+    }
 
     // Compute the controller action
     List<Type> source = updateController_(fldError);
@@ -185,7 +197,10 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_()
 
 
     // Write the column of source information.
-    writeSourceHistory_(source);
+    if (writeIter)
+    {
+        writeSourceHistory_(source);
+    }
 }
 
 
@@ -755,7 +770,7 @@ Foam::DrivingForce<Type>::~DrivingForce()
 // * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * //
 
 template<class Type>
-void Foam::DrivingForce<Type>::update()
+void Foam::DrivingForce<Type>::update(bool writeIter)
 {
     // Source terms are applied directly as given
     if (sourceType_ == "given")
@@ -765,13 +780,13 @@ void Foam::DrivingForce<Type>::update()
         // given value as a function of time only.
         if (sourceHeightsSpecified_.size() == 1)
         {
-            updateGivenTimeDepSource_();
+            updateGivenTimeDepSource_(writeIter);
         }
 
         // Otherwise, set the source as a function of height and time
         else
         {
-            updateGivenTimeHeightDepSource_();
+            updateGivenTimeHeightDepSource_(writeIter);
         }
     }
 
@@ -783,13 +798,13 @@ void Foam::DrivingForce<Type>::update()
         // dimensions, the same as in the original ABLSolver.
         if (sourceHeightsSpecified_.size() == 1)
         {
-            updateComputedTimeDepSource_();
+            updateComputedTimeDepSource_(writeIter);
         }
 
         // Otherwise, set the source as a function of height and time
         else
         {
-            updateComputedTimeHeightDepSource_();
+            updateComputedTimeHeightDepSource_(writeIter);
         }
     }
 }

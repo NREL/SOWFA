@@ -1,32 +1,26 @@
 #!/bin/bash
 
-# Look at the version number of OpenFOAM to see if it is supported with this version of SOWFA.
-version=${WM_PROJECT_VERSION:0:1}
-variant=${WM_PROJECT_VERSION:2:1}
-
-if [ $version -le 2 ] || ([ $version -eq 2 ] && [ $variant -le 4 ])
-then
-   echo "Building with OpenFOAM-"$WM_PROJECT_VERSION
-elif [ $version -gt 2 ] || ([ $version -eq 2 ] && [ $variant -gt 4 ])
-then
-   echo "WARNING: Building with a version of OpenFOAM greater than 2.4.x, which is unsupported.  This will not compile!!!"
-fi
-
-
 
 # Turbulence models.
-cd src/turbulenceModels/incompressible/LES/
-wmake libso
-cd ../../../../
+cd src/TurbulenceModels
+./Allwmake
+cd ../../
 
 
-# Actuator turbine models.
-cd src/turbineModels/turbineModelsStandard
-wmake libso
-cd ../../../
+
+# Custom boundary conditions.
+cd src/boundaryConditions
+wmake
+cd ../../
 
 
-# OpenFAST coupled turbine models.
+# Standard actuator turbine models.
+#cd src/turbineModels/turbineModelsStandard
+#wmake
+#cd ../../../
+
+
+# OpenFAST-coupled actuator turbine models.
 if [ -z ${OPENFAST_DIR+x} ]
 then
     echo "OPENFAST_DIR is not set. Not compiling OpenFAST interface."
@@ -35,7 +29,7 @@ else
     then
 	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST interface."
 	cd src/turbineModels/turbineModelsOpenFAST
-	wmake libso
+	wmake
 	cd ../../../
     else
 	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST interface."
@@ -44,43 +38,37 @@ fi
 
 # Custom mesh Tools
 cd src/meshTools
-wmake libso
+wmake
 cd ../../
 
 
 # ABL forcing objects
 cd src/ABLForcing
-wmake libso
+wmake
 cd ../../
 
 
 # Custom sampling (this includes sampling on an annulus).
 cd src/sampling
-wmake libso
+wmake
 cd ../../
 
 
 # Custom file formats (like structured VTK).
 cd src/fileFormats
-wmake libso
-cd ../../
-
-
-# Custom boundary conditions.
-cd src/finiteVolume
-wmake libso
+wmake
 cd ../../
 
 
 # Custom function objects (this includes planar and temporal averaging).
 cd src/functionObjects/field
-wmake libso
+wmake
 cd ../../../
 
 
 # Custom function objects (this includes the lidar sampling).
 cd src/functionObjects/utilities
-wmake libso
+wmake
 cd ../../../
 
 
@@ -91,93 +79,6 @@ cd ../../../
 
 
 # The atmospheric LES solver for precursors.
-cd applications/solvers/incompressible/windEnergy/ABLSolver
+cd applications/solvers/superDeliciousVanilla
 wmake
-cd ../../../../../
-
-
-# The atmospheric LES solver for terrain cases.
-cd applications/solvers/incompressible/windEnergy/ABLTerrainSolver
-wmake
-cd ../../../../../
-
-
-# The wind plant solver with the standard actuator line.
-cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALM
-wmake
-cd ../../../../../
-
-
-# The wind plant solver with the advanced actuator line.
-cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvanced
-wmake
-cd ../../../../../
-
-
-if [ -z ${OPENFAST_DIR+x} ]
-then
-    echo "OPENFAST_DIR is not set. Not compiling OpenFAST solver."
-else
-    if [ -d ${OPENFAST_DIR} ] 
-    then
-	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST windPlant solver."
-        # The wind plant solver with the OpenFAST coupled advanced actuator line.
-	cd applications/solvers/incompressible/windEnergy/windPlantSolver.ALMAdvancedOpenFAST
-	wmake
-	cd ../../../../../
-    else
-	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
-    fi	
-fi
-
-# The wind plant solver with the actuator disk.
-cd applications/solvers/incompressible/windEnergy/windPlantSolver.ADM
-wmake
-cd ../../../../../
-
-
-# The basic non-buoyant solver with the standard actuator line.
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALM
-wmake
-cd ../../../../../
-
-
-# The basic non-buoyant solver with the advanced actuator line.
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvanced
-wmake
-cd ../../../../../
-
-
-if [ -z ${OPENFAST_DIR+x} ]
-then
-    echo "OPENFAST_DIR is not set. Not compiling OpenFAST solver."
-else
-    if [ -d ${OPENFAST_DIR} ] 
-    then
-	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Attempting to compile OpenFAST pisoFoam solver."
-        # The basic non-buoyant solver with the OpenFAST coupled advanced actuator line.
-	cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ALMAdvancedOpenFAST
-	wmake
-	cd ../../../../../
-    else
-	echo "OPENFAST_DIR is set to '${OPENFAST_DIR}'. Directory doesn't exist or I can't access it. Skipping compilation of OpenFAST solver."
-    fi	
-fi
-
-
-# The basic non-buoyant solver with the actuator disk.
-cd applications/solvers/incompressible/windEnergy/pisoFoamTurbine.ADM
-wmake
-cd ../../../../../
-
-
-# A simple solver shell meant for testing wind turbine models.
-cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALM
-wmake
-cd ../../../../../
-
-
-# A simple solver shell meant for testing wind turbine models.
-cd applications/solvers/incompressible/windEnergy/turbineTestHarness.ALMAdvanced
-wmake
-cd ../../../../../
+cd ../../../

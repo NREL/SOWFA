@@ -241,16 +241,16 @@ class DrivingForce
         void openFiles_();
 
         //- Update given time-dependent source term
-        void updateGivenTimeDepSource_();
+        void updateGivenTimeDepSource_(bool writeIter);
 
         //- Update given time-height-dependent source term
-        void updateGivenTimeHeightDepSource_();
+        void updateGivenTimeHeightDepSource_(bool writeIter);
 
         //- Update computed time-dependent source term
-        void updateComputedTimeDepSource_();
+        void updateComputedTimeDepSource_(bool writeIter);
 
         //- Update computed time-height-dependent source term
-        void updateComputedTimeHeightDepSource_();
+        void updateComputedTimeHeightDepSource_(bool writeIter);
 
         //- Initialize controller
         void initializeController_();
@@ -302,7 +302,7 @@ public:
     // Public Member functions
 
         //- Update source term
-        void update();
+        void update(bool writeIter);
 
         //- Return bodyforce
         volFieldType& force()
