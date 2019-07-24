@@ -414,7 +414,13 @@ void Foam::DrivingForce<Type>::readInputData_()
 
     // Read in the source table(s) vs. time and height
     readSourceTables_(sourceDict,nSourceHeights);
+    
 
+    // Initialize vertical planes
+    if (not ((sourceType_ == "given") && (nSourceHeights == 1)) )
+    {
+        zPlanes_.initialize();
+    }
 
     // Read in the controller gain
     scalar gain(sourceDict.lookupOrDefault<scalar>("gain",1.0));
