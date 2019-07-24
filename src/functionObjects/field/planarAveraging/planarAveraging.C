@@ -248,6 +248,9 @@ Foam::planarAveraging::planarAveraging
     includewUU_(false),
     includeTU_(false)
 {
+    // Initialize mesh planes
+    zPlanes_.initialize();
+
     // Read the dictionary.
     read(dict);
 
@@ -274,6 +277,9 @@ Foam::planarAveraging::planarAveraging
     includewUU_(false),
     includeTU_(false)
 {
+    // Initialize mesh planes
+    zPlanes_.initialize();
+
     // Read the dictionary.
     read(dict);
 

@@ -38,7 +38,7 @@ namespace Foam
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-void Foam::meshPlanes::findPlanes()
+void Foam::meshPlanes::findPlanes_()
 {
 
     // On each processor, do a search through all cells and make a list of 
@@ -229,12 +229,8 @@ Foam::meshPlanes::meshPlanes
         normalIndex_ = 2;
     }
 
-
-    findPlanes();
-
-    Info << "number of meshPlanes: " << numberOfPlanes_ << endl;
-    Info << totVolPerPlane_ << endl;
-
+    // Set initialization flag
+    initialized_ = false;
 }
 
 
@@ -248,7 +244,8 @@ Foam::meshPlanes::meshPlanes
     // Default to z planes
     normalIndex_ = 2;
 
-    findPlanes();
+    // Set initialization flag
+    initialized_ = false;
 }
 
 
@@ -259,6 +256,16 @@ Foam::meshPlanes::~meshPlanes()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+
+void Foam::meshPlanes::initialize()
+{
+    if (not initialized_)
+    {
+        findPlanes_();
+        initialized_ = true;
+    }
+}
 
 
 template<class Type>
