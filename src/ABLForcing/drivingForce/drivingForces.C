@@ -23,21 +23,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "DrivingForce.H"
+#include "drivingForce.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 //defineTemplateTypeNameAndDebugWithName
 //(
-//    Foam::DrivingForce<Foam::scalar>,
-//    "scalarDrivingForce",
+//    Foam::drivingForce<Foam::scalar>,
+//    "scalardrivingForce",
 //    0
 //);
 
 namespace Foam
 {
-    template class DrivingForce<scalar>;
-    template class DrivingForce<vector>;
+    template class drivingForce<scalar>;
+    template class drivingForce<vector>;
 }
 
 // ************************************************************************* //

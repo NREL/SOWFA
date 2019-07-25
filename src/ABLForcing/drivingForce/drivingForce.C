@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "DrivingForce.H"
+#include "drivingForce.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -31,7 +31,7 @@ License
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateGivenTimeDepSource_(bool writeIter)
+void Foam::drivingForce<Type>::updateGivenTimeDepSource_(bool writeIter)
 {
     // Interpolate specified source to current time
     Type source = interpolate2D(runTime_.value(),
@@ -57,7 +57,7 @@ void Foam::DrivingForce<Type>::updateGivenTimeDepSource_(bool writeIter)
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_(bool writeIter)
+void Foam::drivingForce<Type>::updateGivenTimeHeightDepSource_(bool writeIter)
 {
     // Interpolate specified source values in time and height
     List<Type> source = interpolate2D(runTime_.value(),
@@ -87,7 +87,7 @@ void Foam::DrivingForce<Type>::updateGivenTimeHeightDepSource_(bool writeIter)
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateComputedTimeDepSource_(bool writeIter)
+void Foam::drivingForce<Type>::updateComputedTimeDepSource_(bool writeIter)
 {
     // Get the current time step size.
     scalar dt = runTime_.deltaT().value();
@@ -150,7 +150,7 @@ void Foam::DrivingForce<Type>::updateComputedTimeDepSource_(bool writeIter)
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_(bool writeIter)
+void Foam::drivingForce<Type>::updateComputedTimeHeightDepSource_(bool writeIter)
 {
     // Interpolate specified source values in time and height
     List<Type> fldMeanDesired = interpolate2D(runTime_.value(),
@@ -205,7 +205,7 @@ void Foam::DrivingForce<Type>::updateComputedTimeHeightDepSource_(bool writeIter
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::writeSourceHistory_
+void Foam::drivingForce<Type>::writeSourceHistory_
 (
     Type& source
 )
@@ -225,7 +225,7 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::writeErrorHistory_
+void Foam::drivingForce<Type>::writeErrorHistory_
 (
     Type& error
 )
@@ -245,7 +245,7 @@ void Foam::DrivingForce<Type>::writeErrorHistory_
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::writeSourceHistory_
+void Foam::drivingForce<Type>::writeSourceHistory_
 (
     List<Type>& source
 )
@@ -272,7 +272,7 @@ void Foam::DrivingForce<Type>::writeSourceHistory_
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::writeErrorHistory_
+void Foam::drivingForce<Type>::writeErrorHistory_
 (
     List<Type>& error
 )
@@ -302,7 +302,7 @@ void Foam::DrivingForce<Type>::writeErrorHistory_
 // - input type speedAndDirection is not supported
 // - subtractVerticalPart does nothing
 template<class Type>
-Type Foam::DrivingForce<Type>::speedDirToComp_
+Type Foam::drivingForce<Type>::speedDirToComp_
 (
     Type desiredField
 )
@@ -317,7 +317,7 @@ Type Foam::DrivingForce<Type>::speedDirToComp_
 
 
 template<class Type>
-Type Foam::DrivingForce<Type>::subtractVerticalPart_
+Type Foam::drivingForce<Type>::subtractVerticalPart_
 (
     Type source
 )
@@ -333,7 +333,7 @@ Type Foam::DrivingForce<Type>::subtractVerticalPart_
 namespace Foam
 {
     template<>
-    vector Foam::DrivingForce<vector>::speedDirToComp_
+    vector Foam::drivingForce<vector>::speedDirToComp_
     (
         vector desiredField
     )
@@ -345,7 +345,7 @@ namespace Foam
 
 
     template<>
-    vector Foam::DrivingForce<vector>::subtractVerticalPart_
+    vector Foam::drivingForce<vector>::subtractVerticalPart_
     (
         vector source
     )
@@ -359,7 +359,7 @@ namespace Foam
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::readInputData_()
+void Foam::drivingForce<Type>::readInputData_()
 {
     // Define dictionary with input data
     IOdictionary ABLProperties
@@ -497,7 +497,7 @@ void Foam::DrivingForce<Type>::readInputData_()
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::readSourceTables_
+void Foam::drivingForce<Type>::readSourceTables_
 (
     const dictionary& sourceDict,
     label& nSourceHeights
@@ -545,7 +545,7 @@ void Foam::DrivingForce<Type>::readSourceTables_
 namespace Foam
 {
     template<>
-    void DrivingForce<scalar>::readSourceTables_
+    void drivingForce<scalar>::readSourceTables_
     (
         const dictionary& sourceDict,
         label& nSourceHeights
@@ -576,7 +576,7 @@ namespace Foam
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::checkSourceTableSize_
+void Foam::drivingForce<Type>::checkSourceTableSize_
 (
     word& sourceTableName,
     List<List<scalar> >& sourceTable,
@@ -597,7 +597,7 @@ void Foam::DrivingForce<Type>::checkSourceTableSize_
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::findSingleForcingHeight_()
+void Foam::drivingForce<Type>::findSingleForcingHeight_()
 {
     scalar hLevels1Diff = 0.0;
     scalar hLevels2Diff = 0.0;
@@ -658,7 +658,7 @@ void Foam::DrivingForce<Type>::findSingleForcingHeight_()
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::openFiles_()
+void Foam::drivingForce<Type>::openFiles_()
 {
     fileName outputPath(fileName::null);
 
@@ -717,7 +717,7 @@ void Foam::DrivingForce<Type>::openFiles_()
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::DrivingForce<Type>::DrivingForce
+Foam::drivingForce<Type>::drivingForce
 (
     const word& name,
     const GeometricField<Type, fvPatchField, volMesh>& field
@@ -769,14 +769,14 @@ Foam::DrivingForce<Type>::DrivingForce
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::DrivingForce<Type>::~DrivingForce()
+Foam::drivingForce<Type>::~drivingForce()
 {}
 
 
 // * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * //
 
 template<class Type>
-void Foam::DrivingForce<Type>::update(bool writeIter)
+void Foam::drivingForce<Type>::update(bool writeIter)
 {
     // Source terms are applied directly as given
     if (sourceType_ == "given")

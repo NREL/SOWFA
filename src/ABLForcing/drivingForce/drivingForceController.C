@@ -23,13 +23,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "DrivingForce.H"
+#include "drivingForce.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 
 template<class Type>
-void Foam::DrivingForce<Type>::initializeController_()
+void Foam::drivingForce<Type>::initializeController_()
 {
     label Nz = zPlanes_.numberOfPlanes();
 
@@ -89,7 +89,7 @@ void Foam::DrivingForce<Type>::initializeController_()
 
 
 template<class Type>
-List<Type> Foam::DrivingForce<Type>::updateController_
+List<Type> Foam::drivingForce<Type>::updateController_
 (
     List<Type>& error
 )
@@ -124,7 +124,7 @@ List<Type> Foam::DrivingForce<Type>::updateController_
 
 
 template<class Type>
-scalarRectangularMatrix Foam::DrivingForce<Type>::computeRegressionCoeff_
+scalarRectangularMatrix Foam::drivingForce<Type>::computeRegressionCoeff_
 (
     List<Type>& y
 )
@@ -148,7 +148,7 @@ scalarRectangularMatrix Foam::DrivingForce<Type>::computeRegressionCoeff_
 
 
 template<class Type>
-List<Type> Foam::DrivingForce<Type>::constructRegressionCurve_
+List<Type> Foam::drivingForce<Type>::constructRegressionCurve_
 (
     scalarRectangularMatrix& beta
 )
@@ -177,7 +177,7 @@ List<Type> Foam::DrivingForce<Type>::constructRegressionCurve_
 namespace Foam
 {
     template<>
-    scalarRectangularMatrix DrivingForce<scalar>::computeRegressionCoeff_
+    scalarRectangularMatrix drivingForce<scalar>::computeRegressionCoeff_
     (
         List<scalar>& y
     )
@@ -197,7 +197,7 @@ namespace Foam
     }
 
     template<>
-    List<scalar> DrivingForce<scalar>::constructRegressionCurve_
+    List<scalar> drivingForce<scalar>::constructRegressionCurve_
     (
         scalarRectangularMatrix& beta
     )
