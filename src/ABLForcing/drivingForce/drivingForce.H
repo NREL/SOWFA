@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::DrivingForce<Type>
+    Foam::drivingForce<Type>
 
 Description
     Determine the driving force
@@ -81,12 +81,12 @@ Usage
         statisticsFrequency         | Writing frequency         | yes       |
 
 SourceFiles
-    DrivingForce.C
+    drivingForce.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef DrivingForce_H
-#define DrivingForce_H
+#ifndef drivingForce_H
+#define drivingForce_H
 
 #include "fvCFD.H"
 #include "IOdictionary.H"
@@ -108,7 +108,7 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
-class DrivingForce
+class drivingForce
 {
     // Private data
 
@@ -284,11 +284,11 @@ class DrivingForce
 public:
 
     //- Runtime type information
-    ClassName("DrivingForce");
+    ClassName("drivingForce");
 
 
     // Constructors
-    DrivingForce
+    drivingForce
     (
         const word& name,
         const volFieldType& field
@@ -296,7 +296,7 @@ public:
 
 
     // Destructor
-    virtual ~DrivingForce();
+    virtual ~drivingForce();
 
 
     // Public Member functions
@@ -317,14 +317,14 @@ public:
 
 // specialization for scalar driving force
 template<>
-scalar DrivingForce<scalar>::zeroTensor_()
+scalar drivingForce<scalar>::zeroTensor_()
 {
     return 0.0;
 }
 
 
 template<>
-label DrivingForce<scalar>::nComponents_()
+label drivingForce<scalar>::nComponents_()
 {
     return 1;
 }
@@ -337,8 +337,8 @@ label DrivingForce<scalar>::nComponents_()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "DrivingForce.C"
-#   include "DrivingForceController.C"
+#   include "drivingForce.C"
+#   include "drivingForceController.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

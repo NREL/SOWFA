@@ -4,6 +4,6 @@
 #include "spongeLayer.H"
 #include "CoriolisForce.H"
 #include "buoyancyModel.H"
-#include "DrivingForce.H"
+#include "drivingForce.H"
 
 #endif

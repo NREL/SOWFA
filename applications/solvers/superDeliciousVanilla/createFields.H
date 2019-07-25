@@ -79,8 +79,8 @@ CoriolisForce Coriolis(U);
 
 // Create external source term objects [m/s^2 and K/s].
 Info << "Creating and reading volumetric source terms for momentum and temperature" << endl;
-DrivingForce<vector> momentumSourceTerm("momentum",U);
-DrivingForce<scalar> temperatureSourceTerm("temperature",T);
+drivingForce<vector> momentumSourceTerm("momentum",U);
+drivingForce<scalar> temperatureSourceTerm("temperature",T);
 
 
 // Create and read the kinematic turbulent thermal conductivity [m2/s].
