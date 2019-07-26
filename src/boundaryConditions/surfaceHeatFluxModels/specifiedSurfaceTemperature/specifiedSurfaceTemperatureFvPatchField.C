@@ -191,9 +191,9 @@ void specifiedSurfaceTemperatureFvPatchField::evaluate
 //  const singlePhaseTransportModel& laminarTransport = db().lookupObject<singlePhaseTransportModel>("transportProperties");
 //  const dimensionedScalar& TRefDim = laminarTransport.lookup("TRef");
     const dictionary& transportProperties = db().lookupObject<dictionary>("transportProperties");
-//  dimensionedScalar TRefDim = transportProperties.lookup("TRef");
-    scalar TRef = readScalar(transportProperties.lookup("TRef"));
-// scalar TRef = TRefDim.value();
+    dimensionedScalar TRefDim = transportProperties.lookup("TRef");
+    //scalar TRef = readScalar(transportProperties.lookup("TRef"));
+    scalar TRef = TRefDim.value();
 //  Info << "TRef = " << TRef << endl;
 
 
