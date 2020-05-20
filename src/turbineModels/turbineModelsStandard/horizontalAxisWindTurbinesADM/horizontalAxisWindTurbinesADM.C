@@ -1831,7 +1831,7 @@ void horizontalAxisWindTurbinesADM::printOutputFiles()
             *torqueGenFile_ << torqueGen[i] << endl;
             *thrustFile_ << thrust[i]*fluidDensity[i] << endl;
             *powerRotorFile_ << powerRotor[i]*fluidDensity[i] << endl;
-            *powerGeneratorFile_ << powerGenerator[i]*fluidDensity[i] << endl;
+            *powerGeneratorFile_ << powerGenerator[i] << endl;
             *rotSpeedFile_ << rotSpeed[i]/rpmRadSec << endl;
             *rotSpeedFFile_ << rotSpeedF[i]/rpmRadSec << endl;
             *azimuthFile_ << azimuth[i]/degRad << endl;

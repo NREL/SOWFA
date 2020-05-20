@@ -4065,7 +4065,7 @@ void horizontalAxisWindTurbinesALMAdvanced::printOutputFiles()
             *rotorHorizontalForceFile_ << rotorHorizontalForce[i]*fluidDensity[i] << endl;
             *rotorVerticalForceFile_ << rotorVerticalForce[i]*fluidDensity[i] << endl;
             *rotorPowerFile_ << rotorPower[i]*fluidDensity[i] << endl;
-            *generatorPowerFile_ << generatorPower[i]*fluidDensity[i] << endl;
+            *generatorPowerFile_ << generatorPower[i] << endl;
             *rotorSpeedFile_ << rotorSpeed[i]/rpmRadSec << endl;
             *rotorSpeedFFile_ << rotorSpeedF[i]/rpmRadSec << endl;
             *rotorAzimuthFile_ << rotorAzimuth[i]/degRad << endl;
