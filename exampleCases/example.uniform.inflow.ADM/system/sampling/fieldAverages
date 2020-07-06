@@ -1,0 +1,17 @@
+    fieldAverages
+    {
+        type                 fieldAverage;
+        functionObjectLibs   ("libfieldFunctionObjects.so");
+        enabled              true;
+        outputControl        outputTime;
+        timeStart            17000.0;
+        fields
+        (
+            Cs
+            {
+                mean         on;
+                prime2Mean   off;
+                base         time;
+            }
+        );
+    }

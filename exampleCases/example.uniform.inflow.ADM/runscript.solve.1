@@ -1,0 +1,29 @@
+
+# User Input.
+OpenFOAMversion=2.4.x-central   # OpenFOAM version
+#solver=windPlantSolver.ADM      # Enter the name of the flow solver.
+solver=pisoFoamTurbine.ADM      # Enter the name of the flow solver.
+
+
+
+echo "Starting OpenFOAM job at: " $(date)
+echo "using " $cores " cores"
+
+
+# Source the bash profile and then call the appropriate OpenFOAM version function
+# so that all the modules and environment variables get set.
+echo "Sourcing the bash profile, loading modules, and setting the OpenFOAM environment variables..."
+source $HOME/.bash_profile
+OpenFOAM-$OpenFOAMversion
+
+
+rm constant/polyMesh/boundary constant/polyMesh/*.gz constant/cellDecomposition.gz
+srun -n 1 -c 1 --cpu_bind=cores blockMesh
+
+echo "Using decomposePar to decompose the problem for parallel processing..."
+srun -n 1 -c 1 --cpu_bind=cores decomposePar -cellDist -force # > log.decomposePar 2>&1
+
+# Run the solver.
+srun -n 72 -c 1 --cpu_bind=cores $solver -parallel > log.$solver #2>&1
+
+echo "Ending OpenFOAM job at: " $(date)
