@@ -91,7 +91,7 @@ private:
         scalar d_;
 	
 	// Turn on nonlinear Beljaars stability functions
-	Switch nonlinear_;
+	bool nonlinear_;
 
         // -Type of application of Monin-Obuhkov scaling, local or nonlocal
         word averageType_;

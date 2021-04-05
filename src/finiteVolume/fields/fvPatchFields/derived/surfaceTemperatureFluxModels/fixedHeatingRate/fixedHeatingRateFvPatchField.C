@@ -116,7 +116,7 @@ fixedHeatingRateFvPatchField
     b_(dict.lookupOrDefault<scalar>("b",0.5)),
     c_(dict.lookupOrDefault<scalar>("c",5.0)),
     d_(dict.lookupOrDefault<scalar>("d",1.0)),
-    nonlinear_(dict.lookupOrDefault<Switch>(nonlinear_,false)),
+    nonlinear_(dict.lookupOrDefault<bool>("nonlinear",false)),
     averageType_(dict.lookupOrDefault<word>("averageType","local")),
     tLast_(db().time().timeOutputValue())
 {}
