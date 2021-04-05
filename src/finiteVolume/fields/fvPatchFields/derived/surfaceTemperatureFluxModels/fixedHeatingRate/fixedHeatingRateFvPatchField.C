@@ -55,6 +55,11 @@ fixedHeatingRateFvPatchField
     betaH_(9.0),
     gammaH_(4.7),
     alphaH_(0.74),
+    a_(0.5),
+    b_(0.667),
+    c_(5.0),
+    d_(1.0),
+    nonlinear_(false),
     averageType_("local"),
     tLast_(db().time().timeOutputValue())
 {}
@@ -79,6 +84,11 @@ fixedHeatingRateFvPatchField
     betaH_(ptf.betaH_),
     gammaH_(ptf.gammaH_),
     alphaH_(ptf.alphaH_),
+    a_(ptf.a_),
+    b_(ptf.b_),
+    c_(ptf.c_),
+    d_(ptf.d_),
+    nonlinear_(ptf.nonlinear_),
     averageType_(ptf.averageType_),
     tLast_(ptf.tLast_)
 {}
@@ -102,6 +112,11 @@ fixedHeatingRateFvPatchField
     betaH_(readScalar(dict.lookup("betaH"))),
     gammaH_(readScalar(dict.lookup("gammaH"))),
     alphaH_(readScalar(dict.lookup("alphaH"))),
+    a_(dict.lookupOrDefault<scalar>("a",0.5)),
+    b_(dict.lookupOrDefault<scalar>("b",0.5)),
+    c_(dict.lookupOrDefault<scalar>("c",5.0)),
+    d_(dict.lookupOrDefault<scalar>("d",1.0)),
+    nonlinear_(dict.lookupOrDefault<Switch>(nonlinear_,false)),
     averageType_(dict.lookupOrDefault<word>("averageType","local")),
     tLast_(db().time().timeOutputValue())
 {}
@@ -123,6 +138,11 @@ fixedHeatingRateFvPatchField
     betaH_(wfpf.betaH_),
     gammaH_(wfpf.gammaH_),
     alphaH_(wfpf.alphaH_),
+    a_(wfpf.a_),
+    b_(wfpf.b_),
+    c_(wfpf.c_),
+    d_(wfpf.d_),
+    nonlinear_(wfpf.nonlinear_),
     averageType_(wfpf.averageType_),
     tLast_(wfpf.tLast_)
 {}
@@ -145,6 +165,11 @@ fixedHeatingRateFvPatchField
     betaH_(wfpf.betaH_),
     gammaH_(wfpf.gammaH_),
     alphaH_(wfpf.alphaH_),
+    a_(wfpf.a_),
+    b_(wfpf.b_),
+    c_(wfpf.c_),
+    d_(wfpf.d_),
+    nonlinear_(wfpf.nonlinear_),
     averageType_(wfpf.averageType_),
     tLast_(wfpf.tLast_)
 {}
@@ -708,11 +733,19 @@ void  fixedHeatingRateFvPatchField::qwEvaluate
                     // form the "zeta" variable, which is z/L
                     scalar zeta0 = z1/L0;
 
-                    // form psiM
-                    scalar psiM0 = -gammaM * zeta0;
-
-                    // form psiH
-                    scalar psiH0 = -gammaH * zeta0;
+                    // form psiM, psiH
+                    scalar psiM0;
+                    scalar psiH0;
+                    if (nonlinear_)
+                    {
+                        psiM0 = -a_*zeta0 - b_*(zeta0-c_/d_)*Foam::exp(-d_*zeta0) - b_*c_/d_;
+                        psiH0 = -gammaH * zeta0;
+                    }
+                    else
+                    {    
+                        psiM0 = -gammaM * zeta0;
+                        psiH0 = -gammaH * zeta0;
+                    }
 
                     // update u*
                     scalar uStarOld = uStar0;
@@ -730,8 +763,17 @@ void  fixedHeatingRateFvPatchField::qwEvaluate
                     qw = qw0;
                     uStar = uStar0;
                     L = L0;
-                    phiM = 1.0 + (gammaM * zeta0);
-                    phiH = alphaH + (gammaH * zeta0);
+                    if (nonlinear_)
+                    { 
+		        // non dimensional wind and temperature profiles from Beljaars 1991 
+                        phiM = 1.0 + (zeta0*(a_+b_*Foam::exp(-d_*zeta0)*(1+c_-d_*zeta0)));
+                        phiH = alphaH + zeta0*(a_*Foam::pow((1+0.6667*a_*zeta0),0.5))+ zeta0*(b_*Foam::exp(-d_*zeta0))*(1+c_-d_*zeta0);
+                    }
+                    else
+                    {
+                        phiM = 1.0 + (gammaM * zeta0);
+                        phiH = alphaH + (gammaH * zeta0);
+                    } 
 
                 } while (((mag(uStarDiff) > tol) || (mag(qwDiff) > tol)) && (iter < iterMax-1));
 
