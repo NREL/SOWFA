@@ -119,7 +119,16 @@ fixedHeatingRateFvPatchField
     nonlinear_(dict.lookupOrDefault<bool>("nonlinear",false)),
     averageType_(dict.lookupOrDefault<word>("averageType","local")),
     tLast_(db().time().timeOutputValue())
-{}
+{
+    if (nonlinear_)
+    {
+        Info<< "Using nonlinear Beljaars functions with:" << endl
+            << tab << "a = " << a_ << endl
+            << tab << "b = " << b_ << endl
+            << tab << "c = " << c_ << endl
+            << tab << "d = " << d_ << endl;
+    }
+}
 
 
 fixedHeatingRateFvPatchField::
