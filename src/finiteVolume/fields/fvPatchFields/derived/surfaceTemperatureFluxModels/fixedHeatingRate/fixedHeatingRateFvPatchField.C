@@ -55,10 +55,10 @@ fixedHeatingRateFvPatchField
     betaH_(9.0),
     gammaH_(4.7),
     alphaH_(0.74),
-    a_(0.5),
+    a_(1),
     b_(0.667),
     c_(5.0),
-    d_(1.0),
+    d_(0.35),
     nonlinear_(false),
     averageType_("local"),
     tLast_(db().time().timeOutputValue())
@@ -112,10 +112,10 @@ fixedHeatingRateFvPatchField
     betaH_(readScalar(dict.lookup("betaH"))),
     gammaH_(readScalar(dict.lookup("gammaH"))),
     alphaH_(readScalar(dict.lookup("alphaH"))),
-    a_(dict.lookupOrDefault<scalar>("a",0.5)),
-    b_(dict.lookupOrDefault<scalar>("b",0.5)),
+    a_(dict.lookupOrDefault<scalar>("a",1.0)),
+    b_(dict.lookupOrDefault<scalar>("b",0.667)),
     c_(dict.lookupOrDefault<scalar>("c",5.0)),
-    d_(dict.lookupOrDefault<scalar>("d",1.0)),
+    d_(dict.lookupOrDefault<scalar>("d",0.35)),
     nonlinear_(dict.lookupOrDefault<bool>("nonlinear",false)),
     averageType_(dict.lookupOrDefault<word>("averageType","local")),
     tLast_(db().time().timeOutputValue())
@@ -748,7 +748,7 @@ void  fixedHeatingRateFvPatchField::qwEvaluate
                     if (nonlinear_)
                     {
                         psiM0 = -a_*zeta0 - b_*(zeta0-c_/d_)*Foam::exp(-d_*zeta0) - b_*c_/d_;
-                        psiH0 = -gammaH * zeta0;
+                        psiH0 = 1-Foam::pow((1+0.667*a_*zeta0),1.5) - b_*(zeta0-c_/d_)*Foam::exp(-d_*zeta0)-b_*c_/d_;
                     }
                     else
                     {    
@@ -776,7 +776,7 @@ void  fixedHeatingRateFvPatchField::qwEvaluate
                     { 
 		        // non dimensional wind and temperature profiles from Beljaars 1991 
                         phiM = 1.0 + (zeta0*(a_+b_*Foam::exp(-d_*zeta0)*(1+c_-d_*zeta0)));
-                        phiH = alphaH + zeta0*(a_*Foam::pow((1+0.6667*a_*zeta0),0.5))+ zeta0*(b_*Foam::exp(-d_*zeta0))*(1+c_-d_*zeta0);
+                        phiH = 1 + zeta0*(a_*Foam::pow((1+0.6667*a_*zeta0),0.5))+ zeta0*(b_*Foam::exp(-d_*zeta0))*(1+c_-d_*zeta0);
                     }
                     else
                     {
