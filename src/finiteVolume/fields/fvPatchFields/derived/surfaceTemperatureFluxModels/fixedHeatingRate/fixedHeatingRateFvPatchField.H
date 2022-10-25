@@ -83,6 +83,15 @@ private:
 
         // -Constant for Monin-Obuhkov temperature scalaing law
         scalar alphaH_;
+        
+        // Constants for Beljaars equation
+        scalar a_;
+        scalar b_;
+        scalar c_;
+        scalar d_;
+	
+	// Turn on nonlinear Beljaars stability functions
+	bool nonlinear_;
 
         // -Type of application of Monin-Obuhkov scaling, local or nonlocal
         word averageType_;
