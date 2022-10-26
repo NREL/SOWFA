@@ -10,6 +10,7 @@ EXE_INC = \
 
 LIB_LIBS = \
     -lincompressibleTurbulenceModel \
+    -lincompressibleLESModels \
     -lLESdeltas \
     -lLESfilters\
     -lfiniteVolume \
